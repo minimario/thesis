@@ -3,7 +3,7 @@
 
 \subsubsection{Training}
 
-\smallsec{Lean Base Model} First, we train a general-purpose Lean model by fine-tuning \texttt{Qwen-2.5-7B-Instruct} on a combination of five tasks: natural language problem solving, Lean 4 code completion, auto-formalization (problems and solutions), formal theorem proving, and tactic/proof state prediction. 
+\smallsec{Lean Base Model} First, we train a general-purpose Lean model by fine-tuning \texttt{Qwen\allowbreak-2.5\allowbreak-7B\allowbreak-Instruct} on a combination of five tasks: natural language problem solving, Lean 4 code completion, auto-formalization (problems and solutions), formal theorem proving, and tactic/proof state prediction. 
 
 \smallsec{Dataset for Proof Simplification} We employ a four-stage pipeline to generate high-quality proof simplification training data.
 \begin{enumerate}
@@ -33,7 +33,7 @@ baselined with the average reward of $k = 8$ samples, no advantage normalization
 
 
 \subsubsection{Inference-Time Techniques} \label{subsec:inference-time-algorithms}
-First, we implement a symbolic linter that removes extraneous tactics via Lean's \texttt{linter.unusedTactic} linter, which detects tactics that do not change the proof state and provides messages like \texttt{'norm\_num' tactic does nothing}. We then compare the following techniques on the linted proofs:
+First, we implement a symbolic linter that removes extraneous tactics via Lean's \texttt{linter.\allowbreak{}unusedTactic} linter, which detects tactics that do not change the proof state and provides messages like \texttt{'norm\_num' tactic does nothing}. We then compare the following techniques on the linted proofs:
 
 \begin{itemize}
 \itemsep1pt

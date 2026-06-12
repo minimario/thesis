@@ -235,6 +235,11 @@
            {…}{{\ldots}}1
 }
 
+\makeatletter
+\def\@captype{lstlisting}
+\lst@AddToHook{Init}{\def\@captype{lstlisting}}
+\makeatother
+
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[chapter]
 \newtheorem{lemma}[theorem]{Lemma}

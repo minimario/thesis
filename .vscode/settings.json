@@ -1,10 +1,42 @@
 {
+  "latex-workshop.latex.outDir": "%DIR%",
+  "latex-workshop.latex.external.build.command": "/usr/bin/make",
+  "latex-workshop.latex.external.build.args": [
+    "LATEXMK=/home/minimario/.local/bin/latexmk",
+    "MAIN=main"
+  ],
+  "latex-workshop.latex.recipe.default": "latexmk (thesis)",
+  "latex-workshop.latex.build.forceRecipeUsage": true,
+  "latex-workshop.latex.build.enableMagicComments": false,
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "latexmk (thesis)",
+      "tools": [
+        "latexmk (thesis)"
+      ]
+    }
+  ],
+  "latex-workshop.latex.tools": [
+    {
+      "name": "latexmk (thesis)",
+      "command": "/home/minimario/.local/bin/latexmk",
+      "args": [
+        "-synctex=1",
+        "-interaction=nonstopmode",
+        "-file-line-error",
+        "-pdf",
+        "-outdir=%OUTDIR%",
+        "main.tex"
+      ],
+      "env": {}
+    }
+  ],
   "latex-workshop.view.pdf.viewer": "tab",
   "latex-workshop.view.pdf.tab.editorGroup": "right",
+  "latex-workshop.view.pdf.reload.transition": "none",
+  "latex-workshop.latex.watch.pdf.delay": 1000,
   "latex-workshop.latex.autoBuild.run": "onSave",
   "latex-workshop.synctex.afterBuild.enabled": true,
   "latex-workshop.linting.chktex.enabled": false,
-  "latex-workshop.linting.chktex.exec.path": "/usr/bin/true",
-  "latex-workshop.latex.external.build.command": "make",
-  "latex-workshop.latex.external.build.args": []
+  "latex-workshop.linting.chktex.exec.path": "/usr/bin/true"
 }

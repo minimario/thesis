@@ -178,7 +178,7 @@ Training the next generation of code LLMs needs to account for human-AI collabor
 
 
 \begin{aicodebluebox}
-\textit{Example: Incomplete specification in Verus}: Here, we show a failure mode of LLMs when writing specifications and proofs in Verus. The LLM is asked to write the \texttt{ensures} postcondition clause for a a ring buffer enqueue function\footnote{Full example \href{https://github.com/microsoft/verus-proof-synthesis/blob/main/benchmarks/interprocedural/tock/verified/rb1.rs\#L270-L297}{here}}. Here, the postcondition is incomplete: it does not check, for example, that the original elements were maintained in the ring buffer.
+\textit{Example: Incomplete specification in Verus}: Here, we show a failure mode of LLMs when writing specifications and proofs in Verus. The LLM is asked to write the \texttt{ensures} postcondition clause for a ring buffer enqueue function (full example \href{https://github.com/microsoft/verus-proof-synthesis/blob/main/benchmarks/interprocedural/tock/verified/rb1.rs\#L270-L297}{here}). Here, the postcondition is incomplete: it does not check, for example, that the original elements were maintained in the ring buffer.
 
 \begin{lstlisting}[label={lst:verus-spec}, captionpos=t, breaklines=true, language=Rust, style=mystyle]
 fn enqueue(&mut self, val: T) -> (ret: bool)
@@ -204,7 +204,7 @@ fn enqueue(&mut self, val: T) -> (ret: bool)
 However, in practice, hand-crafted test suites are often incomplete, failing to capture the full intended behavior, particularly edge cases. This can lead to misalignment, where AI-generated code passes tests but does not genuinely meet functional requirements, potentially misleading users. Moving forward, a direction is training models to generate high-quality test cases based on the user's initial query, ensuring more comprehensive specification coverage.
 
 \begin{aicodebluebox}
-\textit{Example}: For instance, in a release of \href{https://sakana.ai/ai-cuda-engineer/}{AI CUDA Engineer} by Sakana AI, an AI-generated CUDA kernel for lower triangular matrix multiplication—purportedly achieving significant speedups—was later found to exploit out-of-bounds memory access to bypass correctness checks\footnote{The full LLM-generated kernel code can be found in Listing 3, pg. 46-47 of \cite{lange2025ai}}. Advancing research on frameworks that facilitate test generation and automated adversarial testing represents an important direction.
+\textit{Example}: For instance, in a release of \href{https://sakana.ai/ai-cuda-engineer/}{AI CUDA Engineer} by Sakana AI, an AI-generated CUDA kernel for lower triangular matrix multiplication---purportedly achieving significant speedups---was later found to exploit out-of-bounds memory access to bypass correctness checks (the full LLM-generated kernel code appears in Listing 3, pp.~46--47 of \cite{lange2025ai}). Advancing research on frameworks that facilitate test generation and automated adversarial testing represents an important direction.
 \end{aicodebluebox}
 
 %\textbf{Uncertainty Quantification and Proactive Communication}:

@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build thesis",
+      "type": "shell",
+      "command": "make",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Clean thesis build",
+      "type": "shell",
+      "command": "make clean",
+      "problemMatcher": []
+    }
+  ]
+}

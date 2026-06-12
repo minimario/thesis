@@ -24,6 +24,44 @@ write its font cache from the sandbox. For the final archival build, install a
 full TeX Live distribution and switch `Makefile`/`.latexmkrc` to LuaLaTeX if you
 want tagged PDF output.
 
+## VS Code Setup
+
+Open the repository root in VS Code:
+
+```sh
+code /home/minimario/thesis
+```
+
+Install the recommended extension when prompted:
+
+- `James-Yu.latex-workshop`
+
+Install the TeX toolchain on Ubuntu 22.04:
+
+```sh
+sudo apt-get update
+sudo apt-get install -y latexmk texlive-latex-extra texlive-fonts-recommended texlive-pictures texlive-science biber
+```
+
+Then build from VS Code using either:
+
+- `Terminal` -> `Run Build Task...` -> `Build thesis`
+- the LaTeX Workshop build command, which uses the workspace's `make`-based setup
+
+The workspace includes:
+
+- `.vscode/settings.json` to keep the PDF preview in a VS Code tab and route builds through `make`
+- `.vscode/tasks.json` for `make` and `make clean`
+- `.vscode/extensions.json` to recommend LaTeX Workshop
+
+If `make` still fails after package installation, verify these commands exist:
+
+```sh
+latexmk -v
+pdflatex --version
+bibtex --version
+```
+
 ## Main Files
 
 - `main.tex`: title page metadata, front matter, chapter order, bibliography

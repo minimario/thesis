@@ -1,33 +1,68 @@
 \input{paper-includes/livecodebench/macros-import}
+Around the time of \livecodebench{}'s release, models were being trained
+on larger and larger crawls of the internet, making static benchmarks increasingly vulnerable
+to contamination. It was the first benchmark to challenge the status quo of static coding
+benchmarks, instead focusing on \emph{live}ness, continuously collecting new problems and 
+updating the evaluation set every few months. First, this design has inspired a wave of
+contamination-aware benchmarks across code, math, and general reasoning, helping to shift 
+the community's mindset to treat contamination as a first-class concern. 
+Second, with over $1500$ citations, \livecodebench{} has been adopted as a standard evaluation by 
+researchers and frontier model developers alike, utilizing appropriate time windows
+to avoid contamination.
 
-\subsection*{Source Note}
-This section is derived from \livecodebench{}. Alex is not first author, so this
-material is kept in blue and should be rewritten before final submission.
+\subsection{Contamination-Aware Benchmarks}
+\livecodebench{} popularized the recipe of using problems from a scrolling
+time window drawn from a continuously updated source of new tasks. LiveBench
+\citep{white2024livebench} extends \livecodebench{} beyond code to a larger suite of tasks
+including math, reasoning, language, and data analysis. The recipe also propagated into adjacent domains: LiveMathBench
+\citep{liu2024livemathbench} applies the same idea to competition
+mathematics, assembling fresh problem sets from annual contests such as the AMC and the
+Putnam. LiveAoPSBench \citep{mahdavi2025liveaopsbench} timestamps olympiad-level
+problems mined from the Art of Problem Solving forum, similarly observing a steady
+performance decline on more recent problems showing a similar phenomenon that we do in the math domain.
+LiveMathematicianBench \citep{he2026livemathematicianbench} pushes the idea to
+research-level mathematics, drawing problems from arXiv papers posted after model
+training cutoffs.
+LiveCodeBench Pro \citep{zheng2025livecodebenchpro} extends the benchmark's idea to harder olympiad-level
+problems, and in software engineering, SWE-bench-Live
+\citep{zhang2025swebenchlive} applies the same monthly-update discipline to
+real GitHub issues created after a fixed date. The idea has even been applied to multimodal
+evaluation: LiveXiv \citep{shabtay2024livexiv} builds a continuously refreshed
+visual-question-answering benchmark from newly posted arXiv manuscripts.
 
-\subsection{Live Benchmarks as Reporting Infrastructure}
-\livecodebench{} is included in this chapter for its field-shaping role. Once
-coding models began improving quickly, static benchmarks became less useful for
-distinguishing frontier systems and less reliable as uncontaminated measures.
-\livecodebench{} made time-windowed, contamination-aware coding evaluation easy
-to report and compare.
+Beyond the specific benchmarks it inspired, \livecodebench{} helped shift how
+the community reasons about contamination. Contamination itself was not a new
+concern: prior studies had developed methods to detect benchmark data in
+training corpora \citep{golchin2023time}, found that performance on coding
+problems correlates with their prevalence on GitHub \citep{roberts2024to,
+riddell2024quantifying}, and caught coding benchmarks leaking into training
+data shortly after release \citep{matton2024leakage}. However, these works
+treated contamination as something to detect after the fact. Instead,
+\livecodebench{} treats contamination as a first-class design concern. 
+By showing a scrolling benchmark with time-adjustable windows, it directly
+exposed sharp performance drops on newer problems. As evident by the
+number of live benchmarks following \livecodebench{}, contamination-free benchmarks
+have become a standard expectation.
 
-That infrastructure changed model reporting. A model release could be evaluated
-not only on a fixed historical benchmark, but also on recent problems that were
-less likely to have appeared in training data. The benchmark's multi-scenario
-design also encouraged model developers to report code generation together with
-repair, execution, and test-output prediction, bringing evaluation closer to the
-components of agentic coding workflows.
+\subsection{Adoption by Frontier Model Developers}
+Finally, \livecodebench{} became part of the standard evaluation suite for
+frontier model releases, particularly among open-weight and
+reasoning-oriented systems. It appears in the release reports of successive
+DeepSeek generations \citep{deepseekai2024deepseekv3,
+deepseekai2025deepseekr1}, the Qwen2.5-Coder and Qwen3 reports
+\citep{qwen2024qwen25coder, qwen2025qwen3technical}, Google's Gemini 2.5
+\citep{comanici2025gemini}, Moonshot's Kimi K2 \citep{moonshotai2025kimik2},
+ByteDance's Seed-Coder \citep{bytedance2025seedcoder}, Zhipu's GLM-4.5
+\citep{zeng2025glm45}, MiniMax-M1 \citep{minimax2025m1}, Mistral's Magistral
+\citep{mistral2025magistral}, and NVIDIA's Llama-Nemotron
+\citep{bercovich2025llamanemotron}, among others. 
 
-\subsection{From Observation to Optimization Target}
-The field-shaping effect follows the pattern of this chapter. Once
-time-windowed performance became visible, contamination-aware coding ability
-became a target. Once self-repair and execution were part of the benchmark,
-models and agents could be compared on more than direct synthesis. As a result,
-\livecodebench{} became useful as a core benchmark for reasoning-oriented and
-reinforcement-learning-oriented model releases.
-
-\subsection{Thesis Takeaway}
-\livecodebench{} shows that a benchmark can shape not only the score being
-reported, but the behavior the field optimizes. By making freshness,
-multi-scenario coding, and model comparisons easier to measure, it helped shift
-coding evaluation away from static single-task leaderboards.
+In addition, many of these reports reference \livecodebench{}'s contamination methodology.
+The DeepSeek-V3 report \citep{deepseekai2024deepseekv3} restricts evaluation to a
+recent window (problems from August to November 2024) precisely to avoid
+leakage. Similarly, the Qwen2.5-Coder report \citep{qwen2024qwen25coder} 
+evaluates only on the most recent months, describing them as questions that ``could
+not have leaked into the training set'' and thus reflect
+out-of-distribution ability. Gemini 2.5 \citep{comanici2025gemini} reports
+\livecodebench{} with its exact problem date range (October 2024 through
+January 2025) stated alongside the score. 
