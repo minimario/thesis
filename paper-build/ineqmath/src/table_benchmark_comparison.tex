@@ -1,0 +1,44 @@
+\begin{table}[ht!]
+  \vspace{-1mm}
+  \small
+  \setlength{\tabcolsep}{3pt}
+  \centering
+  \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{@{} l | c c | c c | c c c@{}}
+      \toprule
+       & \multicolumn{2}{c|}{\textbf{Data Source}} 
+         & \multicolumn{2}{c|}{\textbf{Data Annotation}} 
+        & \multicolumn{3}{c}{\textbf{Problem and Evaluation}}\\
+       \cmidrule(lr){2-8}
+      \textbf{Datasets}
+        & \shortstack{\textbf{Training}}
+        & \shortstack{\textbf{Test / Dev}}
+        & \shortstack{\textbf{\#Theorem}}
+        & \shortstack{\textbf{Solution}}
+        & \shortstack{\textbf{Category}}
+        & \shortstack{\textbf{Format}}
+        & \textbf{Evaluation} \\
+      \midrule
+      INT \cite{wu2021int} & Synthesized & Synthesized & 35 & \cmark & Proof & Formal &  Symbolic DSL \\
+      AIPS \cite{wei2024proving} & Synthesized & \xmark & 8 & \cmark & Proof & Formal &  Symbolic DSL \\
+      MO-INT \cite{wei2024proving} & \xmark & Data compilation & \xmark & \xmark & Proof & Formal &  Symbolic DSL \\
+      MINIF2F \cite{zheng2022miniff} & \xmark & Autoformalization & \xmark & \xmark & Proof & Formal & \lean \\
+      ProofNet \cite{azerbayev2024proofnet} & \xmark & Autoformalization & \xmark & \xmark & Proof & Formal & \lean \\
+      FormalMATH \cite{yu2025formalmath} & \xmark & Autoformalization & \xmark & \xmark & Proof & Formal & \lean \\
+      leanWorkbook \cite{ying2024lean} & Autoformalization & Autoformalization & \xmark & \xmark & Proof & Formal & \lean \\
+      Proof or Bluff~\cite{petrov2025prooforbluff} & \xmark & Data compilation & \xmark & \xmark & Proof & Informal & Human judge \\
+      \midrule 
+      CHAMP \cite{mao-etal-2024-champ} & \xmark & Autoformalization & \xmark & \xmark & Open & Informal & Human judge \\
+      Putnam Axiom~\cite{gulati2024putnamaxiom} & \xmark & Data compilation & \xmark & \xmark & Open & Informal & Answer checking \\
+      LiveMathBench~\cite{liu2024livemathbench}& \xmark & Data compilation & \xmark & \xmark & Open  & Informal & Answer checking \\
+      \midrule
+      \textbf{\dataset (Ours)} & Expert annotated & Expert annotated & 83 & \cmark & \shortstack{MC, Open} & \shortstack{Informal} & \shortstack{LLM-as-judge} \\
+      \bottomrule
+    \end{tabular}
+  \end{adjustbox}
+  \vspace{2mm}
+  \caption{\small Comparison of datasets for inequality and theorem proving. \dataset provides expert-annotated training and test/dev sets, featuring high-quality named theorems and step-wise solutions for model development. Unlike prior datasets using synthesis or autoformalization, \dataset presents problems in informal language across multiple-choice (MC) and open-ended (Open) formats, and employs \textit{LLM-as-judge} for evaluation.}
+  \vspace{-3mm}
+  \label{tab:dataset_comparison}
+\end{table}
+

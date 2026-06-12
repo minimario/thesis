@@ -1,0 +1,89 @@
+\begin{table}[H]
+\centering
+% \footnotesize
+% \small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.0} % line space
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{lllll}
+\toprule
+\# & \textbf{Model Name} & \textbf{Model Engine Name} & \textbf{Source} &  \textbf{Unique Params}  \\
+\midrule
+\multicolumn{5}{c}{\textbf{\textit{Open-source Chat LLMs}}} \\
+\midrule
+1 & Gemma-2B~\cite{team2024gemma} & \company{google/}\modelapi{gemma-2b-it} & \link{https://huggingface.co/google/gemma-2b-it} & \modelapi{max\_tokens=6K} 
+\\
+2 & Gemma-2-9B~\cite{team2024gemma} & \company{google/}\modelapi{gemma-2-9b-it} & \link{https://huggingface.co/google/gemma-2-9b-it} & \modelapi{max\_tokens=6K} 
+\\
+3 & Llama-4-Maverick~\cite{meta2025llama4maverick} & \company{meta-llama/}\modelapi{Llama-4-Maverick-17B-128E-Instruct-FP8} & \link{https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8} & - 
+\\
+4 & Llama-4-Scout~\cite{meta2025llama4scout} & \company{meta-llama/}\modelapi{Llama-4-Scout-17B-16E-Instruct} & \link{https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E} &  - 
+\\
+5 & Llama-3.1-8B~\cite{meta2024llama3} & \company{meta-llama/}\modelapi{Llama-3.1-8B-Instruct-Turbo} & \link{https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct} & - 
+\\
+6 & Llama-3.2-3B~\cite{meta2024llama3.2} & \company{meta-llama/}\modelapi{Llama-3.2-3B-Instruct-Turbo} & \link{https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct} & - 
+\\
+7 & Qwen2.5-Coder-32B~\cite{hui2024qwen2} & \company{Qwen/}\modelapi{Qwen2.5-Coder-32B-Instruct} & \link{https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct} & 
+\\
+8 & Qwen2.5-7B~\cite{qwen2024qwen2.5-7b} & \company{Qwen/}\modelapi{Qwen2.5-7B-Instruct-Turbo} & \link{https://huggingface.co/Qwen/Qwen2.5-7B-Instruct} & - 
+\\
+9 & Qwen2.5-72B~\cite{qwen2024qwen2.5-72b} & \company{Qwen/}\modelapi{Qwen2.5-72B-Instruct-Turbo} & \link{https://huggingface.co/Qwen/Qwen2.5-72B-Instruct} & - 
+\\
+        \midrule
+        \multicolumn{5}{c}{\textbf{\textit{Proprietary Chat LLMs}}} \\
+        \midrule
+10 & Gemini 2.0 Flash~\cite{google2025gemini2flash} & \modelapi{gemini-2.0-flash} & \link{https://ai.google.dev/gemini-api/docs/models\#gemini-2.0-flash} & \texttt{max\_output\_tokens=10K}  
+\\
+11 & Gemini 2.0 Flash-Lite~\cite{google2025gemini2flashlite} & \modelapi{gemini-2.0-flash-lite} & \link{https://deepmind.google/technologies/gemini/flash-lite/} & \texttt{max\_output\_tokens=10K}  
+\\
+12 & GPT-4o~\cite{openai2024gpt4o} & \modelapi{gpt-4o-2024-08-06} & \link{https://platform.openai.com/docs/models/gpt-4o} & - 
+\\
+13 & GPT-4o mini~\cite{openai2024gpt4omini} & \modelapi{gpt-4o-mini-2024-07-18} & \link{https://platform.openai.com/docs/models/gpt-4o-mini} & - 
+\\
+14 & GPT-4.1~\cite{openai2025gpt41} & \modelapi{gpt-4.1-2025-04-14} & \link{https://platform.openai.com/docs/models/gpt-4.1} & - 
+\\
+15 & Grok 3~\cite{xai2025grok3} & \modelapi{grok-3-beta} & \link{https://x.ai/news/grok-3} & - 
+\\
+    \midrule
+    \multicolumn{5}{c}{\textbf{\textit{Open-source Reasoning LLMs}}} \\
+    \midrule
+16 & DeepSeek-R1~\cite{deepseekai2025} & \company{deepseek-ai/}\modelapi{DeepSeek-R1} & \link{https://huggingface.co/deepseek-ai/DeepSeek-R1} & - 
+\\
+17 & DeepSeek-R1 (Llama-70B)~\cite{deepseek2025r1llama70b} & \company{deepseek-ai/}\modelapi{DeepSeek-R1-Distill-Llama-70B} & \link{https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-70B} & - 
+\\
+18 & DeepSeek-R1 (Qwen-14B)~\cite{deepseek2025r1qwen14b} & \company{deepseek-ai/}\modelapi{DeepSeek-R1-Distill-Qwen-14B} & \link{https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B} & - 
+\\
+19 & Qwen3-235B-A22B~\cite{qwen2025qwen3_235b_a22b} & \company{Qwen/}\modelapi{Qwen3-235B-A22B-fp8-tput} & \link{https://huggingface.co/Qwen/Qwen3-235B-A22B-FP8} & - \\
+20 & QwQ-32B~\cite{alibaba2025qwq32b} & \company{Qwen/}\modelapi{QwQ-32B} & \link{https://huggingface.co/Qwen/QwQ-32B} & - 
+\\
+21 & QwQ-32B-preview & \company{Qwen/}\modelapi{QwQ-32B-Preview} & \link{https://huggingface.co/Qwen/QwQ-32B-Preview} & - 
+\\
+        \midrule
+        \multicolumn{5}{c}{\textbf{\textit{Proprietary Reasoning LLMs}}} \\
+        \midrule
+22 & Claude 3.7 Sonnet~\cite{anthropic2025claude37sonnet} & \modelapi{claude-3-7-sonnet-20250219} & \link{https://www.anthropic.com/news/claude-3-7-sonnet} & - 
+\\
+23 & Gemini 2.5 Flash~\cite{google2025gemini2.5flash} & \modelapi{gemini-2.5-flash-preview-04-17} & \link{https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash} & \texttt{max\_output\_tokens=10K}  
+\\
+24 & Gemini 2.5 Pro~\cite{google2025gemini2.5pro} & \modelapi{gemini-2.5-pro-preview-03-25} & \link{https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro} & \texttt{max\_output\_tokens=10K} 
+\\
+25 & Grok 3 mini~\cite{xai2025grok3mini} & \modelapi{grok-3-mini-beta} & \link{https://x.ai/news/grok-3} & 
+\\
+26 & o1~\cite{openai2024o1} & \modelapi{o1-2024-12-17} & \link{https://platform.openai.com/docs/models/o1} & \texttt{max\_completion\_tokens=10K} 
+\\
+27 & o3~\cite{openai2025o4mini} & \modelapi{o3-2025-04-16} & \link{https://platform.openai.com/docs/models/o3} & \texttt{max\_completion\_tokens=10K} 
+\\
+28 & o3-mini~\cite{OpenAI2025o3mini} & \modelapi{o3-mini-2025-01-31} & \link{https://platform.openai.com/docs/models/o3-mini} & \texttt{max\_completion\_tokens=10K} 
+\\
+29 & o4-mini~\cite{openai2025o4mini} & \modelapi{o4-mini-2025-04-16} & \link{https://platform.openai.com/docs/models/o4-mini} & \texttt{max\_completion\_tokens=10K} 
+\\
+
+    \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+    \vspace{1mm}
+    \caption{List of LLMs evaluated in our experiments. Default parameters are \texttt{max\_tokens=10K}, \texttt{temperature=0}, and \texttt{top\_p=0.99} (if applicable); model-specific parameters are specified.}
+    \label{app:table_model_and_params}
+    \vspace{-6mm}
+\end{table}

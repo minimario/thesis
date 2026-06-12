@@ -1,0 +1,49 @@
+\chapter{Conclusion}
+\label{chap:conclusion}
+
+\section{Summary}
+\begin{draftblock}
+This thesis argues that evaluation choices determine what we can truthfully say
+about code and reasoning models. The first part showed that metrics must target
+the intended capability: CRUXEval measures execution and input-output
+reasoning, Counterfeit Conundrum measures understanding of subtle wrong
+programs, and LiveCodeBench controls for temporal contamination. Non-owned
+supporting case studies add two further examples: SlopCodeBench measures
+iterative degradation, and IneqMath separates final-answer accuracy from proof
+soundness.
+
+The second part showed that the score alone is rarely enough. CoT and
+fine-tuning change which CRUXEval examples are solved, not just average
+accuracy. Counterfeit analyses show that generation difficulty does not predict
+understanding of near-miss programs. LiveCodeBench reveals overfitting and
+scenario-specific differences hidden by older benchmarks. LINC shows that
+neurosymbolic reasoning and chain-of-thought prompting can have similar
+accuracy while failing in complementary ways.
+
+The third part showed that measurement shapes the systems built afterward.
+Execution metrics encourage execution-trace training. Live benchmarks become
+standard tools for reasoning-model evaluation. Non-owned examples such as
+VibeCodeBench and LeanDojo show how full web-app evaluation and theorem-proving
+infrastructure can redirect field practice. ProofOptimizer shows that optimizing
+proof length changes the theorem-proving objective itself.
+\end{draftblock}
+
+\section{Future Work}
+\begin{draftblock}
+The immediate future work is to make these evaluation principles more durable.
+Live and contamination-resistant benchmarks need infrastructure that can keep
+pace with model releases. Soundness-aware reasoning benchmarks need stronger
+judges and better ways to audit judge failures. Iterative coding benchmarks need
+quality metrics that correspond more directly to developer maintenance cost.
+End-to-end web-app evaluation needs evaluator alignment protocols that remain
+reliable as applications and agents become more complex.
+
+The broader research direction is to treat evaluation as part of system design.
+For code models, this means measuring not only whether generated software works,
+but whether it can be understood, repaired, extended, and trusted. For
+mathematical and logical reasoning models, it means measuring not only whether
+the final answer is correct, but whether the reasoning process is valid and
+useful to humans or proof assistants. For the field as a whole, it means
+choosing metrics with the knowledge that those metrics will become training
+targets.
+\end{draftblock}

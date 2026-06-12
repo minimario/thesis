@@ -1,0 +1,47 @@
+We curate our problems from three coding competition websites: \leetcode{}, \atcoder{}, and \codeforces{}. 
+These websites periodically host contests containing problems that assess the coding and problem-solving skills of participants.
+The problems consist of a natural language problem statement along with example input-output examples, and the goal is to write a program that passes a set of hidden tests.
+Further, thousands of participants participate, solving these problems thus ensuring that the problems are vetted for clarity.
+
+\vspace{-3pt}
+\subsubsection{Data Collection} 
+We have written automated \html{} scrapers for each of the above websites to collect problems and the corresponding metadata.
+To ensure quality and consistency, we parse mathematical formulas and exclude problems with images.
+We also exclude problems that are not suitable for grading by input-output examples, such as those that accept multiple correct answers or require the construction of data structures.
+Specifically, we use keyword-based heuristic filters to filter interactive problems and problems accepting multiple correct solutions.
+Besides parsing the problem descriptions, we also collect associated ground truth solutions and test cases whenever directly available.
+Thus for each problem, we collect tuples of  natural language problem statement \problem{}, 
+test cases \tests{}, and ground truth solution \solution{}.
+Finally, we associate the contest date \contestdate{} to mark the release date of each problem and 
+use the collected attributes to construct problems for our four scenarios (detailed in Section~\ref{subsec:scenario-specific} ahead). 
+Note that this process is completely automated and human involvement is only involved in modifying high-level design decisions such as updating problem difficulty settings and improving the keyword-based heuristics for filtering problems over different ``live updates''.
+
+\noindent \textbf{Scrolling through time.}
+As noted, we associate the contest date \contestdate{} for each problem.
+The release date allows us the measure the performance of \llms{} over different time windows by filtering problems 
+based on whether the problem release date falls within a time window (referred to as ``scrolling'' through time).
+This is crucial for evaluating and comparing models trained at different times. 
+Specifically, for a new model and the corresponding cutoff date (normalized to the release date if the 
+training cutoff date is not published), 
+we can measure the performance of the model on benchmark problems released after the cutoff date.
+%So given a new model with cutoff data (defaulting to the release date), we can measure the performance of the model on the benchmark problems released after the cutoff date, estimating the performance of the model on (likely) uncontaminated problems\footnote{Note that these competitions are designed to be challenging and the problem setters are encouraged for creating \textit{new} problems with a mix of various concepts supporting the uncontaminated assumption.}.
+We have developed a UI that allows comparing models on problems released during different time windows (Figure~\ref{app:fig:scrolling}).
+
+\noindent \textbf{Test collection.}
+Tests are crucial for assessing the correctness of the generated outputs and are used in all four scenarios.
+We collect tests available on platform websites whenever possible and use them for the benchmark.
+Otherwise, following \citep{liu2023your}, we use a \llm{} (here \gptfourturbo{}) to generate test \emph{inputs} for the problems.
+A \textbf{key difference} between our test generation approach is that instead of generating inputs directly using the \llm{}, we construct generators that sample inputs based on the problem specifications using in-context learning.
+Details of this approach can be found in Section~\ref{appendix:input-generators}.
+Finally, we collect a small fraction of failing tests from the platforms for robust adversarial tests. Section~\ref{app:subsec:num_tests} describes our design decisions to determine the number of tests.
+
+\noindent \textbf{Problem difficulty.}
+Competition programming has remained a challenge for \llms{}, with \gptfour{} achieving an average \codeforces{} rating (ELO) of 392, placing it in the bottom 5 percentile ~\citep{openai2023gpt}. 
+This makes it difficult to compare \llms{}, as the variation in performance across models is low.
+In \livecodebench{}, we collect problems of diverse difficulties as labeled in competition platforms, excluding problems that are rated above a certain threshold that are likely too difficult for even the best models\footnote{From our early explorations, we find {\scriptsize	\textsc{CodeForces}} problems being considerably more difficult than {\scriptsize \textsc{AtCoder}} and {\scriptsize \textsc{LeetCode}}  problems and thus focus primarily on the latter platforms.}.
+% We use the problem difficulty ratings on these platforms and remove problems that are too challenging for current \llms{}.
+Further, we use these ratings to classify problems as \easy{}, \medium{}, and \hard{} for more granular model comparisons, estimating difficulty roughly based on \humaneval{} scores.
+
+
+
+We defer the platform and scenario specific curation details to the Appendix (Section~\ref{app:sec:curation})

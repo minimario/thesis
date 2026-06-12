@@ -1,0 +1,82 @@
+\begin{textcolorbox}[Prompt for Numerical Computation Judge]
+\textbf{Task:} Evaluate the correctness of numerical computations in a solution to a mathematical inequality problem. Focus on verifying whether each calculation step is numerically valid, allowing for some error tolerance.\\
+
+\textbf{Instructions:}\\
+1. Carefully read through the entire solution.
+
+2. Identify all numerically verifiable expressions, including:
+
+\quad - Exact value computations when variables are assigned specific numbers, allowing for floating-point operations.
+
+3. Do not extract:
+
+\quad - Symbolic manipulations or transformations.
+
+\quad - Expressions involving symbolic variables or operations.
+
+\quad - Inequalities; only extract equations.
+
+\quad - Approximate equations (e.g., using ``approximately equal to'').
+
+4. Python validation rules:
+
+\quad - Convert all operations to floating-point calculations.
+
+\quad - Allow a small tolerance for numerical comparisons (e.g., ``\texttt{abs(lhs - rhs) < 1e-2}'').
+
+\quad - Set the final result of each check to a variable ``\texttt{answer}'', where ``\texttt{answer = True}'' if the verification succeeds, otherwise \texttt{False}.
+
+
+5. Final output format:
+
+\quad - Extracted expressions: List all selected expressions in natural math form.
+
+\quad - Analysis: Clearly state why every expression meets the criteria for verification or doesn't.
+
+\quad - Validation Codes: Provide Python code snippets to verify each expression. 
+\\
+
+\textbf{Output Format:}
+
+\texttt{<Analysis>:}
+Reason why the expression needs to be verified and extracted or not. 
+
+\texttt{<Expressions>:}
+\texttt{List(Expression 1, Expression 2, ...)} 
+
+\texttt{<Codes>:}
+\begin{codebox}
+# Validation for Expression 1
+import sympy as sp
+# your checking code here
+
+# Validation for Expression 2
+import sympy as sp
+# your checking code here
+\end{codebox}
+
+
+\textbf{Key Considerations:}
+
+\quad- Only extract expressions involving explicit numerical computations.
+
+\quad- All selected expressions must be verifiable numerically, allowing for some error tolerance.
+
+\quad- Use floating-point operations for all checks.
+
+\quad- Do not extract approximate equations.
+
+\quad- Do not extract expressions involving symbolic manipulations or transformations.
+
+\textbf{Examples:}\\
+\texttt{\{examples\}} \\
+
+\textbf{Now analyze the following problem and solution:}
+
+Original problem:
+\texttt{\{query\}}
+
+Solution:
+\texttt{\{response\}}
+\end{textcolorbox}
+

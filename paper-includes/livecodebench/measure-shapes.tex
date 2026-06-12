@@ -1,0 +1,33 @@
+\input{paper-includes/livecodebench/macros-import}
+
+\subsection*{Source Note}
+This section is derived from \livecodebench{}. Alex is not first author, so this
+material is kept in blue and should be rewritten before final submission.
+
+\subsection{Live Benchmarks as Reporting Infrastructure}
+\livecodebench{} is included in this chapter for its field-shaping role. Once
+coding models began improving quickly, static benchmarks became less useful for
+distinguishing frontier systems and less reliable as uncontaminated measures.
+\livecodebench{} made time-windowed, contamination-aware coding evaluation easy
+to report and compare.
+
+That infrastructure changed model reporting. A model release could be evaluated
+not only on a fixed historical benchmark, but also on recent problems that were
+less likely to have appeared in training data. The benchmark's multi-scenario
+design also encouraged model developers to report code generation together with
+repair, execution, and test-output prediction, bringing evaluation closer to the
+components of agentic coding workflows.
+
+\subsection{From Observation to Optimization Target}
+The field-shaping effect follows the pattern of this chapter. Once
+time-windowed performance became visible, contamination-aware coding ability
+became a target. Once self-repair and execution were part of the benchmark,
+models and agents could be compared on more than direct synthesis. As a result,
+\livecodebench{} became useful as a core benchmark for reasoning-oriented and
+reinforcement-learning-oriented model releases.
+
+\subsection{Thesis Takeaway}
+\livecodebench{} shows that a benchmark can shape not only the score being
+reported, but the behavior the field optimizes. By making freshness,
+multi-scenario coding, and model comparisons easier to measure, it helped shift
+coding evaluation away from static single-task leaderboards.

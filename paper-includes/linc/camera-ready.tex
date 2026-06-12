@@ -1,0 +1,462 @@
+% This must be in the first 5 lines to tell arXiv to use pdfLaTeX, which is strongly recommended.
+\pdfoutput=1
+% In particular, the hyperref package requires pdfLaTeX in order to break URLs across lines.
+
+\documentclass[11pt]{article}
+
+% Remove the "review" option to generate the final version.
+%\usepackage[review]{EMNLP2023}
+\usepackage{EMNLP2023}
+
+\usepackage{tikz}
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{amssymb} % for \triangleq
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+
+% This is not strictly necessary and may be commented out.
+% However, it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\small,
+  columns=fullflexible,
+  frame=single,
+  breaklines=true,
+  postbreak=\mbox{$\hookrightarrow$\space},
+}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+
+\iffalse
+    \newcommand{\txo}[1]{\textcolor{blue}{}}
+\else
+    \newcommand{\txo}[1]{\textcolor{blue}{\bf\small [TXO: #1]}}
+\fi 
+
+\iffalse
+    \newcommand{\cz}[1]{\textcolor{purple}{}}
+\else
+    \newcommand{\cz}[1]{\textcolor{purple}{\bf\small [CZ: #1]}}
+\fi 
+
+\iffalse
+    \newcommand{\ag}[1]{\textcolor{purple}{}}
+\else
+    \newcommand{\ag}[1]{\textcolor{red}{\bf\small [AG: #1]}}
+\fi 
+
+\iffalse
+    \newcommand{\bl}[1]{\textcolor{green}{}}
+\else
+    \newcommand{\bl}[1]{\textcolor{green}{\bf\small [BL: #1]}}
+\fi 
+\NewDocumentCommand\emojilink{}{
+        \includegraphics[scale=0.045]{figures/link.png}
+}
+
+\newcommand{\TODO}{\textcolor{red}{\textbf{TODO}}}
+
+\renewcommand*\backref[1]{\ifx#1\relax \else (Cited on pg.  #1) \fi}
+
+
+\title{\emojilink\texttt{LINC}: A Neurosymbolic Approach for Logical Reasoning by Combining Language Models with First-Order Logic Provers}
+
+\author{Theo X. Olausson*$^1$ \quad Alex Gu*$^1$ \quad Benjamin Lipkin*$^2$ \quad Cedegao E. Zhang*$^2$ \\
+\bf Armando Solar-Lezama$^1$ \quad Joshua B. Tenenbaum$^{1,2}$ \quad Roger Levy$^2$ \\
+\texttt{\{theoxo, gua, lipkinb, cedzhang\}@mit.edu} \\
+$^1$MIT CSAIL $^2$MIT BCS \\
+\thanks{\quad Author order randomized; all reserve the right to list their name first.}
+\textit{Equal contribution.}
+\\
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Logical reasoning, i.e., deductively inferring the truth value of a conclusion from a set of premises, is an important task for artificial intelligence with wide potential impacts on science, mathematics, and society.
+While many prompting-based strategies have been proposed to enable Large Language Models (LLMs) to do such reasoning more effectively,
+they still appear unsatisfactory, often failing in subtle and unpredictable ways.
+In this work, we investigate the validity of instead reformulating such tasks as modular neurosymbolic programming, which we call \texttt{LINC}: Logical Inference via Neurosymbolic Computation.
+In \texttt{LINC}, the LLM acts as a semantic parser, translating premises and conclusions from natural language to expressions in first-order logic.
+These expressions are then offloaded to an external theorem prover, which symbolically performs deductive inference.
+Leveraging this approach, we observe significant performance gains on FOLIO and a balanced subset of ProofWriter for three different models in nearly all experimental conditions we evaluate.
+On ProofWriter, augmenting the comparatively small open-source StarCoder+ (15.5B parameters) with \texttt{LINC} even outperforms GPT-3.5 and GPT-4 with \texttt{Chain-of-Thought} (\texttt{CoT}) prompting by an absolute 38\% and 10\%, respectively.
+When used with GPT-4, \texttt{LINC} scores 26\% higher than \texttt{CoT} on ProofWriter while performing comparatively on FOLIO.
+Further analysis reveals that although both methods on average succeed roughly equally often on this dataset, they exhibit distinct and complementary failure modes.
+We thus provide promising evidence for how logical reasoning over natural language can be tackled through jointly leveraging LLMs alongside symbolic provers.
+All corresponding code 
+is publicly available.\footnote{\quad \url{https://github.com/benlipkin/linc}}
+\end{abstract}
+
+%%%
+\section{Introduction}
+Widespread adoption of large language models (LLMs) such as GPT-3 \cite{brown2020language}, GPT-4 \cite{openai2023gpt4}, and PaLM \cite{chowdhery2022palm} have led to a series of remarkable successes in tasks ranging from text summarization to program synthesis. 
+Some of these successes have encouraged the hypothesis that such models are able to flexibly and systematically reason \cite{huang2022towards}, especially when using prompting strategies that explicitly encourage verbalizing intermediate reasoning steps before generating the final answer \cite{nye2021show,wei2022chain,kojima2022large,wang2023self}.
+However, this reasoning ability appears to be unreliable for tasks that require reasoning out of domain \citep{liang2022holistic, saparov2023testing}, understanding negation \citep{anil2022exploring}, and following long reasoning chains \citep{dziri2023faith}.
+Furthermore, while the standard approach of ``scaling up'' seems to improve performance across some reasoning domains, other domains, e.g., reasoning involving use of Modus Tollens, show no such improvements \citep{mckenzie2022inverse}. 
+These findings suggest that such models may be relying on approximate heuristics based on surface-level statistical patterns in reasoning tasks, rather than consistent, generalizable representations and strategies \citep{srivastava2023beyond, creswell2023selection}.
+
+\begin{figure}[ht!]
+  \includegraphics[width=\linewidth]{figures/pipeline.pdf}
+  \caption{This figure showcases the essence of our approach. Starting from a problem in natural language, in \textbf{Step 1}, the LLM semantic parser samples logic formulas expressing estimates of the semantics. It is possible that some of these might contain errors, e.g., the second example shows a syntax error involving an extra parenthesis, whereas the fourth example highlights a semantic error caused by mismatched predicates. In \textbf{Step 2}, these are then each offloaded to an automated theorem prover, filtering out syntax errors, and producing labels for the remaining samples. In \textbf{Step 3}, the remaining candidate outputs are passed through a majority-vote sieve to arrive at the best estimate for a single output label.}
+  \label{fig:main}
+\end{figure}
+
+At the same time, the ability to accurately and soundly perform logical reasoning is important for AI and NLP due to its impact on downstream tasks. 
+For example: retrieval-augmented chatbots may become more truthful if it can be verified that their answers logically follow from the retrieved facts;
+data-driven models capable of logical reasoning may speed up progress across mathematics and the sciences through automated theorem proving and knowledge discovery;
+and AI tutoring systems which ensure internal logical consistency might make for better educational platforms, teaching students to think more clearly and rigorously.
+The question of how to enable state-of-the-art LLMs to become more reliable logical reasoners is thus one of great importance, with far-reaching implications.
+
+In this work, we analyze \texttt{LINC}: \textbf{L}ogical \textbf{I}nference via \textbf{N}eurosymbolic \textbf{C}omputation (Fig.~\ref{fig:main}).
+In \texttt{LINC}, logical reasoning is tackled through a modular, two-step neurosymbolic process. First, the language model converts the natural language premises and desired conclusion into first-order logic (FOL) expressions \cite{enderton2001mathematical, barker-plummer2011language}. Second, a symbolic FOL theorem prover algorithmically determines the truth value of the conclusion given the formalized premises. In practice, we also incorporate a third majority voting step, which is shown to improve performance.
+\texttt{LINC} is a natural extension of recent work augmenting lanugage models with symbolic tools such as calculators or interpreters \citep{schick2023toolformer}.
+
+\texttt{LINC} has a key advantage: the language model itself no longer needs to perform any deductive reasoning, which is offloaded to the theorem prover. However, there are also clear drawbacks: the formalization from natural language to first-order logic must perfectly capture all relevant information contained in the premises, and any loss of information in the formalization procedure may lead the solver astray, leading to an incorrect conclusion.
+As it is not clear whether the task of formalization is more or less difficult than that of end-to-end natural language reasoning, our core interest in this work is to compare and contrast our neurosymbolic approach to existing reasoning strategies like \texttt{Chain-of-Thought}. Our contributions are thus three-fold:
+\begin{itemize}
+\item First, we propose \texttt{LINC}, a two-stage neurosymbolic approach for logical reasoning tasks (Sec.~\ref{sec:ns-model}).
+
+\item Second, we compare \texttt{LINC} to three baseline LLM strategies (Fig.~\ref{fig:prompt}), across three models (StarCoder+, GPT-3.5, GPT-4) and two datasets (FOLIO and ProofWriter) (Sec.~\ref{sec:results_discussion}). We find that \texttt{LINC} significantly improves performance over every baseline in all experimental conditions except for GPT-4 on FOLIO.
+\item Third, we provide a thorough error analysis of both \texttt{LINC} and \texttt{Chain-of-Thought}, identifying three high-level failure modes of each. We discover that these failure modes are distinct, highlighting the potential for a synergy of the two methods (Sec.~\ref{sec:error_analysis}).
+\end{itemize}
+Overall, we present strong evidence for the potential of future neurosymbolic logical reasoning systems based on integrating language models and theorem provers.
+
+%%% 
+\section{\texttt{LINC}: Logical Inference via Neurosymbolic Computation}
+\label{sec:ns-model}
+
+Our neurosymbolic approach to end-to-end logical reasoning consists of two stages. In the first stage, the LLM acts as a semantic parser, translating NL statements into FOL expressions in our supported logic language.
+In the second stage, these expressions are parsed from the text generated by the LLM and then get passed to an automated theorem prover; we use \texttt{Prover9}, a high-performance prover widely used in the logic community \citep{prover9-mace4}.
+The external solver then executes a symbolic deduction algorithm, which either returns a value from the set \texttt{\{True, \texttt{False}, Uncertain\}} or raises an exception due to improper FOL syntax (e.g., if the model fails to balance parantheses in the formulae).
+
+At its core, the strength of this approach lies in the reformulation of the problem space.
+End-to-end NL-based reasoning allows for operation over a highly flexible expression space, but leaves the LLM with the difficult task of performing explicit deductive inference over expressions in this space.
+Using \texttt{LINC}, we instead trade off the flexible expression space of NL for syntactically strict logic formulas, allowing us to leverage symbolic algorithms with provable guarantees that the deductive chains will be correct with respect to the semantics of the intermediate representation.
+Making effective use of this reformulation thus requires the logic expressions generated by the LLM to be 1) \textit{syntactically} valid, such that they are accepted by the prover, and 2) \textit{semantically} valid, such that their evaluation results in the correct conclusion.
+In our experiments, we mitigate these risks by using a $K$-way majority voting procedure, which is discussed further in Sec.~\ref{sec:experiments}.
+
+The significance of this problem space reformulation can---beyond the numerical increases in performance observed across our experiments---perhaps best be seen through an in-depth comparison of how \texttt{LINC} and traditional end-to-end LLM reasoning approaches such as \texttt{Chain-of-Thought (CoT)} \emph{fail}. 
+To foreshadow our latter analysis, we find that compared to \texttt{CoT}, \texttt{LINC} has worse recall but better precision on \texttt{True}/\texttt{False} predictions.
+We discuss this further in Sec.~\ref{sec:error_analysis} and highlight that this suggests that \texttt{LINC}, as well as neurosymbolic computation more generally, has the potential to reduce LLM overconfidence and hallucination.%%., resulting in assertions of incorrect conclusions.
+
+\begin{figure}[ht!]
+  \includegraphics[width=\linewidth]{figures/prompt.pdf}
+  \caption{This figure outlines the string concatenation workflow for each of our conditions. We start with the original problem, provide ICL examples through an intermediate markup language, and finally append the problem to evaluate. At this stage, we allow the model to autoregressively sample until producing a stop token.}
+  \label{fig:prompt}
+\end{figure}
+
+%%%
+\section{Experiments}\label{sec:experiments}
+In this section, we present our experimental setup, the models we use, and the three baselines to which we compare \texttt{LINC}.
+
+\textbf{Datasets:} Our experiments use tasks from two existing datasets: \textbf{FOLIO} \cite{han2022folio} and \textbf{ProofWriter} \cite{tafjord2021proofwriter}, both of which have been shown to be challenging for off-the-shelf LLMs \cite{han2022folio, creswell2023selection}. FOLIO is an expert-written, open-domain, logically complex and diverse dataset for natural language reasoning with first-order logic. We use its validation set for our evaluation. However, of the 204 samples in the validation set, we discover that 22 have errors (details in Appendix \ref{appendix_folio_dataset}), leaving us with 182 examples for our evaluation. ProofWriter, meanwhile, is a synthetically generated dataset for logical reasoning over natural language. For our evaluation, we use the OWA (Open-World Assumption) portion of ProofWriter, since this setting best matches that of FOLIO. Since we are running a large number of experiments, we randomly select 360 data points to evaluate on in order to reduce costs. We sample these in such a way that the resulting data set is balanced across both the number of reasoning steps in the shortest ground truth proof (depth 0-5; 50 samples each) and across the three labels (\texttt{True}/\texttt{False}/\texttt{Uncertain}; 120 samples each; 20 each per depth).
+
+\textbf{In-context learning examples:} We hand-pick eight diverse samples from the FOLIO training set to be used as few-shot in-context examples. Because ProofWriter does not come with ground truth FOL statements, we use these eight samples for both evaluations. Compared to FOLIO, questions in ProofWriter generally have more premises per question (in our validation sets: an average of 5.3 in FOLIO vs. 18.8 in ProofWriter).
+Thus, our evaluation on FOLIO is an \emph{in-distribution} task, whereas ProofWriter requires generalizing \emph{out-of-distribution} to reasoning over considerably larger sets of premises than are given in the prompt.
+
+\textbf{Majority voting:} $K$-way majority voting, in which $K$ samples are taken i.i.d. from the model and the mode is used as the final prediction, has previously been shown to improve the performance of prompting-based strategies in logical reasoning tasks \cite{wang2023self}.
+We implement such a strategy in our work, with reported accuracies reflecting $K{=}10$-way majority voting, unless otherwise stated.
+In the case of ties between two labels, we arbitrarily select the first of the two to have been generated.
+We report the effect of $K$ on performance across our conditions and briefly discuss trends in Appendix \ref{appendix:k_way}.
+
+\textbf{Models:}
+We use three models pre-trained on both natural language and code: GPT-3.5 \citep{ouyang2022training}, GPT-4\footnote{We use \texttt{gpt-3.5-turbo-16k-0613} and \texttt{gpt-4-0613}.} \citep{openai2023gpt4}, and StarCoder+\footnote{\url{https://huggingface.co/bigcode/starcoderplus}} \citep{li2023starcoder} with a decoding temperature of $T=0.8$ for all experiments. We defer model, hyperparameter, and hardware details to Appendix \ref{sec:appendix_model_details}.
+We opt for \texttt{StarCoder+} for three reasons: firstly, unlike the other models we consider, it is a free, open-access model. Secondly, it has a dataset search functionality\footnote{See \url{https://huggingface.co/spaces/bigcode/in-the-stack} and \url{https://huggingface.co/spaces/bigcode/search}.}, with which we verify that FOLIO and ProofWriter are not in \texttt{StarCoder+}'s training set, giving further assurance in the validity of our findings. Thirdly, with its 15.5B parameters it is likely considerably smaller than GPT-3.5 and GPT-4\footnote{Although the exact size of these models has not been made public, their common predecessor GPT-3 was known to have 175B parameters; see \citet{brown2020language}.}, allowing us to compare performance at different model scales.
+
+\textbf{Controlled baselines:}
+\label{sec:controlled-baselines}
+We compare \texttt{LINC} to three baselines, which we call \texttt{Na\"ive}, \texttt{Scratchpad}, and \texttt{Chain-of-Thought (CoT)}, as illustrated in Fig.~\ref{fig:prompt}.
+In the \texttt{Na\"ive} baseline, the model is given the natural language premises and is asked to directly generate the label (\texttt{True}/\texttt{False}/\texttt{Uncertain}).
+In the \texttt{Scratchpad} baseline \cite{nye2021show}, the model is asked to first generate FOL expressions corresponding to the premises, and then generate the label.
+This baseline is thus an ablation of \texttt{LINC}, where we use the LLM instead of \texttt{Prover9} as the logic solver.
+Finally, in the \texttt{CoT} baseline, we use the standard technique of \texttt{CoT} prompting \cite{wei2022chain,kojima2022large,wang2023self}, where the model is asked to generate step-by-step natural language reasoning to arrive at the conclusion.
+The prompts we use for all approaches can be found in Appendix~\ref{sec:appendix_folio_prompts}.
+
+\begin{figure}[th]
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/folio_bar_chart.pdf}
+    \caption{FOLIO.}
+    \label{fig:results-folio}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/proofwriter_bar_chart.pdf}
+    \caption{ProofWriter.}
+    \label{fig:results-pw}
+  \end{subfigure}
+  \caption{Results of each model on the FOLIO and ProofWriter datasets. Accuracies are for bootstrapped $10$-way majority vote for all models. Error bars are $\pm 1$ bootstrapped standard deviation. Dotted, black line is the accuracy obtained by always guessing the most common label in the dataset.}
+  \label{fig:results-main}
+\end{figure}
+
+%%%
+\section{Results \& Discussion} 
+\label{sec:results_discussion}
+
+Our main results are shown in Figure~\ref{fig:results-main}.
+Each bar represents either \texttt{LINC} or one of the three baselines,
+while each group of bars indicates the language model used (in \{\texttt{StarCoder+}, \texttt{GPT-3.5}, \texttt{GPT-4}\}).
+
+We note first that in the FOLIO domain (Figure \ref{fig:results-folio}), StarCoder+---the smallest model we experiment with---benefits the most from \texttt{LINC}, achieving a mean accuracy that is 14.2 points higher than the closest controlled baseline (56.0\% vs. 41.8\% with \texttt{CoT}).
+We find that \texttt{Scratchpad}, where the intermediate logical formulae are still generated but the call to the symbolic solver is ablated and replaced by the model's own prediction, does not appear to benefit performance; for StarCoder+, neither \texttt{Scratchpad} nor the \texttt{Na\"ive} baseline perform better than simply deterministically predicting the most common label (``\texttt{Uncertain}'').
+For GPT-3.5, the trend is similar, although the gap between \texttt{LINC} and the closest baseline shrinks (62.6\% vs. 54.9\% average accuracies).
+For GPT-4, the trend reverses: \texttt{LINC} underperforms \texttt{CoT}. However, we perform a McNemar's test \cite{mcnemar1947note} to get the p-value on this GPT-4 \texttt{LINC} vs. \texttt{CoT} comparison, and we find that the difference is not significant ($p=0.58$). 
+Meanwhile, for our balanced subset of ProofWriter, we see significant performance gains across the board (Figure \ref{fig:results-pw}); particularly so for GPT-3.5 and GPT-4, which achieve mean accuracies of 96.4\% and 98.3\% when paired with LINC.
+
+In light of the high accuracies obtained with \texttt{LINC} on ProofWriter, we offer two plausible reasons why \texttt{LINC} is particularly favorable on this dataset.
+Firstly, ProofWriter is---unlike FOLIO---completely synthetically generated, with relatively short sentences, perhaps lending itself particularly well to being formalized in FOL.
+However, it is noteworthy that the \texttt{Scratchpad} mode does not seem to improve performance over the \texttt{Na\"ive} baseline, indicating that even if the NL-to-FOL task were particularly easy in this domain, this is not something that the model is itself capable of leveraging to improve its predictions.
+The second reason might be that the baseline strategies struggle in this \emph{out-of-distribution} setting, in which the model must generalize to a larger set of premises (with potentially longer deductive chains) than those found in the prompt. This distribution shift makes it harder for the model to ignore irrelevant premises in the question and carry out all deductive chains correctly.
+Meanwhile, with \texttt{LINC}, the symbolic solver robustly handles irrelevant premises and long deductive chains, since the LLM only needs to translate each sentence into FOL.
+
+\begin{figure}[th]
+  \centering
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/starcoderplus_qdep_line_plot.pdf}
+    \caption{StarCoder+.}
+    \label{fig:starcoder-qdep}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/gpt-3.5-turbo-16k-0613_qdep_line_plot.pdf}
+    \caption{GPT-3.5.}
+    \label{fig:gpt-3.5-qdep}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/gpt-4-0613_qdep_line_plot.pdf}
+    \caption{GPT-4.}
+    \label{fig:gpt-4-qdep}
+  \end{subfigure}
+  \caption{Accuracy per necessary proof depth in ProofWriter. Accuracies reported are for bootstrapped $10$-way majority vote, and shaded areas cover $\pm 1$ bootstrapped standard deviation. Black, dotted lines reflect the expected success rate of guessing a random label, which is 1/3 in all subsets per our experiment design.}
+  \label{fig:results-qdep}
+\end{figure}
+
+To test this last explanation further, we plot each model's performance across ProofWriter as a function of the necessary proof depth in Figure~\ref{fig:results-qdep}.
+We note first that StarCoder+'s performance remains flat and close to chance with all three baseline methods (Figure~\ref{fig:starcoder-qdep}).
+Meanwhile, with \texttt{LINC} the performance remains far above chance, although it drops somewhat as necessary proof depth increases; this performance drop suggests that StarCoder+ struggles somewhat with the NL-to-FOL translation task as the problem at hand gets larger.
+For GPT-3.5, all baselines perform above chance at proof depth 0 (i.e., where the conclusion can immediately be reached from the premises), but then quickly drop back down (Figure~\ref{fig:gpt-3.5-qdep}).
+While \texttt{Chain-of-Thought} prompting allows the model to complete some depth-1 tasks, even this strategy then performs equivalently to chance (within 1 standard deviation) for higher depths.
+When augmented with \texttt{LINC}, however, GPT-3.5 is able to achieve near-perfect performance across all proof depths, providing evidence for the scalability of this approach to longer deductive chains.
+Finally, for GPT-4 we observe much stronger performance from the baselines; in particular, \texttt{CoT} performs above chance for all proof depths, and all baselines perform well for shallow proofs (Figure~\ref{fig:gpt-4-qdep}).
+However, even with GPT-4 the performance drops as the necessary proof depth increases with every configuration except for \texttt{LINC}, which performs near or at ceiling through the maximum proof depth available in the dataset.
+
+\begin{figure}[th]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/matrices/gpt4_neurosym_confusion.pdf}
+    \caption{Confusion matrix for \texttt{LINC}.}
+    \label{fig:gpt_neurosym_confusion}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/matrices/gpt4_cot_confusion.pdf}
+    \caption{Confusion matrix for \texttt{Chain-of-Thought}.}
+    \label{fig:gpt_cot_confusion}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/matrices/gpt-4_cot_neurosym.pdf}
+    \caption{Comparing the consistency of \texttt{LINC} vs. \texttt{Chain-of-Thought}.}
+    \label{fig:gpt_cot_neurosym}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/matrices/gpt-4_method_similarity.pdf}
+    \caption{Similarity between incorrect predictions of each method, i.e., \texttt{(A wrong == B wrong) / (A wrong or B wrong).}}
+    \label{fig:method_similarity}
+  \end{subfigure}
+  
+  \caption{Analyzing and comparing the mistakes made by GPT-4 on the FOLIO dataset.}
+  \label{fig:confusion_plots}
+\end{figure}
+
+%%%
+\section{Error Analysis}
+\label{sec:error_analysis}
+Having established that \texttt{LINC} can improve performance in many settings, we now move on to our final research question:
+\textit{How do the failure modes of \texttt{LINC} compare to those of in-context reasoning methods}?
+We focus on comparing GPT-4+\texttt{CoT} vs. GPT-4+\texttt{LINC} on FOLIO, since their overall performance is very similar (75.3\% vs. 72.5\% average accuracy). We leave an analysis of StarCoder+'s predictions on FOLIO to Appendix \ref{sec:starcoder_error_folio}.
+
+\subsection{Qualitative Analysis} \label{sec:error_qualitative}
+Qualitatively, we find that \texttt{LINC} and \texttt{CoT} have completely different failure modes. We give a high-level overview and abbreviated examples of each failure mode here, leaving full detailed examples to Appendix \ref{appendix_folio_error}.
+
+First, we detail the failure modes for \texttt{LINC}:
+
+\textbf{L1: FOL fails to capture implicit information not mentioned in the premises.} Often, there is obvious information not explicitly listed in the premises that is necessary to explicitly encode in FOL in order to successfully make a desired deduction. For example, in the snippet below one must encode in FOL the implicit assumption that Harry is a person (\texttt{Person(Harry)}).
+
+\begin{itemize}
+\itemsep0.1em
+    \item[] \small Premise 1: \texttt{When a person reads a book, that person gains knowledge.}
+    \item[] \small FOL: \texttt{all x. all y. (Person(x) \& Reads(x, y) \& Book(y) -> Gains(x, Knowledge))}
+    \item[] \small Premise 2: \texttt{Harry read the book "Walden" by Henry Thoreau.}
+    \item[] \small FOL: \texttt{Reads(Harry, Walden)}
+    \item[] \small Conclusion (Prover9: Uncertain): \texttt{Harry gains knowledge.}
+    \item[] \small FOL: \texttt{Gains(Harry, Knowledge)}
+\end{itemize}
+
+
+\textbf{L2: FOL fails to capture information explicitly mentioned in the premises due to the choice of representation.} Even when information is explicitly written in the premises, the choice of how the NL is represented in FOL can lead to lost information. In the example below, the fact that Heinrich was a Nazi German politician is captured by one symbol \texttt{NaziGermanPolitician}, causing the information that he was independently Nazi, German, or a politician to be lost.
+As a result, \texttt{LINC} predicted \texttt{Uncertain} instead of the ground truth label \texttt{True}.
+
+\begin{itemize}
+\itemsep0.1em
+    \item[] \small Premise: \texttt{Heinrich Scmidt was a Nazi German politician.}
+    \item[] \small FOL: \texttt{NaziGermanPolitician (HeinrichSchmidt)}
+    \item[] \small Conclusion (Prover9: Uncertain): \texttt{Heinrich Schmidt was German.}
+    \item[] \small FOL: \texttt{German(HeinrichSchmidt)}
+\end{itemize}
+
+\textbf{L3: FOL contains syntax errors.}  Across all generations, we find that the FOL expressions sometimes contain syntax errors: 38\% for StarCoderPlus, 24\% for GPT-3.5, and 13\% for GPT-4. The most common error is that the same symbol is used with multiple arities. As an example, if \texttt{Summer(July4)} and \texttt{Loves(Alex, Summer)} were both present in a FOL translation, \texttt{Summer} would have a multiple arity violation.
+
+Next, we detail three failure modes for \texttt{CoT}:
+
+\textbf{C1: \texttt{CoT} concludes something different than it suggests.} One common mistake we often see with the \texttt{CoT} approach is that it generates a chain of reasoning indicating uncertainty, but then asserts that the conclusion is false. An example of this is shown below, where GPT-4 suggests there is ``no evidence'' for the conclusion but then deduces it false.
+
+\begin{itemize}
+\itemsep0.1em
+    \item[] \small \textbf{(GPT-4 Incorrect \texttt{CoT}):} Let's think step by step. We want to evaluate if platypus are reptiles. We know from the premises that platypus are mammals and that they have no teeth. The fact that some mammals have teeth does not contradict the fact that platypus, although mammals, do not have teeth. Moreover, the statement about humans having teeth is unrelated to the classification of platypus. There's no evidence in the premises that would suggest platypus are reptiles. Therefore, the statement is false.
+\end{itemize}
+
+\textbf{C2: CoT makes incorrect logical deductions.} While there are many instances where \texttt{CoT} makes incorrect logical deductions, one common deduction mistake is the structure ``if $B$ is true and $A \rightarrow B$, then $A$ is true''. In the example shown below, we see this incorrect deduction where A is ``Mike has an F1 visa'' and B is ``Mike needs to apply for CPT or OPT if he wants to work in the US''. We note that making this type of logical mistake is often called the \emph{fallacy of the converse}, and that humans are not immune to it, either.
+
+\begin{itemize}
+\itemsep0.1em
+    \item[] \small Premise 1: International students in US have either an F1 visa or a J1 visa.
+    \item[] \small Premise 2: An international student in US with an F1 visa needs to apply for CPT or OPT if the student wants to work in the US.
+    \item[] \small Premise 3: Mike is an international student.
+    \item[] \small Premise 4: Mike needs to apply for CPT if he wants to work in the US.
+    \item[] \small Conclusion (Ground Truth: Uncertain): Mike has an F1 visa.
+    \item[] \small \textbf{(GPT-4 Incorrect \texttt{CoT}):} Let's think step by step. We want to evaluate if Mike has an F1 visa. From the premises, we know that Mike is an international student and needs to apply for CPT if he wants to work in the US. We also know that an international student in the US with an F1 visa needs to apply for CPT or OPT if the student wants to work in the US. So, it is clear that Mike has an F1 visa since he fits the criteria. Therefore, the conclusion is true.
+\end{itemize}
+
+\textbf{C3: \texttt{CoT} fails to find complex paths of reasoning.} We find that with all three models, \texttt{CoT} fails when the path of reasoning necessary to make the deduction is complex. Sometimes, \texttt{CoT} has difficulty getting started, and other times, it gets stuck in the middle of a reasoning chain.
+
+\subsection{Quantitative Analysis}
+
+\textbf{1. Compared to \texttt{CoT}, \texttt{LINC} has worse recall but better precision on \texttt{True}/\texttt{False} predictions.} To see this,
+we plotted the confusion matrices in Figure~\ref{fig:gpt_cot_confusion} (\texttt{CoT}) and Figure~\ref{fig:gpt_neurosym_confusion} (\texttt{LINC}). 
+Looking just at the distributions of predicted labels of the two methods, we see that \texttt{CoT} predicts 32\% \texttt{True}, 27\% \texttt{False}, and 41\% \texttt{Uncertain}, while \texttt{LINC} predicts 24\% \texttt{True}, 17\% \texttt{False}, and 57\% \texttt{Uncertain} (with 2\% of predictions throwing an error).
+Notably, we observe that \texttt{LINC} predicts \texttt{Uncertain} much more frequently than \texttt{CoT} (57\% vs. 41\%).
+To understand why, note that the translation from natural language to FOL is a lossy process: recall that in L1 and L2, we saw that the information conveyed through the FOL is sometimes a subset of the information in the original premises. Removing pieces of crucial information that were on the critical path to deducing \texttt{True}/\texttt{False} may then leave an uncertain conclusion. 
+At the same time, while the FOL translations sometimes do not retain all of the information in the NL, they rarely contain false information that was not provided in the original premises.
+Therefore, \texttt{LINC}'s precision when predicting \texttt{True} or \texttt{False} is very high (93\%) compared to that of \texttt{CoT} (81\%), but this comes at the cost of lower recall on \texttt{True}/\texttt{False} predictions (60\% for \texttt{LINC} vs. 75\% for \texttt{CoT}).
+
+\textbf{2. \texttt{LINC} and \texttt{CoT} mispredict on different examples.} Earlier in Sec. \ref{sec:error_qualitative}, we saw that \texttt{LINC} and \texttt{CoT} exhibit different failure modes, which suggests they should fail on different examples. Indeed, we find that this is the case in our experiments on FOLIO:
+Figure~\ref{fig:gpt_cot_neurosym} shows a $2\times2$ confusion matrix which compares whether or not each method's prediction was correct.
+We observe that out of the $24+29+21=74$ samples where at least one method makes an incorrect prediction, only 21 are shared.
+On a closer examination of these 21 samples, we find that 16 are ambiguous or incorrect in their specification (details in Appendix \ref{sec:appendix_sharedmistakes}), so \textit{the two methods only agree on 5 well-formed samples}.
+This suggests that \texttt{LINC} and \texttt{CoT} are complementary methods which fail under distinct circumstances.
+
+\textbf{3. Mispredictions of in-context reasoning baselines are more similar to each other than they are with mispredictions of \texttt{LINC}.} As an extension of the previous analysis, we next investigate the correlation between the mispredictions of each pair of methods.
+To do so, we define a similarity score between two methods $A$ and $B$ as follows:
+Given a dataset $D$ with $N$ rows and ground truth labels $\{A_i\}_{i=1}^N$ and $\{B_i\}_{i=1}^N$ from two methods $A$ and $B$, we define
+$$\text{sim}_D(A, B) \triangleq \frac{\sum_{i=1}^N \mathbf{1}\left[ A_i = B_i \ne R_i \right] }{\sum_{i=1}^N \mathbf{1}\left[ A_i \ne R_i \text{ or } B_i \ne R_i\right]}$$
+In words, $\text{sim}_D(A,B)$ measures the number of instances where $A$ and $B$ are wrong in identical ways vs. the number of instances where \emph{at least one} of them is wrong.
+
+Figure~\ref{fig:method_similarity} shows the pairwise similarity between our four methods, highlighting that the similarity between \texttt{LINC}'s mispredictions and the other methods' mispredictions ($0.14$, $0.21$, $0.22$) is much lower than the similarity between any pair of the in-context reasoning methods ($0.52$, $0.54$, $0.56$). 
+These results suggest that for GPT-4 on FOLIO, \texttt{LINC} is the only method we evaluate which significantly alters the ways in which the model \emph{fails} to reason. 
+
+%%%
+\section{Related Work} \label{sec:related_work}
+
+\textbf{Reasoning in LLMs:} Our work contributes to the wider literature on eliciting natural language reasoning capabilities in models.
+Although we have focused here on comparing a neurosymbolic approach to Scratchpad \cite{nye2021show} and \texttt{Chain-of-Thought} prompting \cite{wei2022chain, kojima2022large, wang2023self}, many other similar or related techniques have been developed in recent years; these include least-to-most prompting \cite{zhou2023least}, selection-inference \cite{creswell2023selection}, backward chaining \cite{tafjord2022entailer, kazemi2023lambada}, and self-taught reasoning \cite{zelikman2022star}.
+Some of these techniques have been formalized under the language model cascades framework \cite{dohan2022language}.
+
+\textbf{Semantic parsing:} The notion of a semantic parser rests on a long tradition of research \cite{kamath2019survey} whose aim is to map fragments of natural language into useful, symbolic meaning representations \cite{zelle1996learning, zettlemoyer2005learning, berant2013semantic, liang2013learning, wong2023word}. Unlike earlier works in this tradition, we use a language model to generate the semantic parse, which is a method under active investigation in recent years \citep{shin2022few, drozdov2022compositional, lu2022parsing, wang2023grammar}.
+
+\textbf{Neurosymbolic approaches for reasoning:}
+Methods which combine neural networks with symbolic techniques have seen broad uptake in domains adjacent to logical reasoning, such as generating outputs consistent with a pre-existing symbolic knowledge base \citep{marra2019integrating,manhaeve2018deepproblog,zhang2023tractable} and performing algorithmic reasoning over symbolically grounded inputs \citep{ebrahimi2021towards,ibarz2022generalist,velivckovic2022clrs}.
+As for logical reasoning with LLMs in particular, there have been a few different proposals for when and how to best combine the LLM with a symbolic component.
+\citet{zhang22improved} finetune a language model to synthesize potential facts paired with likelihoods and then use a handwritten differentiable symbolic reasoner in order to deduce other facts. 
+\citet{weir2022dynamic} relax the solver by instead training neural ``entailment'' models to decide if and how a given inference rule applies at each stage. 
+Concurrently to this work, Logic-LM \cite{pan2023logic} and \textsc{SatLM} \cite{ye2023satisfiability} propose neurosymbolic approaches which have much in common with \texttt{LINC}. However, other than the models and datasets considered, their contributions have a few key differences to ours. First, we place particular emphasis on establishing an in-depth understanding of the relative benefits and drawbacks of a neurosymbolic approach to reasoning when compared to traditional in-context reasoning strategies like \texttt{Chain-of-Thought}. Second, Logic-LM employs a self-refinement strategy, which has shown promise across code generation and NLP tasks
+\cite{zhang2023self,chen2023teaching,peng2023check,madaan2023self,olausson2023selfrepair} but which we do not consider here. Third, \textsc{SatLM} studies arithmetic reasoning in addition to logical reasoning, showcasing the versatility of the neurosymbolic approach. Fourth, and finally, we use an FOL representation that we believe is easier for humans to read and models to learn. We highly encourage interested readers to study these two contemporary works in detail.
+
+\textbf{Autoformalization:} The idea of automatically translating natural language into structured symbolic representations that programs can reason about has gained popularity in the domain of formal mathematics, leading to autoformalization systems for several theorem provers including Mizar \cite{wang2018first, wang2020exploration}, Lean 3 \cite{azerbayev2023proofnet}, and Isabelle \cite{wu2022autoformalization}. Outside formal mathematics, autoformalization has also been applied to translating natural language into system specification languages such as temporal logic \cite{hahn2022formal, cosler2023nl2spec, chen2023nl2tl}.
+
+\textbf{Tool usage:} Our work is heavily inspired by recent work on tool usage. The central idea in this line of research is to augment language models with external tools such as calculators, code interpreters and information retrieval systems. We further divide these works into two classes. In the first class, the model does not need to learn how or where to invoke the tool: instead, the tool is predefined and is applied after the generation step finishes. For example, \citet{gao2023pal} and \citet{drori2022neural} solve mathematical reasoning tasks by generating Python programs and using the Python interpreter as the tool, \citet{liu2023mind} approach physical reasoning tasks with a physical simulator as the tool, and \citet{wong2023word} tackle cognitively-inspired probabilistic reasoning tasks with Church (a probabilistic programming language) as the tool. In the second class, the model must learn to invoke the tool by itself, meaning that the model must generate explicit API calls to the tool which are then executed when those calls are decoded \citep{schick2023toolformer, thoppilan2022lamda, yao2022react, cheng2023binding}. Our work belongs to the former class, with the task at hand being logical reasoning and the tool available for use being a FOL solver (Prover9). We refer the reader to \citet{mialon2023augmented} for a more thorough survey of recent work in the tool-usage literature.
+
+%%%
+\section{Conclusion}
+
+In this work, we present \texttt{LINC}: Logical Inference via Neurosymbolic Computation, a neurosymbolic approach for scalable logical reasoning with large language models. 
+Our experiments show that \texttt{LINC} leads to significant performance gains in nearly every setting we consider, and that it supports generalization to settings where the model has to reason about a much larger set of premises than it is shown in the in-context learning examples.
+Furthermore, carrying out a quantitative and qualitative analysis of the mistakes made by \texttt{LINC}, we find evidence that it may complement purely in-context reasoning strategies such as \texttt{Chain-of-Thought} prompting, since they differ greatly in the types and frequencies of mistakes made.
+This work thus supports the efficacy of neurosymbolic approaches to natural language reasoning, setting the stage for continued advances in combining large language models and symbolic reasoning engines; we discuss several promising future directions in Appendix~\ref{appendix:fw}.
+
+%%%
+% \newpage
+\section{Limitations}
+
+\textbf{Narrow scope of logical reasoning task considered}:
+In this work, we focus exclusively on one aspect of logical reasoning: predicting the truth value of a conclusion given a set of natural language premises. Here, we consider a setting where the premises and conclusion are expressed in relatively short statements, which makes the formalization task tractable. In particular, ProofWriter's natural language statements are synthetically generated, so they can be easily and accurately parsed into FOL. FOLIO reflects a more naturalistic dataset, so we see a higher failure rate in \texttt{LINC}'s semantic parsing step. However, the formalization task becomes more difficult if the premises are in longer paragraph form, such as in question answering or contradiction detection from context passages. This is because the same piece of information can be formalized in a variety of ways, and there is a lot of information that must be pragmatically inferred to arrive at the proper conclusion.
+
+
+\textbf{Generalizability of qualitative evaluation:} While we find that \texttt{LINC} and \texttt{CoT} produce complementary mistakes for our natural language reasoning task, it is unclear if this result also holds true in similar scenarios, such as the ones considered in PAL \cite{gao2023pal}, Logic-LM, and \textsc{SatLM}. This is due to the difference in intermediate language and overall logical reasoning task. However, we hypothesize that it will and encourage future investigation in this direction.
+
+\textbf{More sophisticated reasoning techniques}: Recent work has proposed more sophisticated techniques beyond chain-of-thought, such as tree of thoughts \cite{yao2023tree}, program of thoughts,  \cite{chen2022program}, or using retrieval in chain-of-thought prompting \cite{yasunaga2023large}. These have potential to improve and eliminate some of the failure modes of the traditional \texttt{CoT} method. In addition, ideas such as self-repair may also serve to improve these failure modes. It remains future work to do a more thorough investigation of the efficacy of these techniques, though there is also preliminary evidence that they still lack reasoning capabilities \cite{huang2023large}.
+
+\textbf{Scalability}: It is unclear how well \texttt{LINC} will perform as the number of premises scales. First, one mistake in formalization can lead to an incorrect deduction, and more premises lead to a higher probability of errors. Second, in the deduction stage, while many fast algorithms (e.g., forward- and backward-chaining) exist for logical deduction, the general problem is still NP-hard. Therefore, the theorem prover may take a long time in practice.
+
+\textbf{Other logics beyond first-order logic}: In this work, we exclusively focus on first-order logic. However, FOL is not expressive enough to handle problems requiring \textit{higher-order} logics \cite{miller1986some, higginbotham1998higher}. Also, in many settings it is desirable to work with \textit{non-classical} logics \cite{priest2008introduction, burgess2009philosophical}. Alternative theorem provers would be needed for such problems. A method like \texttt{LINC} can be naturally extended to those settings, but exactly how well it works there requires further investigations.
+
+\textbf{Computational costs}: Implementing our approach with both GPT models and the StarCoder+ model requires non-trivial resources. The former requires reliance on costly API requests and the latter dedicated GPUs for inference. Especially as we use majority voting, many generations must be made for each query, increasing the computational requirements.
+
+
+%%%
+\section{Acknowledgements}
+T.X. Olausson is supported by the Defense Advanced Research Projects Agency (DARPA) under the ASKEM program, award HR00112220042.
+A. Gu is supported by the National Science Foundation (NSF) Graduate Research Fellowship under Grant No. 2141064. 
+B. Lipkin and C.E. Zhang are supported by MIT Presidential Fellowships.
+A. Solar-Lezama is supported by the National Science Foundation (NSF) and Intel Corporation through NSF Grant CCF:2217064.
+J.B. Tenenbaum is supported by AFOSR Grant \#FA9550-22-1-0387 and the MIT-IBM Watson AI Lab.
+R.P. Levy is supported by a grant from the Simons Foundation to the Simons Center for the Social Brain at MIT.
+
+We thank our anonymous reviewers for their insightful feedback and recommendations.
+We thank the members of the Computer Aided Programming, Computational Psycholinguistics, and Computational Cognitive Science groups for constructive commentary at various stages of this project. 
+We thank Yoon Kim for helpful suggestions and comments on pieces of the initial project proposal.
+In addition, we thank Zhaofeng Wu and Simeng Han for discussions regarding the FOLIO dataset.
+
+\bibliography{anthology,custom}
+\bibliographystyle{acl_natbib}
+
+\appendix
+\include{appendix}
+
+\end{document}

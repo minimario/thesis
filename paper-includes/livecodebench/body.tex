@@ -1,0 +1,42 @@
+\subsection*{Paper Abstract}
+  \noindent Large Language Models (\llms{}) applied to code-related applications have emerged as a prominent field, attracting significant interest from academia and industry.
+  However, as new and improved \llms{} are developed, existing evaluation benchmarks (e.g., \humaneval{}, \mbpp{}) are no longer sufficient for assessing their capabilities suffering from data contamination, overfitting, saturation, and focus on merely code generation.
+  In this work, we propose \livecodebench{}, a comprehensive and contamination-free evaluation of \llms{} for code, which collects \textit{new} problems over time from contests across three competition platforms, \leetcode{}, \atcoder{}, and \codeforces{}.
+  Notably, our benchmark also focuses on a broader range of code-related capabilities, such as self-repair, code execution, and test output prediction, beyond just code generation.
+  Currently, \livecodebench{} hosts over six hundred coding problems that were published between May 2023 and Aug 2024.
+  We evaluate over $50$ \llms{} on \livecodebench{} (\lcb{} for brevity) presenting the largest evaluation study of code \llms{} on competition problems. 
+  Based on the study, we present novel empirical findings on contamination, overfitting, and holistic evaluations. 
+  We demonstrate that time-segmented evaluations serve as a robust approach to evade contamination; they are successful at detecting contamination across a wide range of open and closed models including \gptfouro{}, \claude{}, \deepseek{}, and \codestral{}.
+  Next, we highlight overfitting and saturation of traditional coding benchmarks like \humaneval{} and demonstrate \lcb{} allows more reliable evaluations.
+  Finally, our holistic evaluation scenarios allow for measuring the different capabilities of programming agents in isolation.
+  % We present empirical findings on contamination, holistic performance comparisons, potential overfitting in existing benchmarks as well as individual model comparisons.
+  %Finally, we will release all prompts and model completions for further community analysis, along with a general toolkit for adding new scenarios and models.%\footnote{The website is available at: \url{https:}}\footnote{The code is available at: \url{https:}}
+
+
+\input{paper-includes/livecodebench/macros-import}
+\subsection{Introduction}
+\label{sec:livecodebench-introduction}
+\input{paper-includes/livecodebench/introduction}
+\input{paper-includes/livecodebench/prior_work}
+\subsection{Holistic Evaluation}
+\input{paper-includes/livecodebench/tasks}
+\subsection{Benchmark Curation}
+\input{paper-includes/livecodebench/benchmark}
+\subsection{Experiment Setup}
+\input{paper-includes/livecodebench/setup}
+\subsection{Results}
+\input{paper-includes/livecodebench/results}
+\subsection{Related Work}
+\input{paper-includes/livecodebench/related-work}
+\subsection{Limitations and Conclusion}
+\input{paper-includes/livecodebench/limitations}
+\input{paper-includes/livecodebench/conclusion}
+\subsection*{Acknowledgement}
+This work was supported in part by NSF grants CCF:1900968, CCF:1908870 and by SKY Lab industrial sponsors and affiliates Astronomer, Google, IBM, Intel, Lacework, Microsoft, Mohamed Bin Zayed University of Artificial Intelligence, Nexla, Samsung SDS, Uber, and VMware. A. Gu is supported by the NSF Graduate Research Fellowship under Grant No. 2141064. A. Solar-Lezama is supported by the NSF and Intel Corporation through NSF Grant CCF:2217064. Any opinions, findings, conclusions, or recommendations in this paper are solely those of the authors and do not necessarily reflect the position of the sponsors.
+\subsection{Appendix}
+\input{paper-includes/livecodebench/appendix/appendix-dataset}
+\input{paper-includes/livecodebench/appendix/appendix-curation}
+\input{paper-includes/livecodebench/appendix/appendix-experimental}
+\input{paper-includes/livecodebench/appendix/appendix-results}
+\input{paper-includes/livecodebench/appendix/appendix-qualitative}
+\input{paper-includes/livecodebench/appendix/appendix-limitations}

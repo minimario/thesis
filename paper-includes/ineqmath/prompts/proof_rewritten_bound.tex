@@ -1,0 +1,58 @@
+\begin{textcolorbox}[Prompt for Rephrasing Proofs to Bound Problems]
+\textbf{Task:} Transform the given inequality problem into a bound prediction problem by introducing a constant C and determining its optimal value.
+\\\\
+\textbf{Instructions:}
+
+1. Analyze the original problem, focusing on its structure and potential for transformation. \\
+2. Introduce a constant $C$ by either replacing an existing constant or creating a new relationship between expressions. \\
+3. Determine whether to find the minimal or maximal value of $C$ that satisfies the inequality for all relevant variables. \\
+4. Consider factors such as homogeneity, existing constraints, and the domain of variables (e.g., positive reals, all reals). \\
+5. Ensure the rephrased problem maintains the mathematical essence and constraints of the original. \\
+
+\textbf{Output Format:}
+
+Provide your response in the following structure:
+
+\texttt{<Analysis>}: Concise explanation of key features and transformation approach. \\
+\texttt{<Conclusion>}: YES or NO, followed by a brief summary of the transformation. \\
+\texttt{<Rephrased Problem>}: Transformed problem statement, focusing on finding the optimal $C$. \\
+\texttt{<Answer>}: $C = <value>$.
+\\\\
+\textbf{Key Considerations:} \\
+1. For double inequalities, attempt to rephrase as a single bound prediction problem when possible. \\
+2. In homogeneous inequalities, focus on the ratios between variables rather than their absolute values. \\
+3. Incorporate any existing constraints into the rephrased version of the problem. \\
+4. Clearly specify the domain of the variables in the rephrased problem statement. \\
+5. Ensure that the rephrased problem is logically equivalent to the original.
+\\\\
+\textbf{Example:} \\
+% \texttt{\{examples\}}
+Original problem:
+Let $a, b, c \in \mathbb{R}^{+}$. Prove the inequality
+$$
+\frac{a b c}{(1+a)(a+b)(b+c)(c+16)} \leq \frac{1}{81}
+$$
+
+\vspace{2mm}
+\texttt{<Analysis>}: To turn this into a bound prediction problem, we can focus on the following steps: \\
+1. The left side is a rational expression that is always positive for $a, b, c \in \mathbb{R}^{+}$. \\
+2. The right side is a fixed constant $\frac{1}{81}$.\\
+3. We replace the constant $\frac{1}{81}$ with a variable $C$ and ask: What is the smallest $C$ such that the inequality holds for all positive $a, b, c$?\\
+4. This approach allows us to determine the tightest possible upper bound for the left-hand expression.\\
+5. If we find the smallest $C$ that works, we prove the original inequality and show it's the best possible.
+
+\vspace{2mm}
+\texttt{<Conclusion>}: YES, the inequality can be rephrased as a bound prediction problem. By replacing the constant $\frac{1}{81}$ with a variable $C$, we can determine the tightest upper bound for the given rational expression, effectively proving the original inequality and demonstrating its optimality.
+
+\vspace{2mm}
+\texttt{<Rephrased problem>}: \\
+Coll  Determine the minimal constant $C$ such that the following inequality holds for all $a, b, c$:
+$$
+\frac{abc}{(1+a)(a+b)(b+c)(c+16)} \leq C.
+$$
+\texttt{<Answer>:} $C = \frac{1}{81}$.
+\\\\
+\textbf{Now, please rewrite the following problem:}
+
+Original problem: \texttt{\{problem\}}
+\end{textcolorbox}

@@ -1,0 +1,298 @@
+\documentclass{article}
+
+\usepackage[main, final]{neurips_2025}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Author Commands
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{adjustbox}
+
+\usepackage{algorithm}  % Add this line
+\usepackage{algorithmic}  % Add this line too for algorithm contents
+
+\usepackage{subfigure}
+\usepackage{wrapfig}  % Add this line for wrapped figures
+\usepackage{caption}
+
+\usepackage{tabularx}
+\usepackage{boxedminipage}
+\usepackage{array}     % For advanced table formatting and @{} syntax
+\usepackage{graphicx}  % For \resizebox command
+\usepackage{colortbl}  % For \rowcolor command
+\usepackage{multirow} 
+\usepackage{pifont}
+\usepackage{amssymb}
+\usepackage{xspace}
+\usepackage{siunitx}
+\usepackage{colortbl}  % Add this before using \columncolor
+\usepackage[breakable]{tcolorbox}
+\usepackage{titletoc} % table of contents
+\usepackage{twemojis}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{multicol} % multicols
+\usepackage{bbding}
+\usepackage{footnote}       % enhanced footnote support
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{newtxtext} % Fixed: Font shape `T1/ptm/m/scit' undefined
+\usepackage{setspace}
+
+\definecolor{mylinkcolor}{RGB}{11, 20, 110}
+\definecolor{forestgreen}{RGB}{13, 55, 13}
+\definecolor{LightBlue}{RGB}{220,230,250}
+\definecolor{LightRed}{RGB}{250,220,220}
+
+\hypersetup{
+    breaklinks,
+    citecolor=mylinkcolor,
+    colorlinks=true,
+    linkcolor=mylinkcolor,
+    urlcolor=mylinkcolor
+}
+
+% Define the dataset name
+\newcommand{\dataset}{\textsc{IneqMath}\xspace}
+
+\newcommand{\prv}[1]{{\scriptsize\textcolor{blue}{$\downarrow$#1}}}
+\newcommand{\urv}[1]{{\scriptsize\textcolor{red}{$\uparrow$#1}}}
+
+\newcommand{\correct}[1]{{\textcolor{blue}{#1}}}
+\newcommand{\wrong}[1]{{\textcolor{red}{#1}}}
+\newcommand{\flagged}[1]{{\textcolor{forestgreen}{#1}}}
+\newcommand{\correcthl}{\textcolor{blue}{(blue-highlighted part)}}
+\newcommand{\wronghl}{\textcolor{red}{(red-highlighted part)\xspace}}
+
+\newcommand{\company}[1]{}
+\newcommand{\modelapi}[1]{{\texttt{#1}}}
+\newcommand{\link}[1]{{\href{#1}{\texttt{Link}}}}
+
+\newcommand{\cmark}{\textcolor{green!70!black}{\ding{51}}} 
+\newcommand{\xmark}{\textcolor{red}{\ding{55}}} 
+
+\newcommand{\lean}{\raisebox{-0.3em}{\includegraphics[height=1.0em]{logos/lean.png}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Define colors for tool metadata boxes
+\definecolor{colorcardbox}{RGB}{240, 248, 255} % Light blue background
+\definecolor{colorcardborder}{RGB}{52, 52, 173} % Purple border
+
+% Define custom textcolorbox
+\newtcolorbox{textcolorbox}[1][]{
+    % float=!ht,  % Add this line to force "here" placement
+    colback=colorcardbox,
+    colframe=colorcardborder,
+    arc=2pt,                % small corner rounding
+    % boxrule=2pt,          % thin rule
+    title=#1,               % uses optional argument as title
+    fonttitle=\bfseries,
+    left=5pt,               % additional space on left
+    right=5pt,              % additional space on right
+    top=5pt,                % additional space at top
+    bottom=5pt,             % additional space at bottom
+    before skip=1em,        % vertical skip before the box
+    after skip=1em,          % vertical skip after the box
+    fontupper=\small,
+    breakable
+}
+
+% Define custom plannerbox for steps
+\definecolor{plannerbg}{RGB}{248, 230, 234}      % Light red-gray background
+\definecolor{plannerframe}{RGB}{176, 36, 24}    % Steel red frame
+\definecolor{plannerbadge}{RGB}{225, 151, 168}      % Dark red gray badge
+
+\newtcolorbox{examplebox}[1][]{
+    % float=!ht,  % Add this line to force "here" placement
+    colback=plannerbg,
+    colframe=plannerframe,
+    arc=2pt,                % small corner rounding
+    % boxrule=1pt,          % thin rule
+    title=#1,               % uses optional argument as title
+    fonttitle=\bfseries,
+    left=5pt,               % additional space on left
+    right=5pt,              % additional space on right
+    top=5pt,                % additional space at top
+    bottom=5pt,             % additional space at bottom
+    before skip=1em,        % vertical skip before the box
+    after skip=1em,          % vertical skip after the box
+    colbacktitle=plannerbadge,  % background of the title (the 'badge')
+    coltitle=black,              % title text color, if desired
+    breakable
+}
+
+\tcbuselibrary{listings}
+\usepackage{listings}
+
+
+\newtcblisting{codebox}{
+    % float=!ht,  % Add this line to force "here" placement
+    colback=colorcardbox,
+    colframe=white,
+    arc=0pt,
+    boxrule=0pt,
+    listing only,
+    listing options={
+        language=Python,
+        basicstyle=\ttfamily\footnotesize,
+        keywordstyle=\color{blue!70!black}\bfseries,
+        commentstyle=\itshape\color{green!40!black},
+        stringstyle=\color{red!60!black},
+        showstringspaces=false,
+        columns=flexible,
+        breaklines=true,
+        inputencoding=utf8,
+        extendedchars=true,
+        texcl=true,
+        escapeinside={(*@}{@*)},  % Define escape characters
+    },
+    left=0pt,
+    right=0pt,
+    top=-10pt,
+    bottom=-10pt,
+    fontupper=\small,
+    breakable
+}
+
+\newtcblisting{examplecodebox}{
+    % float=!ht,  % Add this line to force "here" placement
+    colback=plannerbg,
+    colframe=white,
+    arc=0pt,
+    boxrule=0pt,
+    listing only,
+    listing options={
+        language=Python,
+        basicstyle=\ttfamily\footnotesize,
+        keywordstyle=\color{blue!70!black}\bfseries,
+        commentstyle=\itshape\color{green!40!black},
+        stringstyle=\color{red!60!black},
+        showstringspaces=false,
+        columns=flexible,
+        breaklines=true,
+        inputencoding=utf8,
+        extendedchars=true,
+        texcl=true,
+        escapeinside={(*@}{@*)},  % Define escape characters
+    },
+    left=0pt,
+    right=0pt,
+    top=-10pt,
+    bottom=-10pt,
+    fontupper=\small,
+    breakable
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\title{\hspace{-0.5mm}Solving Inequality Proofs with Large Language Models}
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+
+% Define affiliations
+\definecolor{stanfordred}{RGB}{140, 21, 21}  % Stanford Cardinal
+\definecolor{berkeleyblue}{RGB}{0, 50, 98}   % Berkeley Blue
+\definecolor{mitblack}{RGB}{0, 0, 0}       % MIT Black
+
+\newcommand{\stanford}{\textcolor{stanfordred}{\boldsymbol{\alpha}}}
+\newcommand{\berkeley}{\textcolor{berkeleyblue}{\boldsymbol{\beta}}}
+\newcommand{\newmit}{\textcolor{mitblack}{\boldsymbol{\gamma}}}
+
+
+\author{
+    Pan Lu$^{*~\stanford }$, Jiayi Sheng$^{*~\berkeley}$, Luna Lyu$^{*~\stanford}$, Jikai Jin$^{\stanford}$, Tony Xia$^{\stanford}$, Alex Gu$^{\newmit}$, James Zou$^{\stanford}$
+    \vspace{0.2cm} \\
+    $^{\stanford}$ Stanford University ~~ 
+    $^{\berkeley}$ UC Berkeley ~~ 
+    $^{\newmit}$ Massachusetts Institute of Technology
+    \vspace{0.2cm} \\ 
+    $\vcenter{\hbox{\includegraphics[height=1.2em]{logos/ineqmath.png}}}$\hspace{0.3em}
+\texttt{Website:} \url{https://ineqmath.github.io/}
+    \vspace{0.2cm} \\ 
+    \raisebox{-0.4ex}{\includegraphics[height=1em]{logos/github.png}}\hspace{0.3em}\href{https://github.com/lupantech/ineqmath}{\texttt{Code}} 
+    \hspace{0.2cm}
+    \raisebox{-0.4ex}{\includegraphics[height=1em]{logos/huggingface.png}}\hspace{0.3em}\href{https://huggingface.co/datasets/AI4Math/IneqMath}{\texttt{Dataset}}
+    \hspace{0.2cm}
+    \raisebox{-0.4ex}{\includegraphics[height=1em]{logos/trophy.png}}\hspace{0.3em}\href{https://ineqmath.github.io/\#leaderboard}{\texttt{Leaderboard}}
+    \vspace{-3mm}
+}
+
+
+\begin{document}
+
+
+\maketitle
+
+
+\begin{abstract}
+Inequality proving, crucial across diverse scientific and mathematical fields, tests advanced reasoning skills such as discovering tight bounds and strategic theorem application. This makes it a distinct, demanding frontier for large language models (LLMs), offering insights beyond general mathematical problem-solving. Progress in this area is hampered by existing datasets that are often scarce, synthetic, or rigidly formal. We address this by proposing an \textit{informal yet verifiable} task formulation, recasting inequality proving into two automatically checkable subtasks: bound estimation and relation prediction. Building on this, we release \dataset, an expert-curated dataset of Olympiad-level inequalities, including a test set and training corpus enriched with step-wise solutions and theorem annotations. We also develop a novel \textit{LLM-as-judge} evaluation framework, combining a \textit{final-answer} judge with four \textit{step-wise} judges designed to detect common reasoning flaws. A systematic evaluation of 29 leading LLMs on \dataset reveals a surprising reality: even top models like o1 achieve less than 10\% overall accuracy under step-wise scrutiny; this is a drop of up to 65.5\% from their accuracy considering only final answer equivalence. This discrepancy exposes fragile deductive chains and a critical gap for current LLMs between merely finding an answer and constructing a rigorous proof. Scaling model size and increasing test-time computation yield limited gains in overall proof correctness. Instead, our findings highlight promising research directions such as theorem-guided reasoning and self-refinement.
+\begingroup
+\renewcommand\thefootnote{}% no mark
+\footnote{
+    * Co-first authors. 
+    Corresponding authors:
+    \Envelope \url{{panlu, jamesz}@stanford.edu}
+}
+\addtocounter{footnote}{-1}% back up so the next footnote is “1”
+\endgroup
+\end{abstract}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.0\linewidth]{figs/key_results_accuracy.pdf}
+    \caption{Final-answer accuracy versus overall accuracy for leading LLMs across different categories on the \dataset benchmark of Olympiad-level inequality problems. Overall accuracy, measuring both answer correctness and step soundness, is substantially lower than final-answer accuracy for all model types. This highlights a critical gap: while LLMs may find correct final answers to these inequality problems, their reasoning is often unsound. Each model used its optimal maximal tokens.}
+    \label{fig:key_results_accuracy}
+\end{figure}
+
+
+\input{body}
+
+% \clearpage
+\section*{Acknowledgments}
+\label{sec:ack}
+This work is partially supported by the Hoffman-Yee Research Grants program at Stanford HAI and the AI for Math Fund by Renaissance Philanthropy. We thank Yu (Bryan) Zhou for early discussion and feedback.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \clearpage
+\bibliography{ref}
+\bibliographystyle{plain}
+\nocite{poesia2024learning, ye2024reasoning, xin2024advancing, li2025proving, liang2025mps, zhang2025deeptheorem, dong2025beyond, wang2025kimina, deepseekproverv2}
+% \bibliographystyle{ims}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+\appendix
+
+\input{app}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\end{document}

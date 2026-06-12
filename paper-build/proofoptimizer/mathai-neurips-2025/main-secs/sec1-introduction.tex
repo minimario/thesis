@@ -1,0 +1,17 @@
+\section{Introduction}
+Theorem proving in formal environments such as Lean~\citep{lean} offers a powerful testbed for training large language models (LLMs) in mathematical reasoning via reinforcement learning (RL). Lean mechanically verifies proofs and filters hallucinations, giving reliable reward signals. RL-finetuned provers have reached near gold-medal IMO performance~\citep{chen2507seed} and excelled on benchmarks like PutnamBench~\citep{lin2025goedel2}. These provers produce correct but excessively long and inscrutable proofs, as optimizing only for correctness leads to convoluted and redundant output, such as in \href{https://github.com/ByteDance-Seed/Seed-Prover/blob/17f89e327e4f90f46b0af385efc233dbbe71f8bb/SeedProver/imo2025/IMO2025/P1.lean}{Lean proof of IMO 2025 P1} is 4,357 lines, which is 16x longer than its \href{https://github.com/ByteDance-Seed/Seed-Prover/blob/17f89e327e4f90f46b0af385efc233dbbe71f8bb/SeedProver/imo2025/p1_proof.pdf}{informal counterpart}.
+
+We address this with \emph{proof simplification}: transforming formal proofs into simpler forms while preserving correctness. We focus on proof length (Lean token count), but our approach extends to any computable metric~\citep{kinyon-proof-simp}. Prior methods~\citep{ahuja2024improver} scaffold around API-only LLMs like GPT-4o and work on human proofs but fail on long RL-generated proofs. 
+
+We introduce \emph{ProofOptimizer}, an LLM-based system to shorten Lean proofs. It combines (i) a symbolic Lean linter to strip obvious redundancies, (ii) a 7B-parameter model finetuned for proof simplification, and (iii) an iterative inference algorithm that repeatedly applies the model to the shortest proof. Expert iteration and RL training use verified simplifications, enabling continual improvement without human labels. On proofs from Goedel-Prover-V2 (MiniF2F, PutnamBench) and Seed-Prover (IMO 2025), ProofOptimizer achieves large reductions: 63\% average on MiniF2F and 26\% on PutnamBench in one shot, 72\% with test-time RL, and up to 87\%/57\% after iterative shortening, halving three of four IMO 2025 proofs. 
+
+\begingroup
+\setlength{\abovecaptionskip}{3pt}
+\setlength{\belowcaptionskip}{0pt}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/main_fig.pdf}
+    \caption{ProofOptimizer reduces a proof of a Putnam problem from 1097 to 76 tokens.}
+    \label{fig:example}
+\end{figure}
+\endgroup

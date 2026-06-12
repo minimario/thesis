@@ -1,0 +1,1549 @@
+\newpage
+\subsection{Lean Base Model and Proof Simplification Data Details} \label{appendix:base-model-and-data}
+
+\subsubsection{General Base Model for Lean} \label{subsec:lean-base-model}
+
+In this section, we describe the data recipe for training our general-purpose base model in Lean. We fine-tune \texttt{Qwen-2.5-7B-Instruct}~\citep{qwen2} on around 1B Lean tokens on a combination of diverse math and Lean-related tasks, as follows:
+\begin{itemize}
+    \item \textbf{Natural Language Problem Solving}: The model is trained on natural language mathematics problems with associated solutions so that it has general math capabilities. We use \texttt{NuminaMath-1.5} \citep{numina_math_datasets}, a high-quality set of such pairs.
+    \item \textbf{Lean Code Completion}: We use a subset of Lean code from GitHub, using GPT-4o with heuristics to classify whether code is Lean 3 or Lean 4. We include only the Lean 4 subset of the code.
+    \item \textbf{Auto-formalization}: In order to teach the model to associate natural language with Lean, we train the model to perform auto-formalization of both problems and solutions from natural language to Lean 4 in our data mix. For problems, we use natural language problems with Lean problem statement formalizations from high-quality datasets: CombiBench \citep{liu2025combibench}, Compfiles, FormalMATH \citep{yu2025formalmath}, Goedel-Pset \citep{lin2025goedel}, Lean Workbook \citep{ying2024lean}, miniF2F \citep{zheng2021minif2f}, ProofNet \citep{azerbayev2023proofnet}, and PutnamBench \citep{tsoukalas2024putnambench}. We include solution autoformalization data from the \texttt{Goedel-Pset-v1-Solved} dataset by mapping Lean solutions with natural language solutions.
+    \item \textbf{Formal Theorem Proving}: We use a set of conjectures and proofs from STP \citep{dong2025stp}, which is a diverse collection of theorems and proofs in Lean 4 generated via expert iteration while training their model.
+    \item \textbf{Tactic and Proof State Prediction}: Finally, to teach the model about proof states, we use pre-extracted data from \texttt{LeanUniverse} \citep{ahm2025leanuniverse} and extract additional data using the Pantograph \citep{aniva2025pantograph} tool. For each proof in STP, we extract each tactic, as well as the proof states before and after the tactic. The model is given the proof state before the tactic and asked to predict both the tactic and the proof state following the tactic.
+\end{itemize}
+
+\subsubsection{Generating a Dataset of Theorems and Proofs for Shortening} \label{subsec:proof-shortening-dataset}
+Next, we describe how we generate our training dataset of proofs to be shortened.
+
+\paragraph{Formalizing Proofs with Sketches to Derive Subtheorems} While there are many datasets such as \texttt{Goedel-Pset} and \texttt{Lean Workbook}, we find that they have a high density of simple computational problems posed as proofs rather than high-quality proving problems. In \texttt{Goedel-Pset}, we estimate that only 5\% of the problems are proof problems\footnote{We estimate whether a problem is a computational problem via a heuristic filter of whether the problem has any of the keywords: \textit{prove, show, establish, demonstrate, verify}}, leading to a lack of high-quality theorem proving data. To combat this, we develop a technique to generate diverse and interesting theorems based on the idea of proof sketching \citep{jiang2022draft}.
+
+The key idea is that we can leverage existing natural language solutions to identify core steps in a proof. We first train our Lean base model to take a natural language solution and auto-formalizing into a high-level proof, which we call a \textit{proof sketch}, an example shown in Listing \ref{lst:sketch-example}. In the proof sketch, core steps are represented via \texttt{have} statements, and lower-level details are omitted and left as \texttt{sorry} statements. We then filter sketches are then filtered by the Lean compiler to remove non-compiling sketches.
+
+Once we have a set of compiling sketches, we extract each \texttt{sorry} goal into a new theorem via the \texttt{extract\_goal} tactic, which turns it into a theorem that is equivalent to what needs to be proved at that particular \texttt{sorry}. For example, extracting the second \texttt{sorry} in Listing \ref{lst:sketch-example} results in the theorem shown in Listing \ref{lst:extractgoal-example}. By extracting these \texttt{sorry} statements, we are able to generate 518K theorems.
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, after skip=10pt plus 2pt]
+\begin{lstlisting}[caption={Example of a proof sketch},label={lst:sketch-example}, captionpos=t, language=lean, breaklines=true, style=mystyle]
+theorem lean_workbook_plus_22532  (a b : ℕ → ℝ)
+  (h₀ : 0 < a ∧ 0 < b)
+  (h₁ : ∀ n, a (n + 1) = a n + 2)
+  (h₂ : ∀ n, b (n + 1) = b n * 2)
+  (h₃ : a 1 = 1)
+  (h₄ : b 1 = 1)
+  (h₅ : ∑ k in Finset.range 3, b k = 7) :
+  ∑ k in Finset.range n, (a k * b k) = (2 * n - 3) * 2^n + 3   := by
+  -- Lemma 1: Prove that the sequence {a_n} is an arithmetic sequence.
+  have lemma1 : ∀ n, a (n + 1) = a n + 2 := by
+    sorry
+
+  -- Lemma 2: Express a_n in terms of n.
+  have lemma2 : ∀ n, a n = 2 * n - 1 := by
+    sorry
+
+  -- Lemma 3: Express b_n in terms of n.
+  have lemma3 : ∀ n, b n = 2^(n - 1) := by
+    sorry
+
+  -- Lemma 4: Calculate the sum of the first n terms of the sequence {a_n b_n}.
+  have lemma4 : ∀ n, ∑ k in Finset.range n, (a k * b k) = (2 * n - 3) * 2^n + 3 := by
+    sorry
+
+  -- Apply lemma4 to conclude the theorem.
+  exact lemma4 n
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, after skip=10pt plus 2pt]
+\begin{lstlisting}[caption={Example of an extracted theorem},label={lst:extractgoal-example}, captionpos=t, language=lean, breaklines=true, style=mystyle]
+theorem lean_workbook_plus_22532.extracted_1_1 (a b : ℕ → ℝ) (h₀ : 0 < a ∧ 0 < b) (h₁ : ∀ (n : ℕ), a (n + 1) = a n + 2)
+  (h₂ : ∀ (n : ℕ), b (n + 1) = b n * 2) (h₃ : a 1 = 1) (h₄ : b 1 = 1) (h₅ : ∑ k ∈ Finset.range 3, b k = 7)
+  (lemma1 : ∀ (n : ℕ), a (n + 1) = a n + 2) (n : ℕ) : a n = 2 * ↑n - 1 := sorry
+\end{lstlisting}
+\end{tcolorbox}
+
+% \begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, after skip=10pt plus 2pt]
+% \begin{lstlisting}[caption={Example of a proof sketch},label={lst:sketch-example}, captionpos=t, language=lean, breaklines=true, style=mystyle]
+% theorem lean_workbook_plus_22532  (a b : ℕ → ℝ)
+%   (h₀ : 0 < a ∧ 0 < b)
+%   (h₁ : ∀ n, a (n + 1) = a n + 2)
+%   (h₂ : ∀ n, b (n + 1) = b n * 2)
+%   (h₃ : a 1 = 1)
+%   (h₄ : b 1 = 1)
+%   (h₅ : ∑ k in Finset.range 3, b k = 7) :
+%   ∑ k in Finset.range n, (a k * b k) = (2 * n - 3) * 2^n + 3   := by
+%   -- Lemma 1: Prove that the sequence {a_n} is an arithmetic sequence.
+%   have lemma1 : ∀ n, a (n + 1) = a n + 2 := by
+%     sorry
+
+%   -- Lemma 2: Express a_n in terms of n.
+%   have lemma2 : ∀ n, a n = 2 * n - 1 := by
+%     sorry
+
+%   ...
+
+% theorem lean_workbook_plus_22532.extracted_1_1 (a b : ℕ → ℝ) (h₀ : 0 < a ∧ 0 < b) (h₁ : ∀ (n : ℕ), a (n + 1) = a n + 2)
+%   (h₂ : ∀ (n : ℕ), b (n + 1) = b n * 2) (h₃ : a 1 = 1) (h₄ : b 1 = 1) (h₅ : ∑ k ∈ Finset.range 3, b k = 7)
+%   (lemma1 : ∀ (n : ℕ), a (n + 1) = a n + 2) (n : ℕ) : a n = 2 * ↑n - 1 := sorry
+% \end{lstlisting}
+% \end{tcolorbox}
+
+\paragraph{Fine-Tuning our Model for Proof Sketching} In order to fine-tune our model for proof sketching, we first curate a dataset of natural language problems (with corresponding Lean problem formalizations) and solutions by combining \texttt{Goedel-Pset-v1} \citep{lin2025goedel} with NuminaMath-1.5 \citep{numina_math_datasets}. Then, we use \texttt{Qwen-2.5-32B-Instruct} to produce proof-sketches based on these natural language solutions similar to that in Listing \ref{lst:sketch-example}. We filter out compiling sketches and train our Lean base model on them. In Table \ref{tab:sketch-ft-results}, we show the results of fine-tuning. Since it can be tricky to measure the objective correctness of a sketch, we use the proxy of compile rate, finding our model performs better than \texttt{Qwen2.5-32B} and is smaller and can do inference faster.
+
+\begin{table}[H]
+\caption{Proof sketching ability of models}
+\label{tab:sketch-ft-results}
+\centering
+\begin{tabular}{ccc}
+\toprule
+\textbf{Model} & \textbf{compile@1} & \textbf{compile@16} \\
+\midrule
+Qwen2.5 7B (zero-shot) & 3.6  & 7.0 \\
+Qwen2.5 7B (one-shot) & 4.9  & 19.0 \\
+Qwen2.5 32B (zero-shot) & 21.1 & 62.0 \\
+Qwen2.5 32B (one-shot) & 35.1 & 75.0 \\
+Ours (7B) & 54.8 & 89.1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\paragraph{Generating Proofs for Simplification} Because proof sketching can generate steps or sub-theorems that are too incremental, we first filter out trivial theorems that can be easily solved by automation tactics in Lean. For example, the first \texttt{sorry} in Listing \ref{lst:sketch-example} is just a restatement of hypothesis $h_1$ and can be solved via \texttt{rfl}. While this theorem is correct, it is not challenging for the model. Therefore, we design an \texttt{AUTO} tactic (Listing \ref{lst:auto-tactic}) that tries a series of Lean automation tactics such as \texttt{linarith} and \texttt{aesop} to filter out these simple theorems, leaving 307K of the original 518K theorems (filtering out 41\%).
+
+For the remaining theorems, we attempt to generate proofs of these theorems with \texttt{Goedel-Prover-V2-32B}, a strong open-source proving model. With 4 attempts per theorem, the model is able to prove 145K theorems, which we use as targets for proof simplification. Statistics and examples of these proofs can be found in the next section, Appendix \ref{sec:proof-simp-training-stats}.
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, after skip=10pt plus 2pt]
+\begin{lstlisting}[caption={AUTO tactic for filtering trivial theorems},label={lst:auto-tactic}, captionpos=t, language=lean, breaklines=true, style=mystyle]
+macro "AUTO" : tactic =>
+  `(tactic|
+    repeat'
+      (try rfl
+       try tauto
+       try assumption
+       try norm_num
+       try ring
+       try ring_nf at *
+       try ring_nf! at *
+       try native_decide
+       try omega
+       try simp [*] at *
+       try field_simp at *
+       try positivity
+       try linarith
+       try nlinarith
+       try exact?
+       try aesop))
+\end{lstlisting}
+\end{tcolorbox}
+
+
+\subsubsection{Statistics of Proof Simplification Training Dataset} \label{sec:proof-simp-training-stats}
+
+The minimum, Q1, median, Q3, and maximum proof lengths of our training dataset are $1$, $103$, $204$, $411$, and $10958$. The mean is $334$. In Fig. \ref{fig:train_proof_length_histogram}, we show the distribution of lengths, observing its right-skewed nature. Examples of proofs are shown in Listings \ref{lst:proof-simp-training-ex1} and \ref{lst:proof-simp-training-ex2}. Compared to the proofs in our evaluation sets, we observe that training proofs often have more unused hypotheses, as they are derived from extracting the proof state, which may contain hypotheses that are not used for that particular sub-goal. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/dataset-statistics/sft_proof_length_histogram.pdf}
+    \caption{Histogram of proof lengths.}
+    \label{fig:train_proof_length_histogram}
+\end{figure}
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, after skip=10pt plus 2pt]
+\begin{lstlisting}[caption={Example of Proof Simplification Training Task (Length 158)},label={lst:proof-simp-training-ex1}, captionpos=t, language=lean, breaklines=true, style=mystyle]
+theorem extracted_1 (a b : ℝ) (ha : 0 ≤ a) (ha1 : a ≤ 1) (hb : b = a ^ 3 + 1 / (1 + a))
+  (lemma1 : 1 - a + a ^ 2 - a ^ 3 ≤ 1 / (1 + a)) (lemma2 : b ≥ 1 - a + a ^ 2) (lemma3 : 1 - a + a ^ 2 ≥ 3 / 4)
+  (lemma4 : b ≤ 3 / 2) : 3 / 4 < b := by
+  have h_main : 3 / 4 < b := by
+    by_contra h
+    -- Assume for contradiction that b ≤ 3/4
+    have h₁ : b ≤ 3 / 4 := by linarith
+    -- From lemma2, b ≥ 1 - a + a², and from lemma3, 1 - a + a² ≥ 3/4
+    have h₂ : 1 - a + a ^ 2 ≤ 3 / 4 := by
+      linarith
+    -- But from lemma3, 1 - a + a² ≥ 3/4, so 1 - a + a² = 3/4
+    have h₃ : 1 - a + a ^ 2 = 3 / 4 := by
+      linarith
+    -- Solve 1 - a + a² = 3/4 to get a = 1/2
+    have h₄ : a = 1 / 2 := by
+      have h₄₁ : a ^ 2 - a + 1 / 4 = 0 := by
+        nlinarith
+      have h₄₂ : (a - 1 / 2) ^ 2 = 0 := by
+        nlinarith
+      have h₄₃ : a - 1 / 2 = 0 := by
+        nlinarith
+      linarith
+    -- Substitute a = 1/2 into b = a³ + 1/(1 + a)
+    have h₅ : b = 19 / 24 := by
+      rw [hb]
+      rw [h₄]
+      norm_num
+    -- But 19/24 > 3/4, so b > 3/4, contradiction
+    have h₆ : b > 3 / 4 := by
+      rw [h₅]
+      norm_num
+    linarith
+  exact h_main
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, after skip=10pt plus 2pt]
+\begin{lstlisting}[caption={Example of Proof Simplification Training Task (Length 295)},label={lst:proof-simp-training-ex2}, captionpos=t, language=lean, breaklines=true, style=mystyle]
+theorem extracted_1 (n : ℕ) (hn : 3 ≤ n) (lemma1 : Nat.card ↑{k | k ≤ n ∧ k ≠ 0} = n) :
+  Nat.card ↑{k | k ≤ n - 1 ∧ k ≠ 0} = n - 1 := by
+  have h_main : Nat.card ↑{k : ℕ | k ≤ n - 1 ∧ k ≠ 0} = n - 1 := by
+    have h₁ : {k : ℕ | k ≤ n - 1 ∧ k ≠ 0} = Set.Icc 1 (n - 1) := by
+      apply Set.ext
+      intro k
+      simp only [Set.mem_setOf_eq, Set.mem_Icc]
+      constructor
+      · intro h
+        have h₂ : k ≤ n - 1 := h.1
+        have h₃ : k ≠ 0 := h.2
+        have h₄ : 1 ≤ k := by
+          by_contra h₄
+          -- If k < 1, then k = 0 since k is a natural number
+          have h₅ : k = 0 := by
+            omega
+          contradiction
+        exact ⟨h₄, h₂⟩
+      · intro h
+        have h₂ : 1 ≤ k := h.1
+        have h₃ : k ≤ n - 1 := h.2
+        have h₄ : k ≤ n - 1 := h₃
+        have h₅ : k ≠ 0 := by
+          by_contra h₅
+          -- If k = 0, then 1 ≤ k would be false
+          have h₆ : k = 0 := by simpa using h₅
+          omega
+        exact ⟨h₄, h₅⟩
+    rw [h₁]
+    -- Calculate the cardinality of the set {1, ..., n - 1}
+    have h₂ : Nat.card (Set.Icc 1 (n - 1) : Set ℕ) = n - 1 := by
+      -- Use the fact that the cardinality of the interval [1, n - 1] is n - 1
+      have h₃ : n - 1 ≥ 1 := by
+        have h₄ : n ≥ 3 := hn
+        omega
+      -- Use the formula for the cardinality of the interval [a, b]
+      rw [Nat.card_eq_fintype_card]
+      -- Use the fact that the cardinality of the interval [1, n - 1] is n - 1
+      rw [Fintype.card_ofFinset]
+      -- Convert the set to a finset and calculate its cardinality
+      <;> simp [Finset.Icc_eq_empty, Finset.card_range, Nat.succ_le_iff]
+      <;> cases n with
+      | zero => contradiction
+      | succ n =>
+        cases n with
+        | zero => contradiction
+        | succ n =>
+          cases n with
+          | zero => contradiction
+          | succ n =>
+            simp_all [Finset.Icc_eq_empty, Finset.card_range, Nat.succ_le_iff]
+            <;> ring_nf at *
+            <;> omega
+    rw [h₂]
+  exact h_main
+\end{lstlisting}
+\end{tcolorbox}
+
+\newpage
+\subsection{Training Metrics throughout RL} \label{sec:rl-metrics-all}
+In Section~\ref{sec:expit-rl}, we observed that expert iteration leads to higher diversity as witnessed by better @32 metrics, while reinforcement learning with standard reinforcement learning algorithms maximizing expected rewards leads to higher @1 metrics. In Figure~\ref{fig:rl-atk}, we show the evolution of proof shortening red@1 alongside red@32. Initial @32 metrics are slowly distilled into @1, but the improvement on @32 metrics is limited.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}[t]{0.4\textwidth}
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/grpo/grpo_minif2f_smooth5_small.pdf}
+    \subcaption{miniF2F red@1}
+    \label{fig:grpo-red1-minif2f}
+  \end{minipage}%
+  \hspace{0.1\textwidth}
+  \begin{minipage}[t]{0.4\textwidth}
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/grpo/grpo_putnam_smooth5_small.pdf}
+    \subcaption{PutnamBench red@1}
+    \label{fig:grpo-red1-putnam}
+  \end{minipage}
+    \begin{minipage}[t]{0.4\textwidth}
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/grpo/grpo_minif2f_smooth5_small_at32.pdf}
+    \subcaption{miniF2F red@32}
+    \label{fig:grpo-red32-minif2f}
+  \end{minipage}%
+  \hspace{0.1\textwidth}
+  \begin{minipage}[t]{0.4\textwidth}
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/grpo/grpo_putnam_smooth5_small_at32.pdf}
+    \subcaption{PutnamBench red@32}
+    \label{fig:grpo-red32-putnam}
+  \end{minipage}
+    \caption{\textbf{Reduction metrics @1 and @32 over the course of RL}. GRPO maximizes \textbf{red@1} at the cost of diversity, as \textbf{red@32} only marginally increases in comparison.} 
+    \label{fig:rl-atk}
+\end{figure}
+
+
+\newpage
+\subsection{Full Results and Extended Analysis of Iterative Proof Shortening}
+
+\subsubsection{Table of Iterative Proof Shortening Results}
+Table \ref{tab:inference-iteration-results-all} is a tabular form of Fig. \ref{fig:iterative-shortening}, showing the proof length after each iteration of proof shortening.
+
+\begin{table}[H]
+\caption{Min@64 (rounded to nearest integer) and reduction (\%) of miniF2F and PutnamBench proofs across inference-time iterations. Iterations $1-6$ are done with $64$ samples, and $7-8$ with $1024$ samples. }
+\label{tab:inference-iteration-results-all}
+\centering
+\begin{tabular}{c | c | c c c c c c c c c c}
+\toprule
+\textbf{Dataset} & \textbf{Model} & \textbf{Orig} & \textbf{Lint} & \textbf{It 1} & \textbf{It 2} & \textbf{It 3} & \textbf{It 4} & \textbf{It 5} & \textbf{It 6} & \textbf{It 7*} & \textbf{It 8*} \\
+\midrule
+\multirow{2}{*}{miniF2F} 
+& Min@64 & 334 & 302 & 144 & 126 & 121 & 117 & 106 & 104 & 88 & 75 \\
+& Red@64 (\%) & 0.0 & 9.2 & 76.6 & 80.0 & 81.0 & 81.5 & 82.9 & 83.1 & 85.7 & 87.9 \\
+\midrule
+\multirow{2}{*}{Putnam} 
+& Min@64 & 1468 & 1359 & 1123 & 1061 & 1024 & 1007 & 975 & 969 & 890 & 811 \\
+& Red@64 (\%) & 0.0 & 7.4 & 34.8 & 40.0 & 42.5 & 43.6 & 46.4 & 47.1 & 52.2 & 57.2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Effect of k on min@k and red@k throughout simplification} \label{subsec-effect-of-k}
+In this section, we analyze the effect of increasing $k$ on min@k and red@k. First, we analyze this trend when attempting to simplify the initial, linted proof, shown in Table \ref{tab:k-scaling} and Fig. \ref{fig:k-scaling}. We observe a relatively log-linear gain in both metrics. 
+
+For comparison, we analyze the same trend but for simplifying proofs that have already gone many iterations of simplification. In Fig. \ref{fig:k-scaling-later}, we analyze proofs that have gone $7$ iterations of proof simplification. We see a different pattern, where min@k falls slower for lower $k$ and then log-linearly afterwards. Intuitively, as proofs become more simplified, they become harder to simplify in a low-shot setting, and exploring more diverse simplifications becomes crucial. 
+
+
+\begin{table}[H]
+\caption{Min@k and Red@k for increasing values of $k$}
+\label{tab:k-scaling}
+\centering
+% ---- First half of columns ----
+\begin{tabular}{c | c | c c c c c c c}
+\toprule
+\textbf{Dataset} & \textbf{Metric} & \textbf{Original} & \textbf{Linter} & \textbf{@1} & \textbf{@2} & \textbf{@4} & \textbf{@8} & \textbf{@16} \\
+\midrule
+\multirow{2}{*}{miniF2F} 
+& Min@k & 334 & 302 & 142 & 141 & 139 & 137 & 134 \\
+& Red@k (\%) & 0.0\% & 9.2\% & 77.1\% & 77.3\% & 77.7\% & 78.1\% & 78.6\% \\
+\midrule
+\multirow{2}{*}{PutnamBench} 
+& Min@k & 1468 & 1359 & 1120 & 1117 & 1112 & 1105 & 1094 \\
+& Red@k (\%) & 0.0\% & 7.4\% & 35.2\% & 35.5\% & 35.9\% & 36.5\% & 37.3\% \\
+\bottomrule
+\end{tabular}
+
+\vspace{1em}
+
+% ---- Second half of columns ----
+\begin{tabular}{c | c | c c c c c c}
+\toprule
+\textbf{Dataset} & \textbf{Metric} & \textbf{@32} & \textbf{@64} & \textbf{@128} & \textbf{@256} & \textbf{@512} & \textbf{@1024} \\
+\midrule
+\multirow{2}{*}{miniF2F} 
+& Min@k & 130 & 126 & 122 & 118 & 114 & 110 \\
+& Red@k (\%) & 79.2\% & 79.9\% & 80.6\% & 81.2\% & 81.8\% & 82.4\% \\
+\midrule
+\multirow{2}{*}{PutnamBench} 
+& Min@k & 1080 & 1063 & 1043 & 1023 & 1004 & 987 \\
+& Red@k (\%) & 38.4\% & 39.7\% & 41.3\% & 42.9\% & 44.3\% & 45.7\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/iterative-simp/metrics_k.pdf}
+    \caption{Effect of scaling $k$ (sample count) on Min@k and Red@k (initial iteration)}
+    \label{fig:k-scaling}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/iterative-simp/metrics_k_it8.pdf}
+    \caption{Effect of scaling $k$ (sample count) on Min@k and Red@k (later iteration)}
+    \label{fig:k-scaling-later}
+\end{figure}
+
+\subsubsection{Details on Seed-Prover IMO Proof Shortening} \label{subsec-imo-proof-shortening}
+
+Earlier in 2025, Seed-Prover released Lean proofs of four problems that the model successfully solved from the 2025 International Mathematical Olympiad (IMO) \citep{chen2507seed}. They solved problems 3, 4, and 5 were solved during the contest window, and problem 1 later after the competition. However, the proofs of these problems are extremely verbose, especially compared to their informal counterparts. Using iterative proof shortening, our ProofOptimizer is able to successfully reduce the proof length of their proofs for P3, P4, and P5 by over half, as well as the longer P1 by $43.8\%$. In addition, we find that our shortened proofs for P4 and P5 show a $25\%$ and $81\%$ (respectively) speedup over the original proofs (Table \ref{tab:seed-imo-results-all}).
+
+\begin{table}[H]
+\caption{Results for ProofOptimizer + Iterative Shortening on IMO 2025 Proof Simplification}
+\label{tab:seed-imo-results-all}
+\centering
+\begin{tabular}{c ccc ccc}
+\toprule
+\multirow{2}{*}{\textbf{Problem}} 
+ & \multicolumn{3}{c}{\textbf{Length}} 
+ & \multicolumn{3}{c}{\textbf{Runtime}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7}
+ & \textbf{Original} & \textbf{Simplified} & \textbf{Reduction} 
+ & \textbf{Original} & \textbf{Simplified} & \textbf{Speedup} \\
+\midrule
+P1 & 36478 & 20506 & 43.79\% & 399.7 & 392.3 & 1.02$\times$ \\
+P3 & 16377 & 7907  & 51.72\% & 39.7  & 39.1  & 1.02$\times$ \\
+P4 & 29147 & 14531 & 50.15\% & 453.8 & 362.5 & 1.25$\times$ \\
+P5 & 8658  & 4002  & 53.78\% & 61.0  & 33.7  & 1.81$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+We use proofs from the \href{https://github.com/ByteDance-Seed/Seed-Prover/tree/17f89e327e4f90f46b0af385efc233dbbe71f8bb/SeedProver/imo2025/IMO2025}{official GitHub repository} using Mathlib 4.14.0 (our model was trained on Mathlib 4.19.0). Before shortening, we replace invocations of \texttt{exact?} and \texttt{apply?} with the actual proof that is found. Each of the proofs is divided into a collection of smaller lemmas and theorems (problems $1$, $3$, $4$, and $5$ have $80$, $52$, $88$, and $14$ theorems, respectively). Since running iterative shortening on the entire proof will suffer from long context issues, we treat each sub-lemma/sub-theorem as an individual target for shortening. At the end, we combine the shortened theorems to produce the complete shortened proof. When feeding a sub-theorem into ProofOptimizer, we include as context the theorem definition (but not proof) of all other theorems that occur in its proof. Finally, to ensure the correctness of our simplified proofs, we use \href{https://github.com/GasStationManager/SafeVerify}{SafeVerify} to confirm that all four simplified proofs match the specification of the original proof without any environmental manipulation. We remark that our setup does \textit{not} consider the space of structure-level simplifications, as we retain all sub-theorem statements from the original proof and only simplify their proofs. In addition, as our proof length metric only measures the length of proofs, it does not take into account unnecessarily long or redundant sub-theorem statements. 
+
+As this experiment aims to provide a simple demonstration of the potential of our approach rather than perform a controlled scientific study, we do not fix the number of iterations or samples per iteration across problems. Approximately, we use $15$-$20$ iterations of shortening with $64$-$4096$ samples per iteration. Taking inspiration from the analysis in Sec. \ref{subsec-effect-of-k}, we generally use less samples for the first few iterations and increase the number of samples for later iterations to maximize reduction per sample. We also allocate more samples to sub-theorems that show more simplification potential in early iterations. In total, we used approximately $3000$ H100 GPU hours per problem.
+
+\newpage
+\subsection{Comparison with Qwen2.5, GPT-4o, and Gemini-2.5-Pro} \label{subsec:leading-model-comparison}
+
+In Table \ref{tab:sota-comparison}, we compare \textit{ProofOptimizer} models with several off the shelf models, namely Qwen 2.5~\citep{qwen2.5}, GPT-4o~\citep{achiam2023gpt}, and Gemini-2.5-Pro~\citep{comanici2025gemini}. For all models, we feed the output of the symbolic linter as input, and report overall reduction with respect to the \textit{original (unlinted)} proof. 
+
+\begin{table}[H]
+\caption{\textbf{Proof length of miniF2F and PutnamBench proofs for various models.} Specially trained proof minimization models outperform prompted off-the-shelf models. Reinforcement learning achieves best @1 metrics but at the cost of reducing diversity, as witnessed by improved @32 metrics with expert iteration.}
+\label{tab:sota-comparison}
+\centering
+\begin{tabular}{cc  cc  cc}
+\toprule
+\textbf{Dataset} & \textbf{Model} &
+\textbf{Min@1} & \textbf{Min@32} &
+\textbf{Red@1} & \textbf{Red@32} \\
+\midrule
+\multirow{10.5}{*}{miniF2F}
+ & \textit{Original} & \multicolumn{2}{c}{\textit{334}} & \multicolumn{2}{c}{\textit{0.0\%}} \\
+ & \textit{Linter} & \multicolumn{2}{c}{\textit{302}} & \multicolumn{2}{c}{\textit{9.2\%}} \\
+\cdashline{2-6}[0.5pt/2pt]
+& Qwen2.5-Instruct 7B  & 294 & 267 & 25.7\% & 41.8\% \\
+ & Qwen2.5-Instruct 32B  & 288 & 252 & 30.0\% & 47.3\% \\
+ & GPT-4o & 283 & 258 & 35.2\% & 47.9\% \\
+ & GPT-4o + States & 266 & 290 & 32.9\% & 46.5\% \\
+ & Gemini-2.5-Pro & 280 & 207 & 31.6\% & 62.0\% \\
+ & Gemini-2.5-Pro + States & 283 & 208 & 31.6\% & 62.0\% \\
+\cdashline{2-6}[0.5pt/2pt]
+& ProofOptimizer-ExpIt & 241 & 153 & 53.9\% & 74.9\% \\
+ & ProofOptimizer-RL  & 190 & 152 & 67.1\% & 73.4\% \\
+\midrule
+\multirow{10.5}{*}{\shortstack{Putnam \\ Bench}}
+ & \textit{Original} & \multicolumn{2}{c}{\textit{1468}} & \multicolumn{2}{c}{\textit{0.0\%}} \\
+ & \textit{Linter}  & \multicolumn{2}{c}{\textit{1359}} & \multicolumn{2}{c}{\textit{7.4\%}} \\
+\cdashline{2-6}[0.5pt/2pt]
+& Qwen2.5-Instruct 7B  & 1358 & 1339 & 9.0\% & 14.8\% \\
+ & Qwen2.5-Instruct 32B  & 1353 & 1304 & 10.9\% & 20.7\% \\
+ & GPT-4o & 1355 & 1336 & 10.9\% & 18.2\% \\
+ & GPT-4o + States & 1379 & 1358 & 9.3\% & 15.9\% \\
+ & Gemini-2.5-Pro  & 1348 & 1303 & 12.7\% & 24.5\% \\
+ & Gemini-2.5-Pro + States & 1371 & 1319 & 11.5\% & 24.1\% \\
+\cdashline{2-6}[0.5pt/2pt]
+& ProofOptimizer-ExpIt  & 1328 & 1161 & 15.2\% & 31.9\% \\
+ & ProofOptimizer-RL  & 1303 & 1258 & 21.6\% & 27.1\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+In Fig. \ref{fig:comparison-po-gemini}, we compare the specific optimized proofs between Gemini and ProofOptimizer. For both data sets it can be seen
+that the longer the proof, the more challenging it is to shorten it. This is because although long proofs have more potential for shortening, the models struggle to maintain correctness of them. Still, ProofOptimizer is able to bring some improvements for the long proofs (see the top right part of the PutnamBench plot).
+In miniF2F, there is a significant number of proofs that can be minimized to just one step, which typically
+boils down to invoking one proof automation tactic (like \texttt{linarith} instead of applying a sequence of more explicit proof steps.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+\includegraphics[width=1.0\textwidth]{figures/minif2f.pdf}
+\end{subfigure}
+\begin{subfigure}{0.48\textwidth}
+\includegraphics[width=1.0\textwidth]{figures/putnambench.pdf}
+\end{subfigure}
+\begin{subfigure}{0.45\textwidth}
+\includegraphics[width=1.0\textwidth]{figures/legend.pdf}
+\end{subfigure}
+\caption{Comparison of optimized proofs between ProofOptimizer (green) and Gemini 2.5 Pro (yellow)}
+\label{fig:comparison-po-gemini}
+\end{figure}
+
+\newpage
+
+\subsection{Full Results and Extended Analysis of Repair with Execution Feedback} \label{sec:appendix-execution-repair}
+This section contains the full results of the experiments in Sec. \ref{subsec:goedel-repair}. All simplification attempts are done on the set of linted proofs. Table \ref{tab:repair-results}, Figure \ref{fig:repair-bar-plot-all}, and Figure \ref{fig:repair-scatter-plot-all} are extended versions of Fig. \ref{fig:repair-plots} for both PutnamBench and miniF2F. The settings are as follows:
+
+\begin{itemize}
+    \item \textbf{ProofOptimizer}: \textit{ProofOptimizer-ExpIt}, with $64$ simplification attempts per proof.
+    \item \textbf{+ Repair}: The previous setting, with $1$ attempted repair by \texttt{Goedel-Prover-V2-32B}. 
+    \item \textbf{+ Repair + Linter}: The previous setting, with our linter applied to all proofs. 
+    \item \textbf{ProofOptimizer (@128)}: \textit{ProofOptimizer-ExpIt}, with $128$ simplification attempts per proof
+    \item \textbf{ProofOptimizer (@64x2)}: \textit{ProofOptimizer-ExpIt} with $64$ simplification attempts per proof, and the best simplified proof for each problem is then fed back for an additional $64$ attempts.
+\end{itemize}
+
+We remark that these baselines are normalizing for sample count rather than running time. Sampling a repair from \texttt{Goedel-Prover-V2-32B} takes considerably longer than sampling a simplification from our model. This is both because it is a larger model (32B vs. 7B) and because their model relies on CoT, causing their average response length to be significantly longer than ours.
+
+\begin{table}[H]
+\caption{Results of execution-based repair strategies}
+\label{tab:repair-results}
+\centering
+\begin{tabular}{cc  cc  cc }
+\toprule
+\textbf{Dataset} & \textbf{Model} &
+\textbf{Min@64} & \textbf{Min@64 $\times$ 2} &
+\textbf{Red@64} & \textbf{Red@64 $\times$ 2} \\
+\midrule
+\multirow{7}{*}{miniF2F}
+ & \textit{Linter} &
+ \multicolumn{2}{c}{\textit{302}} &
+ \multicolumn{2}{c}{\textit{9.2\%}} \\
+\cdashline{2-6}[0.5pt/2pt]
+& ProofOptimizer & 144 & - & 75.5\% & -\\
+ & + Repair & - & 136 & - & 77.3\% \\
+ & + Repair + Linter & - & 132 & - & 77.9\% \\
+  & ProofOptimizer (@128) & - & 130 & - & 78.9\% \\
+ & ProofOptimizer (It 2) & - & 125 & - & 80.2\% \\
+\midrule
+\multirow{7}{*}{\shortstack{Putnam \\ Bench}}
+ & \textit{Linter} &
+ \multicolumn{2}{c}{\textit{1359}} &
+ \multicolumn{2}{c}{\textit{7.4\%}} \\
+\cdashline{2-6}[0.5pt/2pt]
+& ProofOptimizer & 1123 & - & 32.9\% & - \\
+ & + Repair & - & 1113 & - & 35.3\% \\
+ & + Repair + Linter & - & 1107.2 & - &35.7\% \\
+ & ProofOptimizer (@128) & - & 1099 & - & 36.5\% \\
+ & ProofOptimizer (@64x2) & - & 1095 & - & 37.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    % First plot
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/goedel_repair/results_minif2f_mini_labeled.pdf}
+    \end{subfigure}
+    \hfill
+    % Second plot
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/goedel_repair/results_pubnam_mini_labeled.pdf}
+    \end{subfigure}
+    \caption{Results of Execution-Based Repair with Goedel-Prover}
+    \label{fig:repair-bar-plot-all}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    % First plot
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/goedel_repair/scatter_minif2f.pdf}
+    \end{subfigure}
+    \hfill
+    % Second plot
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/goedel_repair/scatter_putnam.pdf}
+    \end{subfigure}
+    \caption{Comparison of Proof Lengths with Execution-Based Repair}
+    \label{fig:repair-scatter-plot-all}
+\end{figure}
+
+Finally, in Listings \ref{lst:proof-original} and \ref{lst:proof-short}, we show an example of a proof that was successfully repaired. Note that the repaired proof has many components in common with the original proof.
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, after skip=10pt plus 2pt]
+\begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[caption={Original Lean Proof (Length 126)},label={lst:proof-original}, language=lean, breaklines=true, style=mystyle]
+theorem mathd_numbertheory_314
+  (r n : ℕ) (h₀ : r = 1342 % 13) (h₁ : 0 < n)
+  (h₂ : 1342∣n) (h₃ : n % 13 < r) 
+  : 6710 ≤ n := by
+  have h_r : r = 3 := by rw [h₀]
+  have h_main : 6710 ≤ n := by
+    have h₄ : n % 13 < 3 := by
+      rw [h_r] at h₃
+      exact h₃
+    obtain ⟨k, rfl⟩ := h₂
+    have h₅ : 0 < k := by
+      by_contra h
+      push_neg at h
+      have h₆ : k = 0 := by omega
+      simp [h₆] at h₁
+    by_contra! h₆
+    have h₇ : k ≤ 4 := by
+      by_contra h₈
+      have h₉ : k ≥ 5 := by omega
+      have h₁₀ : 1342 * k ≥ 1342 * 5 := by nlinarith
+      omega
+    interval_cases k <;> norm_num [Nat.mul_mod, Nat.add_mod, Nat.mod_mod] at h₄ ⊢ 
+  exact h_main
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[caption={Wrong Simplification and Correct Repair (Length 93)},label={lst:proof-short}, language=lean, breaklines=true, style=mystyle]
+theorem mathd_numbertheory_314 -- Wrong
+  (... statement omitted) := by
+  rw [h₀] at h₃
+  have : n % 13 < 3 := by omega
+  obtain ⟨k, rfl⟩ := h₂
+  omega
+
+theorem mathd_numbertheory_314 -- Correct
+  (... statement omitted) := by
+  have h_r : r = 3 := by
+    rw [h₀]
+    <;> norm_num
+    <;> rfl
+  have h_main : 6710 ≤ n := by
+    have h₄ : n % 13 < 3 := by
+      rw [h_r] at h₃
+      exact h₃
+    obtain ⟨k, rfl⟩ := h₂
+    by_contra! h
+    have h₅ : k ≤ 4 := by
+      omega
+    interval_cases k <;> norm_num [Nat.mul_mod, Nat.add_mod, Nat.mod_mod] at h₄ ⊢ <;>
+      (try omega) <;> (try contradiction)
+  exact h_main
+\end{lstlisting}
+\end{minipage}
+\end{tcolorbox}
+
+\newpage
+\subsection{Evaluation Dataset Details} \label{appendix:evaluation-dataset-details}
+
+For our evaluation datasets, we use miniF2F and PutnamBench proofs sampled from \texttt{Goedel-LM/Goedel-Prover-V2-32B}. For miniF2F, we sample with temperature $1$ and top-p $0.95$. For PutnamBench, we use proofs provided by the team. In both cases, we take the shortest passing proof for each problem in Mathlib 4.19.0, resulting in $194$ proofs for miniF2F and $75$ proofs for PutnamBench. Table \ref{tab:proof-stats} and Figure \ref{fig:eval_proof_length_histograms} show summary statistics of our dataset. One sample from each dataset is shown in Listings \ref{lst:minif2f-eval-example} and \ref{lst:putnam-eval-example}.
+
+As a sidenote, we observe a discrepency in Goedel-Prover-V2-32B's results with Lean versions. Upon testing their model, we measured 90\% (pass@64) and 86 (pass@184) on miniF2F and PutnamBench with Mathlib 4.9, but only 80\% (pass@64) and 75 (pass@184) with Mathlib 4.19. In this paper, we use Mathlib 4.19 rather than 4.9, as it is more recent and likely more useful to the Lean community.
+
+\begin{table}[H]
+\caption{Summary statistics of proof lengths in evaluation dataset}
+\label{tab:proof-stats}
+\centering
+\begin{tabular}{cc!{\vrule width 0.8pt}cccccc}
+\toprule
+\textbf{Dataset} & $n$ & \textbf{Min} & \textbf{Q1} & \textbf{Median} & \textbf{Q3} & \textbf{Max} & \textbf{Mean} \\
+\midrule
+MiniF2F & 194 & 13 & 64 & 167 & 499 & 2980 & 334 \\
+PutnamBench & 75 & 2 & 608 & 1179 & 2110 & 5420 & 1468 \\
+\bottomrule
+\end{tabular}
+\end{table}
+%
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/dataset-statistics/minif2f_proof_length_histogram.pdf}
+\end{subfigure}
+\begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/dataset-statistics/putnam_proof_length_histogram.pdf}
+\end{subfigure}
+\caption{Histograms of proof lengths for our miniF2F and PutnamBench evaluation sets.}
+\label{fig:eval_proof_length_histograms}
+\end{figure}
+%
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, bottom=0pt, after skip=0pt]
+\begin{lstlisting}[caption={Example of miniF2F Eval Task (Length 65)},label={lst:minif2f-eval-example}, captionpos=t, language=lean, breaklines=true, style=mystyle, belowcaptionskip=0pt]
+theorem mathd_numbertheory_185
+  (n : ℕ)
+  (h₀ : n % 5 = 3) :
+  (2 * n) % 5 = 1 := by
+  have h₁ : (2 * n) % 5 = 1 := by
+    have h₂ : (2 * n) % 5 = (2 * (n % 5)) % 5 := by
+      simp [Nat.mul_mod, Nat.mod_mod]
+      <;> ring_nf at *
+      <;> omega
+    rw [h₂]
+    rw [h₀]
+    <;> norm_num
+    <;> rfl
+
+  exact h₁
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, after skip=10pt plus 2pt]
+\begin{lstlisting}[caption={Example of PutnamBench Eval Task (Length 715)},label={lst:putnam-eval-example}, captionpos=t, language=lean, breaklines=true, style=mystyle, belowcaptionskip=0pt]
+theorem putnam_1993_a2
+(x : ℕ → ℝ)
+(xnonzero : ∀ n : ℕ, x n ≠ 0)
+(hx : ∀ n ≥ 1, (x n) ^ 2 - x (n - 1) * x (n + 1) = 1)
+: ∃ a : ℝ, ∀ n ≥ 1, x (n + 1) = a * x n - x (n - 1) := by 
+  have h_main : ∀ (n : ℕ), n ≥ 1 → (x (n + 1) + x (n - 1)) / x n = (x 2 + x 0) / x 1 := by
+    intro n hn
+    have h₁ : ∀ (n : ℕ), n ≥ 1 → (x (n + 1) + x (n - 1)) / x n = (x (n + 2) + x n) / x (n + 1) := by
+      intro n hn
+      have h₂ : (x (n + 1)) ^ 2 - x n * x (n + 2) = 1 := by
+        have h₃ := hx (n + 1) (by linarith)
+        simpa [Nat.add_assoc] using h₃
+      have h₃ : (x n) ^ 2 - x (n - 1) * x (n + 1) = 1 := hx n hn
+      have h₄ : x (n + 2) * x n + (x n) ^ 2 - (x (n + 1)) ^ 2 - x (n - 1) * x (n + 1) = 0 := by
+        linarith
+      have h₅ : (x (n + 2) + x n) * x n - (x (n + 1) + x (n - 1)) * x (n + 1) = 0 := by
+        ring_nf at h₄ ⊢
+        linarith
+      have h₆ : x n ≠ 0 := xnonzero n
+      have h₇ : x (n + 1) ≠ 0 := xnonzero (n + 1)
+      have h₈ : (x (n + 2) + x n) / x (n + 1) - (x (n + 1) + x (n - 1)) / x n = 0 := by
+        field_simp [h₆, h₇] at h₅ ⊢
+        nlinarith
+      linarith
+    
+    have h₂ : ∀ (n : ℕ), n ≥ 1 → (x (n + 1) + x (n - 1)) / x n = (x 2 + x 0) / x 1 := by
+      intro n hn
+      induction' hn with n hn IH
+      · norm_num
+      · have h₃ := h₁ n hn
+        have h₄ := h₁ (n + 1) (by linarith)
+        simp [Nat.add_assoc] at h₃ h₄ ⊢
+        <;>
+        (try norm_num at * <;>
+        try linarith) <;>
+        (try simp_all [Nat.add_assoc]) <;>
+        (try ring_nf at * <;>
+        try linarith) <;>
+        (try field_simp [xnonzero] at * <;>
+        try nlinarith)
+        <;>
+        linarith
+    exact h₂ n hn
+  
+  have h_exists_a : ∃ (a : ℝ), ∀ (n : ℕ), n ≥ 1 → x (n + 1) = a * x n - x (n - 1) := by
+    use (x 2 + x 0) / x 1
+    intro n hn
+    have h₁ : (x (n + 1) + x (n - 1)) / x n = (x 2 + x 0) / x 1 := h_main n hn
+    have h₂ : x n ≠ 0 := xnonzero n
+    have h₃ : (x (n + 1) + x (n - 1)) / x n = (x 2 + x 0) / x 1 := by rw [h₁]
+    have h₄ : x (n + 1) + x (n - 1) = ((x 2 + x 0) / x 1) * x n := by
+      field_simp [h₂] at h₃ ⊢
+      <;> nlinarith
+    have h₅ : x (n + 1) = ((x 2 + x 0) / x 1) * x n - x (n - 1) := by linarith
+    exact h₅
+  
+  exact h_exists_a
+\end{lstlisting}
+\end{tcolorbox}
+
+\vfill
+
+
+\newpage
+\subsection{Examples of Proofs Simplified by ProofOptimizer}
+
+In Listings \ref{lst:examples-head} to \ref{lst:examples-tail}, we show proofs successfully optimized with ProofOptimizer and iterative shortening. Some proofs were syntactically modified to fit on the page (new lines removed, multiple lines compressed into one).
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, after skip=10pt plus 2pt]
+\begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[caption={Original Proof (Length 214)},label={lst:examples-head}, language=lean, breaklines=true, style=mystyle]
+theorem mathd_algebra_338 -- Original Proof
+  (a b c : ℝ)
+  (h₀ : 3 * a + b + c = -3)
+  (h₁ : a + 3 * b + c = 9)
+  (h₂ : a + b + 3 * c = 19) :
+  a * b * c = -56 := by
+  have h₃ : b = a + 6 := by
+    have h₃₁ : -a + b = 6 := by
+      have h₃₂ : (a + 3 * b + c) - (3 * a + b + c) = 9 - (-3) := by
+        linarith
+      linarith
+    linarith
+
+  have h₄ : c = a + 11 := by
+    have h₄₁ : -a + c = 11 := by
+      have h₄₂ : (a + b + 3 * c) - (3 * a + b + c) = 19 - (-3) := by
+        linarith
+      linarith
+    linarith
+
+  have h₅ : a = -4 := by
+    have h₅₁ : 3 * a + b + c = -3 := h₀
+    rw [h₃, h₄] at h₅₁
+    ring_nf at h₅₁ ⊢
+    linarith
+
+  have h₆ : b = 2 := by
+    rw [h₃]
+    rw [h₅]
+    <;> norm_num
+
+  have h₇ : c = 7 := by
+    rw [h₄]
+    rw [h₅]
+    <;> norm_num
+
+  have h₈ : a * b * c = -56 := by
+    rw [h₅, h₆, h₇]
+    <;> norm_num
+
+  exact h₈
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\begin{lstlisting}[caption={Simplified Proof (Length 11)}, language=lean, breaklines=true, style=mystyle]
+theorem mathd_algebra_338
+  (a b c : ℝ)
+  (h₀ : 3 * a + b + c = -3)
+  (h₁ : a + 3 * b + c = 9)
+  (h₂ : a + b + 3 * c = 19) :
+  a * b * c = -56 := by
+  have : a = -4 := by linarith
+  subst_vars
+  nlinarith
+\end{lstlisting}
+\end{minipage}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, after skip=10pt plus 2pt]
+\begin{minipage}[t]{0.99\textwidth}
+\begin{lstlisting}[caption={Original Proof (Length 324)}, language=lean, breaklines=true, style=mystyle]
+theorem putnam_2015_a2
+(a : ℕ → ℤ)
+(abase : a 0 = 1 ∧ a 1 = 2)
+(arec : ∀ n ≥ 2, a n = 4 * a (n - 1) - a (n - 2))
+: Odd ((181) : ℕ) ∧ ((181) : ℕ).Prime ∧ ((((181) : ℕ) : ℤ) ∣ a 2015) := by
+  constructor
+  · decide
+  constructor
+  · norm_num [Nat.Prime]
+  have h₁ : ∀ n : ℕ, (a (n + 10) : ℤ) ≡ - (a n : ℤ) [ZMOD 181] := by
+    intro n
+    induction' n using Nat.strong_induction_on with n ih
+    rcases n with (_ | _ | _ | _ | _ | _ | _ | _ | _ | _ | n) <;>
+      simp_all [Int.ModEq, abase, arec] <;> omega
+  have h₂ : (a 5 : ℤ) ≡ 0 [ZMOD 181] := by norm_num [Int.ModEq, abase, arec]
+  have h₃ : (a 2015 : ℤ) ≡ 0 [ZMOD 181] := by
+    have h₄ : ∀ k : ℕ, (a (10 * k + 5) : ℤ) ≡ 0 [ZMOD 181] := by
+      intro k
+      induction' k with k ih
+      · norm_num [Int.ModEq] at h₂ ⊢
+        <;> simpa [abase, arec] using h₂
+      · have h₅ := h₁ (10 * k + 5)
+        have h₆ := h₁ (10 * k + 6)
+        have h₇ := h₁ (10 * k + 7)
+        have h₈ := h₁ (10 * k + 8)
+        have h₉ := h₁ (10 * k + 9)
+        have h₁₀ := h₁ (10 * k + 10)
+        norm_num [Int.ModEq] at h₅ h₆ h₇ h₈ h₉ h₁₀ ih ⊢
+        <;> ring_nf at * <;> omega
+    have h₅ : (a 2015 : ℤ) ≡ 0 [ZMOD 181] := by
+      have h₆ : (a (10 * 201 + 5) : ℤ) ≡ 0 [ZMOD 181] := h₄ 201
+      norm_num at h₆ ⊢
+      <;> simpa [add_assoc] using h₆
+    exact h₅
+  exact Int.dvd_of_emod_eq_zero h₃
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}[t]{0.99\textwidth}
+\begin{lstlisting}[caption={Simplified Proof (Length 82)}, language=lean, breaklines=true, style=mystyle]
+theorem putnam_2015_a2
+(a : ℕ → ℤ)
+(abase : a 0 = 1 ∧ a 1 = 2)
+(arec : ∀ n ≥ 2, a n = 4 * a (n - 1) - a (n - 2))
+: Odd ((181) : ℕ) ∧ ((181) : ℕ).Prime ∧ ((((181) : ℕ) : ℤ) ∣ a 2015) := by
+  constructor
+  · decide
+  constructor
+  · norm_num [Nat.Prime]
+  rw [show 2015 = 10 * 202 - 5 by norm_num]
+  have h₁ : ∀ n : ℕ, a (10 * n + 5) ≡ 0 [ZMOD 181] := by
+    intro n
+    induction' n with k ih
+    · norm_num [abase, arec, Int.ModEq]
+    · rw [Nat.mul_succ]
+      simp_all [Int.ModEq, arec]
+      omega
+  have h₂ := h₁ 201
+  exact Int.dvd_of_emod_eq_zero h₂
+\end{lstlisting}
+\end{minipage}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, after skip=10pt plus 2pt]
+\begin{minipage}[t]{0.99\textwidth}
+\begin{lstlisting}[caption={Original Proof (Length 330)}, language=lean, breaklines=true, style=mystyletiny]
+theorem imo_1960_p2
+  (x : ℝ)
+  (h₀ : 0 ≤ 1 + 2 * x)
+  (h₁ : (1 - Real.sqrt (1 + 2 * x))^2 ≠ 0)
+  (h₂ : (4 * x^2) / (1 - Real.sqrt (1 + 2*x))^2 < 2*x + 9)
+  (h₃ : x ≠ 0) :
+  -(1 / 2) ≤ x ∧ x < 45 / 8 := by
+  constructor
+  · nlinarith [sq_nonneg (x + 1 / 2)]
+  · set s := Real.sqrt (1 + 2 * x) with hs
+    have h₅₁ : 0 ≤ 1 + 2 * x := h₀
+    have h₅₂ : s ≥ 0 := Real.sqrt_nonneg _
+    have h₅₃ : s ^ 2 = 1 + 2 * x := by
+      rw [hs]
+      rw [Real.sq_sqrt] <;> linarith
+    have h₅₄ : (1 - s) ^ 2 ≠ 0 := by simpa [hs] using h₁
+    have h₅₅ : s ≠ 1 := by
+      intro h
+      have h₅₅₁ : (1 - s) ^ 2 = 0 := by
+        rw [h]
+        norm_num
+      contradiction
+    have h₅₆ : (s + 1) ^ 2 * (s - 1) ^ 2 = (s ^ 2 - 1) ^ 2 := by
+      ring
+    have h₅₇ : (s ^ 2 - 1 : ℝ) ^ 2 = 4 * x ^ 2 := by
+      rw [h₅₃]
+      ring
+    have h₅₈ : (4 : ℝ) * x ^ 2 / (s - 1) ^ 2 = (s + 1) ^ 2 := by
+      have h₅₈₁ : (s - 1 : ℝ) ^ 2 ≠ 0 := by
+        intro h
+        have h₅₈₂ : (1 - s : ℝ) ^ 2 = 0 := by
+          calc
+            (1 - s : ℝ) ^ 2 = (s - 1 : ℝ) ^ 2 := by ring
+            _ = 0 := by rw [h]
+        contradiction
+      field_simp [h₅₈₁] at h₅₇ ⊢
+      nlinarith
+    have h₅₉ : (4 : ℝ) * x ^ 2 / (1 - s) ^ 2 = (s + 1) ^ 2 := by
+      rw [← h₅₈]
+      ring
+    nlinarith [sq_nonneg (s - 1)]
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}[t]{0.99\textwidth}
+\begin{lstlisting}[caption={Simplified Proof (Length 125)}, language=lean, breaklines=true, style=mystyle]
+theorem imo_1960_p2
+  (x : ℝ)
+  (h₀ : 0 ≤ 1 + 2 * x)
+  (h₁ : (1 - Real.sqrt (1 + 2 * x))^2 ≠ 0)
+  (h₂ : (4 * x^2) / (1 - Real.sqrt (1 + 2*x))^2 < 2*x + 9)
+  (h₃ : x ≠ 0) :
+  -(1 / 2) ≤ x ∧ x < 45 / 8 := by
+  constructor
+  · nlinarith [sq_nonneg (x + 1 / 2)]
+  · have h₅₇ : (4 : ℝ) * x ^ 2 / (1 - Real.sqrt (1 + 2 * x)) ^ 2 = (1 + Real.sqrt (1 + 2 * x)) ^ 2 := by
+      have h₅₈ : (1 - Real.sqrt (1 + 2 * x)) ^ 2 ≠ 0 := by assumption
+      field_simp [h₅₈]
+      nlinarith [sq_sqrt (show 0 ≤ 1 + 2 * x by assumption)]
+    nlinarith [sq_sqrt (show 0 ≤ 1 + 2 * x by assumption),
+      Real.sqrt_nonneg (1 + 2 * x)]
+\end{lstlisting}
+\end{minipage}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, before skip=0pt, after skip=0pt, boxsep=0pt]
+\begin{minipage}[t]{0.99\textwidth}
+\begin{lstlisting}[language=lean, breaklines=true, style=mystyletiny]
+theorem putnam_1990_a1
+    (T : ℕ → ℤ)
+    (hT012 : T 0 = 2 ∧ T 1 = 3 ∧ T 2 = 6)
+    (hTn : ∀ n, T (n + 3) = (n + 7) * T (n + 2) - 4 * (n + 3) * T (n + 1) + (4 * n + 4) * T n) :
+    T = ((fun n : ℕ => (n)!, fun n : ℕ => 2 ^ n) : (ℕ → ℤ) × (ℕ → ℤ) ).1 + ((fun n : ℕ => (n)!, fun n : ℕ => 2 ^ n) : (ℕ → ℤ) × (ℕ → ℤ) ).2 :=
+  by 
+  have h_main : ∀ (n : ℕ), T n = (n ! : ℤ) + 2 ^ n := by
+    intro n
+    have h₁ : T n = (n ! : ℤ) + 2 ^ n := by
+      have h₂ : ∀ n : ℕ, T n = (n ! : ℤ) + 2 ^ n := by
+        intro n
+        induction n using Nat.strong_induction_on with
+        | h n ih =>
+          match n with
+          | 0 =>
+            norm_num [hT012]
+            <;>
+            simp_all [Nat.factorial]
+            <;>
+            norm_num
+          | 1 =>
+            norm_num [hT012]
+            <;>
+            simp_all [Nat.factorial]
+            <;>
+            norm_num
+          | 2 =>
+            norm_num [hT012]
+            <;>
+            simp_all [Nat.factorial]
+            <;>
+            norm_num
+          | n + 3 =>
+            have h₃ := hTn n
+            have h₄ := ih n (by omega)
+            have h₅ := ih (n + 1) (by omega)
+            have h₆ := ih (n + 2) (by omega)
+            simp [h₄, h₅, h₆, pow_add, pow_one, Nat.factorial_succ, Nat.mul_add, Nat.add_mul] at h₃ ⊢
+            <;>
+            ring_nf at h₃ ⊢ <;>
+            norm_cast at h₃ ⊢ <;>
+            simp_all [Nat.factorial_succ, pow_add, pow_one, mul_assoc]
+            <;>
+            ring_nf at * <;>
+            norm_num at * <;>
+            nlinarith
+      exact h₂ n
+    exact h₁ 
+  have h_final : T = ((fun n : ℕ => (n)!, fun n : ℕ => 2 ^ n) : (ℕ → ℤ) × (ℕ → ℤ) ).1 + ((fun n : ℕ => (n)!, fun n : ℕ => 2 ^ n) : (ℕ → ℤ) × (ℕ → ℤ) ).2 := by
+    funext n
+    have h₁ : T n = (n ! : ℤ) + 2 ^ n := h_main n
+    simp [h₁, Pi.add_apply]
+    <;> norm_cast <;> simp [Nat.cast_add] <;> ring_nf
+  apply h_final
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}[t]{0.99\textwidth}
+\begin{lstlisting}[caption={Original Proof (Length 320) and Simplified Proof (Length 34)}, language=lean, breaklines=true, style=mystyle]
+theorem putnam_1990_a1
+    (T : ℕ → ℤ)
+    (hT012 : T 0 = 2 ∧ T 1 = 3 ∧ T 2 = 6)
+    (hTn : ∀ n, T (n + 3) = (n + 7) * T (n + 2) - 4 * (n + 3) * T (n + 1) + (4 * n + 4) * T n) :
+    T = ((fun n : ℕ => (n)!, fun n : ℕ => 2 ^ n) : (ℕ → ℤ) × (ℕ → ℤ)).1 + ((fun n : ℕ => (n)!, fun n : ℕ => 2 ^ n) : (ℕ → ℤ) × (ℕ → ℤ)).2 := by
+  ext n
+  induction' n using Nat.strong_induction_on with n ih
+  match n with
+  | 0 => simp_all
+  | 1 => simp_all
+  | 2 => simp_all
+  | n + 3 =>
+    simp_all [Nat.factorial_succ]
+    ring_nf
+\end{lstlisting}
+\end{minipage}
+\end{tcolorbox}
+
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, before skip=0pt, after skip=0pt, boxsep=0pt]
+\begin{minipage}[t]{0.99\textwidth}
+\begin{lstlisting}[language=lean, breaklines=true, style=mystyletiny]
+theorem putnam_1968_a1
+: 22/7 - Real.pi = ∫ x in (0)..1, x^4 * (1 - x)^4 / (1 + x^2) := by 
+  have h_main : (∫ x in (0)..1, x^4 * (1 - x)^4 / (1 + x^2)) = 22/7 - Real.pi := by
+    have h₁ : (∫ x in (0)..1, x^4 * (1 - x)^4 / (1 + x^2)) = (∫ x in (0)..1, (x^6 - 4*x^5 + 5*x^4 - 4*x^2 + 4 : ℝ) - 4 / (1 + x^2)) := by
+      have h₁₁ : ∀ (x : ℝ), x^4 * (1 - x)^4 / (1 + x^2) = (x^6 - 4*x^5 + 5*x^4 - 4*x^2 + 4 : ℝ) - 4 / (1 + x^2) := by
+        intro x
+        have h₁₂ : (1 + x^2 : ℝ) ≠ 0 := by nlinarith
+        have h₁₃ : x^4 * (1 - x)^4 = (x^6 - 4*x^5 + 5*x^4 - 4*x^2 + 4 : ℝ) * (1 + x^2) - 4 := by
+          ring_nf <;> nlinarith [sq_nonneg (x ^ 2), sq_nonneg (x ^ 3), sq_nonneg (x - 1), sq_nonneg (x + 1)]
+        have h₁₄ : x^4 * (1 - x)^4 / (1 + x^2) = ((x^6 - 4*x^5 + 5*x^4 - 4*x^2 + 4 : ℝ) * (1 + x^2) - 4) / (1 + x^2) := by
+          rw [h₁₃]
+        rw [h₁₄]
+        field_simp [h₁₂] <;> ring_nf <;> field_simp [h₁₂] <;> ring_nf
+      congr
+      ext x
+      rw [h₁₁ x]
+    rw [h₁]
+    have h₂ : (∫ x in (0)..1, (x^6 - 4*x^5 + 5*x^4 - 4*x^2 + 4 : ℝ) - 4 / (1 + x^2)) = (∫ x in (0)..1, (x^6 - 4*x^5 + 5*x^4 - 4*x^2 + 4 : ℝ)) - (∫ x in (0)..1, (4 : ℝ) / (1 + x^2)) := by
+      apply intervalIntegral.integral_sub
+      · apply Continuous.intervalIntegrable
+        continuity
+      · apply Continuous.intervalIntegrable
+        have h₃ : Continuous (fun x : ℝ => (4 : ℝ) / (1 + x ^ 2)) := by
+          apply Continuous.div
+          · exact continuous_const
+          · exact Continuous.add continuous_const (continuous_pow 2)
+          · intro x
+            have h₄ : (1 + x ^ 2 : ℝ) ≠ 0 := by nlinarith
+            exact h₄
+        exact h₃
+    rw [h₂]
+    have h₃ : (∫ x in (0)..1, (x^6 - 4*x^5 + 5*x^4 - 4*x^2 + 4 : ℝ)) = (22 / 7 : ℝ) := by
+      norm_num [integral_id, mul_comm] <;> ring_nf <;> norm_num <;> linarith [Real.pi_pos]
+    have h₄ : (∫ x in (0)..1, (4 : ℝ) / (1 + x^2)) = Real.pi := by
+      have h₄₁ : (∫ x in (0)..1, (4 : ℝ) / (1 + x ^ 2)) = 4 * (∫ x in (0)..1, (1 : ℝ) / (1 + x ^ 2)) := by
+        have h₄₂ : (∫ x in (0)..1, (4 : ℝ) / (1 + x ^ 2)) = (∫ x in (0)..1, 4 * (1 : ℝ) / (1 + x ^ 2)) := by
+          congr
+          ext x <;> ring_nf
+        rw [h₄₂]
+        have h₄₃ : (∫ x in (0)..1, 4 * (1 : ℝ) / (1 + x ^ 2)) = 4 * (∫ x in (0)..1, (1 : ℝ) / (1 + x ^ 2)) := by
+          simp [intervalIntegral.integral_comp_mul_left (fun x => (1 : ℝ) / (1 + x ^ 2))] <;> 
+          norm_num <;> field_simp <;> ring_nf <;> norm_num <;> linarith [Real.pi_pos]
+        rw [h₄₃]
+      rw [h₄₁]
+      have h₄₄ : (∫ x in (0)..1, (1 : ℝ) / (1 + x ^ 2)) = Real.pi / 4 := by
+        have h₄₅ : (∫ x in (0)..1, (1 : ℝ) / (1 + x ^ 2)) = Real.arctan 1 - Real.arctan 0 := by
+          rw [integral_one_div_one_add_sq] <;> norm_num
+        rw [h₄₅]
+        have h₄₆ : Real.arctan 1 = Real.pi / 4 := by
+          norm_num [Real.arctan_one]
+        have h₄₇ : Real.arctan 0 = 0 := by
+          norm_num [Real.arctan_zero]
+        rw [h₄₆, h₄₇] <;> ring_nf <;> norm_num
+      rw [h₄₄] <;> ring_nf <;> norm_num
+    rw [h₃, h₄] <;> ring_nf <;> norm_num
+  have h_final : 22/7 - Real.pi = ∫ x in (0)..1, x^4 * (1 - x)^4 / (1 + x^2) := by
+    rw [h_main] <;> linarith [Real.pi_pos]
+  exact h_final
+\end{lstlisting}
+\end{minipage}
+
+\begin{minipage}[t]{0.99\textwidth}
+\begin{lstlisting}[caption={Original Proof (Length 1097) and Simplified Proof (Length 76)},label={lst:examples-tail}, language=lean, breaklines=true, style=mystyle]
+theorem putnam_1968_a1
+: 22/7 - Real.pi = ∫ x in (0)..1, x^4 * (1 - x)^4 / (1 + x^2) := by
+  simp_rw [show ∀ x : ℝ, x ^ 4 * (1 - x) ^ 4 / (1 + x ^2) = (x ^6 - 4 * x ^5 + 5 * x ^4 - 4 * x ^2 + 4 - 4 / (1 + x ^2)) by
+    intro x
+    field_simp
+    ring]
+  ring_nf
+  norm_num
+  <;> linarith [Real.pi_pos]
+\end{lstlisting}
+\end{minipage}
+\end{tcolorbox}
+
+\newpage
+
+\subsection{Proof Speedup and Slowdown Analysis and Examples} 
+
+\subsubsection{Iterative Proof Shortening Results with Heartbeat Metric} \label{sec:appendix-heartbeats}
+
+Table~\ref{tab:inference-iteration-results-len-hb-comparison} and Fig.~\ref{fig:min-red-heartbeats} show the results of iterative proof shortening using proof length vs. heartbeats as optimization metrics. Observe that while optimizing for heartbeats isn't nearly as effective for proof length, it still leads to considerable simplification. 
+
+\begin{table}[H]
+\caption{Comparison of Min@64 (rounded to nearest integer), reduction (\%), Heartbeats@64 (in thousands), and reduction (\%) across inference-time iterations for miniF2F and PutnamBench proofs. Iterations $1$–$6$ use $64$ samples, and $7$–$8$ use $1024$ samples. The first group shows the standard (length-optimized) setting; the second group shows the new (heartbeat-optimized) experiment.}
+\label{tab:inference-iteration-results-len-hb-comparison}
+\centering
+\begin{tabular}{c c c c c c c c c c c c}
+\toprule
+\textbf{Dataset} & \textbf{Metric} & \textbf{Orig} & \textbf{Lint} & \textbf{It 1} & \textbf{It 2} & \textbf{It 3} & \textbf{It 4} & \textbf{It 5} & \textbf{It 6} & \textbf{It 7*} & \textbf{It 8*} \\
+\midrule
+
+\multirow{9}{*}{miniF2F}
+& \multicolumn{11}{c}{\textit{Optimizing for Length}} \\
+& Min@64 & 334 & 302 & 144 & 126 & 121 & 117 & 106 & 104 & 88 & 75 \\
+& Red@64 (\%) & 0.0 & 9.2 & 76.6 & 80.0 & 81.0 & 81.5 & 82.9 & 83.1 & 85.7 & 87.9 \\
+\cmidrule(lr){2-12}
+& \multicolumn{11}{c}{\textit{Optimizing for Heartbeats}} \\
+& Min@64 & 334 & 302 & 163 & 145 & 139 & 135 & 129 & 125 & 112 & 96 \\
+& Red@64 (\%) & 0.0 & 9.2 & 71.3 & 74.8 & 75.8 & 76.3 & 76.9 & 77.4 & 79.0 & 81.3 \\
+& HB@64 (K) & 36.3 & 36.2 & 14.5 & 13.6 & 13.3 & 13.2 & 13.0 & 12.8 & 11.9 & 10.4 \\
+& HB Red@64 & 0.0 & 0.2 & 43.3 & 46.7 & 48.2 & 48.5 & 48.8 & 49.6 & 51.5 & 57.0 \\
+
+\midrule
+
+\multirow{9}{*}{Putnam}
+& \multicolumn{11}{c}{\textit{Optimizing for Length}} \\
+& Min@64 & 1468 & 1359 & 1123 & 1061 & 1024 & 1007 & 975 & 969 & 890 & 811 \\
+& Red@64 (\%) & 0.0 & 7.4 & 34.8 & 40.0 & 42.5 & 43.6 & 46.4 & 47.1 & 52.2 & 57.2 \\
+\cmidrule(lr){2-12}
+& \multicolumn{11}{c}{\textit{Optimizing for Heartbeats}} \\
+& Min@64 & 1468 & 1359 & 1142 & 1092 & 1060 & 1043 & 1034 & 1031 & 974 & 904 \\
+& Red@64 (\%) & 0.0 & 7.4 & 32.2 & 36.2 & 38.7 & 39.7 & 40.5 & 40.8 & 44.0 & 49.2 \\
+& HB@64 (K) & 221 & 219 & 199 & 157 & 155 & 140 & 136 & 136 & 122 & 111  \\
+& HB Red@64 & 0.0 & 0.7 & 18.5 & 23.9 & 26.9 & 28.4 & 29.5 & 29.6 & 34.0 & 39.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.99\linewidth]{figures/speedup-heartbeats/results_1x4_heartbeats.pdf}
+    \caption{Optimizing for length vs. heartbeats}
+    \label{fig:min-red-heartbeats}
+\end{figure}
+
+\subsubsection{Examples of Proof Speedup and Slowdown after Simplification} \label{subsec:appendix-proof-speedup-examples}
+
+We analyze two examples of proof speedup and slowdown. In Listing \ref{lst:minif2f-speedup-1}, we observe that the original proof uses an extraneous amount of tactics within \texttt{nlinarith} in order to prove the main conjecture. By removing a majority of these, the simplified proof achieves a 4.7x speedup. In Listing  \ref{lst:minif2f-speedup-2}, we observe a more extreme case, where the original proof is significantly overcomplicated and can be reduced to one \texttt{omega} invocation. \texttt{Goedel-Prover-V2-32B} never found this single-tactic proof (with $64$ samples) and instead produces proofs with many unnecessary subgoals, leading to a proof with slow execution time.
+
+In several occurrences, we observe that simplified proofs can be significantly slower than the original proof. This is usually because the simplified proof is notationally shorter, but uses a slower approach to complete the proof. For example, in Listing \ref{lst:minif2f-slowdown-1}, ProofOptimizer finds a shorter proof, but the proof is reliant on \texttt{simp\_all}, \texttt{Finset.sum\_range\_succ}, and \texttt{linarith}, which expand the goal into large proof terms that are time-consuming, causing the new proof to be over $10\times$ slower. Another example is shown in Listing \ref{lst:minif2f-slowdown-2}. Here, the original proof first iterates over all $m \le 71$ with \texttt{interval\_cases m}, tries to simplify using \texttt{omega}, and then iterates over all $n \le 71$ with \texttt{interval\_cases n}. ProofOptimizer, however, removes the \texttt{try omega}, directly doing an exhaustive search over $(m, n)$. The \texttt{try omega} statement in the original proof made it much faster, removing $69$ of the $71$ goals, whereas the simplified proof had to iterate through $n$ for these goals.
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, after skip=10pt plus 2pt]
+\begin{lstlisting}[caption={Example of Speedup after Simplification (orig: 5.6s, new: 1.2s)},label={lst:minif2f-speedup-1}, captionpos=t, language=lean, breaklines=true, style=mystyle]
+theorem imo_1983_p6 -- Original Proof, Time: 5.57s
+  (a b c : ℝ)
+  (h₀ : 0 < a ∧ 0 < b ∧ 0 < c)
+  (h₁ : c < a + b)
+  (h₂ : b < a + c)
+  (h₃ : a < b + c) :
+  0 ≤ a^2 * b * (a - b) + b^2 * c * (b - c) + c^2 * a * (c - a) := by
+  have h_main : 0 ≤ a^2 * b * (a - b) + b^2 * c * (b - c) + c^2 * a * (c - a) := by
+    nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a),
+      mul_nonneg h₀.1.le h₀.2.1.le, mul_nonneg h₀.2.1.le h₀.2.2.le, mul_nonneg h₀.2.2.le h₀.1.le,
+      mul_nonneg (sq_nonneg (a - b)) h₀.2.2.le, mul_nonneg (sq_nonneg (b - c)) h₀.1.le,
+      mul_nonneg (sq_nonneg (c - a)) h₀.2.1.le, mul_pos h₀.1 h₀.2.1, mul_pos h₀.2.1 h₀.2.2,
+      mul_pos h₀.2.2 h₀.1, mul_pos (sub_pos.mpr h₁) (sub_pos.mpr h₂),
+      mul_pos (sub_pos.mpr h₂) (sub_pos.mpr h₃), mul_pos (sub_pos.mpr h₃) (sub_pos.mpr h₁),
+      sq_nonneg (a + b - 2 * c), sq_nonneg (b + c - 2 * a), sq_nonneg (c + a - 2 * b)]
+  exact h_main
+
+theorem imo_1983_p6 -- Simplified Proof, Time: 1.20s
+  (a b c : ℝ)
+  (h₀ : 0 < a ∧ 0 < b ∧ 0 < c)
+  (h₁ : c < a + b)
+  (h₂ : b < a + c)
+  (h₃ : a < b + c) :
+  0 ≤ a^2 * b * (a - b) + b^2 * c * (b - c) + c^2 * a * (c - a) := by
+  nlinarith [mul_pos (sub_pos.mpr h₁) (sub_pos.mpr h₂), mul_pos (sub_pos.mpr h₂) (sub_pos.mpr h₃), mul_pos (sub_pos.mpr h₃) (sub_pos.mpr h₁), sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, after skip=10pt plus 2pt]
+\begin{lstlisting}[caption={Example of Speedup after Simplification (orig: 2.5s, new: 0.5s)},label={lst:minif2f-speedup-2}, captionpos=t, language=lean, breaklines=true, style=mystyle]
+theorem mathd_numbertheory_765 -- Original Proof, Time: 2.50s
+  (x : ℤ)
+  (h₀ : x < 0)
+  (h₁ : (24 * x) % 1199 = 15) :
+  x ≤ -449 := by
+  have h_main : x ≤ -449 := by
+    by_contra! h
+    have h₂ : -448 ≤ x := by linarith
+    have h₃ : x < 0 := h₀
+    have h₄ : (24 * x) % 1199 = 15 := h₁
+    have h₅ : x ≥ -448 := by linarith
+    have h₆ : x ≤ -1 := by
+      omega
+    -- We will check all possible values of x from -448 to -1 and show that none satisfy (24 * x) % 1199 = 15
+    have h₇ : False := by
+      -- Use the fact that x is between -448 and -1 to check each possible value
+      have h₈ : x ≥ -448 := by linarith
+      have h₉ : x ≤ -1 := by omega
+      -- Use interval_cases to check each possible value of x
+      interval_cases x <;> norm_num [Int.mul_emod, Int.add_emod] at h₄ ⊢ <;> omega
+    exact h₇
+  exact h_main
+
+theorem mathd_numbertheory_765 -- Simplified Proof, Time: 0.50s
+  (x : ℤ)
+  (h₀ : x < 0)
+  (h₁ : (24 * x) % 1199 = 15) :
+  x ≤ -449 := by
+  omega
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, after skip=10pt plus 2pt]
+\begin{lstlisting}[caption={Example of Slowdown after Simplification (orig: 0.9s, new: 10.8s)},label={lst:minif2f-slowdown-1}, captionpos=t, language=lean, breaklines=true, style=mystyle]
+theorem aime_1984_p1 -- Original Proof, Time: 0.91s
+  (u : ℕ → ℚ)
+  (h₀ : ∀ n, u (n + 1) = u n + 1)
+  (h₁ : ∑ k ∈ Finset.range 98, u k.succ = 137) :
+  ∑ k ∈ Finset.range 49, u (2 * k.succ) = 93 := by
+  have h₂ : ∀ (n : ℕ), u n = u 0 + n := by
+    (... 14 lines omitted)
+
+  have h₃ : 98 * u 0 + 4851 = 137 := by
+    have h₄ : ∑ k in Finset.range 98, u (k.succ) = 137 := h₁
+    have h₅ : ∑ k in Finset.range 98, u (k.succ) = ∑ k in Finset.range 98, (u 0 + (k.succ : ℚ)) := by
+      apply Finset.sum_congr rfl
+      intro k _
+      rw [h₂ (k.succ)]
+      <;> simp [Nat.cast_add, Nat.cast_one]
+      <;> ring_nf
+      <;> norm_num
+    rw [h₅] at h₄
+    have h₆ : ∑ k in Finset.range 98, (u 0 + (k.succ : ℚ)) = 98 * u 0 + 4851 := by
+      have h₇ : ∑ k in Finset.range 98, (u 0 + (k.succ : ℚ)) = ∑ k in Finset.range 98, (u 0 : ℚ) + ∑ k in Finset.range 98, (k.succ : ℚ) := by
+        rw [Finset.sum_add_distrib]
+      rw [h₇]
+      have h₈ : ∑ k in Finset.range 98, (u 0 : ℚ) = 98 * u 0 := by
+        simp [Finset.sum_const, Finset.card_range]
+        <;> ring_nf
+      rw [h₈]
+      have h₉ : ∑ k in Finset.range 98, (k.succ : ℚ) = 4851 := by
+        norm_num [Finset.sum_range_succ, Finset.sum_range_succ, Finset.sum_range_succ]
+        <;>
+        rfl
+      rw [h₉]
+      <;> ring_nf
+    rw [h₆] at h₄
+    norm_num at h₄ ⊢
+    <;> linarith
+
+  have h₄ : ∑ k ∈ Finset.range 49, u (2 * k.succ) = 49 * u 0 + 2450 := by
+    -- (... 25 lines omitted)
+  have h₅ : 49 * u 0 = -2357 := by
+    -- (... 6 lines omitted)
+  have h₆ : ∑ k ∈ Finset.range 49, u (2 * k.succ) = 93 := by
+    -- (... 4 lines omitted)
+    linarith
+  exact h₆
+
+theorem aime_1984_p1 -- Simplified Proof, Time: 10.84s
+  (u : ℕ → ℚ)
+  (h₀ : ∀ n, u (n + 1) = u n + 1)
+  (h₁ : ∑ k ∈ Finset.range 98, u k.succ = 137) :
+  ∑ k ∈ Finset.range 49, u (2 * k.succ) = 93 := by
+  simp_all [Finset.sum_range_succ]
+  linarith
+\end{lstlisting}
+\end{tcolorbox}
+
+
+\begin{tcolorbox}[colback=lightblue, boxrule=0pt, arc=5pt, outer arc=5pt, after skip=10pt plus 2pt]
+\begin{lstlisting}[caption={Example of Slowdown after Simplification (orig: 4.9s, new: 74.6s)},label={lst:minif2f-slowdown-2}, captionpos=t, language=lean, breaklines=true, style=mystyle]
+theorem mathd_numbertheory_711 -- Original Proof, 4.87s
+  (m n : ℕ)
+  (h₀ : 0 < m ∧ 0 < n)
+  (h₁ : Nat.gcd m n = 8)
+  (h₂ : Nat.lcm m n = 112) :
+  72 ≤ m + n := by
+  have h_product : m * n = 896 := by
+    -- (... 5 lines omitted)
+  have h_main : 72 ≤ m + n := by
+    have h₃ : 0 < m := h₀.1
+    have h₄ : 0 < n := h₀.2
+    have h₅ : m * n = 896 := h_product
+    have h₆ : Nat.gcd m n = 8 := h₁
+    have h₇ : Nat.lcm m n = 112 := h₂
+    have h₈ : m + n ≥ 72 := by
+      by_contra! h
+      -- (... 4 lines omitted)
+      have h₁₁ : m ≤ 71 := by nlinarith
+      have h₁₂ : n ≤ 71 := by nlinarith
+      interval_cases m <;> norm_num at h₅ ⊢ <;>
+        (try omega) <;>
+        (try {
+          interval_cases n <;> norm_num at h₅ h₆ h₇ ⊢ <;>
+          -- (... 5 lines omitted)
+        }) <;>
+        -- (... 5 lines omitted)
+    exact h₈
+  exact h_main
+
+theorem mathd_numbertheory_711 -- Simplified Proof, 74.63s
+  (m n : ℕ)
+  (h₀ : 0 < m ∧ 0 < n)
+  (h₁ : Nat.gcd m n = 8)
+  (h₂ : Nat.lcm m n = 112) :
+  72 ≤ m + n := by
+  have : m * n = 896 := by
+    rw [← Nat.gcd_mul_lcm m n]
+    simp_all
+  by_contra!
+  have : m ≤ 71 := by nlinarith
+  have : n ≤ 71 := by nlinarith
+  interval_cases m <;> interval_cases n <;> simp_all
+\end{lstlisting}
+\end{tcolorbox}
+
+\newpage
+\subsection{Derivation of Closed Form for min@k and max@k}
+\label{app:estimation}
+In this section, we derive the closed form expression we use for estimating max@k from $n$ samples based off the classic pass@k metric:
+\[\text{max@}k = \frac{1}{\binom{n}{k}}\sum_{i \leq n} \binom{i-1}{k-1} x_i. \]
+
+Let $X$ be a real random variable, $X_1, \ldots, X_k$ independent realizations of $X$ and $X_{(k)} = \max_{i \leq k} X_i$ their maximum. We would like to give an estimator for $\mathbb{E}[X_{(k)}]$ given $n \geq k$ independent samples $x_1 \leq \ldots \leq x_n$ of $X$ sorted by size.
+
+Consider the estimator $
+M = \frac{1}{\binom{n}{k}}\sum_{i \leq n} \binom{i-1}{k-1} x_i$,
+with the idea being that there exist $\binom{n}{k}$ ways to choose $k$ out of the $n$ samples overall, out of which $\binom{i-1}{k-1}$ select the $i$-th and then $k-1$ with a smaller index.
+
+We compute
+\begin{align*}
+\mathbb{E}_{x_i}\left[\frac{1}{\binom{n}{k}}\sum_{i \leq n} \binom{i-1}{k-1} x_i\right]
+&= \mathbb{E}_{x_i}\left[ \frac{1}{\binom{n}{k}} \sum_{I \subseteq \{1, \ldots, n\}, |I| = k} x_{\max I} \right]  \\
+&= \frac{1}{\binom{n}{k}} \sum_{I \subseteq \{1, \ldots, n\}, |I| = k} \mathbb{E}_{x_i}\left[ x_{\max I} \right]  \\
+&= \frac{1}{\binom{n}{k}} \sum_{I \subseteq \{1, \ldots, n\}, |I| = k} \mathbb{E}_{x_i}\left[ \max_{j \in I} x_j \right] \\
+&= \frac{1}{\binom{n}{k}} \sum_{I \subseteq \{1, \ldots, n\}, |I| = k} \mathbb{E} \left[ X_{(k)} \right] \\
+&= \mathbb{E}\left[ X_{(k)} \right] 
+\end{align*}
+by the counting argument explained above, linearity of expectation, ordering of the $x_i$ and independence. 
+
+Note that this is a generalization of the pass@k metric, which covers the case of Bernoulli distributed  $X$ \citep{chen2021evaluatinglargelanguagemodels}.
+
+We recommend using a numerically stable implementation that computes the ratio $\frac{\binom{i-1}{k-1}}{\binom{n}{k}}$ by canceling a $(k-1)!$ factor and pairing up numerator and denominator factors.
+
+Moreover, the min@k estimator can be obtained as $\text{min@}k(x_1, \ldots, x_n) = -\text{max@}k(-x_1, \ldots, -x_n)$.
+\vfill
+
+
+\newpage
+\subsection{Hyperparameters}
+
+In this section, we detail the hyperparameters we use throughout our various training and inference experiments. Prompts can be found in the next section, Appendix \ref{sec:appendix-prompts}.
+
+\textbf{Iterative Training (Sec. \ref{subsec:iterative-training})}: For each round of SFT, we use an effective batch size of $64$ ($2$ nodes, $8$ H100/node, $4$ gradient accumulation steps) and learning rate 1e-5. We use a cosine scheduler with minimum learning rate 1e-8 and $100$ steps of warm-up starting from 1e-30. For inference, we use $\tau=1.0$ and top-p 0.95.
+
+\textbf{Reinforcement learning (Sec~\ref{sec:rl})}: Our setup is asynchronous online reinforcement learning with 16 trainer and 16 worker GPUs, and 16 environment copies per worker GPU. We use a global training batch size of 32 (local batch size 2 per trainer), a constant learning rate of 6e-8 following a linear warmup over 200 steps, a GRPO group size of 8, mean normalization but no variance normalziation, no KL penalty and model updates sent to workers every 100 steps. Workers use  For inference, we use $\tau=1.0$ and top-p 1.0, and evaluations use $\tau=1.0$ and top-p 0.95.
+
+For test-time reinforcement learning we use the same settings but halve the number of trainers and workers.
+
+\textbf{Execution Feedback and Goedel-Prover for Repair (Sec. \ref{subsec:goedel-repair})}: We use temperature $\tau=0.2$ and top-p 0.95 with a maximum prompt length of $8192$ and a maximum generation length of $32768$.
+
+\textbf{Iterative Shortening (Sec. \ref{subsec:iterative-shortening})}: For iterations $1$ through $6$, we use temperature $\tau=1.0$ and top-p 0.95. We increase the temperature to $\tau=1.2$ for iteration 7, and to $\tau=1.5$ for iteration 8. We find that the higher temperatures in later iterations are helpful for increasing diversity with $1024$ samples. 
+
+% \textbf{Continued Training on Simplified Proofs (Sec. \ref{subsec:training-simplified})}: For continued-training, we use an effective batch size of $64$ ($2$ nodes, $8$ H100/node, $4$ gradient accumulation steps) and learning rate 1e-6. We use a cosine scheduler with minimum learning rate 1e-8 and with $100$ steps of warm-up starting from 1e-30. For miniF2F evaluations, we use temperature $\tau=0.8$ and top-p 0.95. 
+
+\textbf{Lean Base Model (Sec. \ref{subsec:lean-base-model})}: We use an effective batch size of $512$ ($2$ nodes, $8$ H100/node, $32$ gradient accumulation steps) and learning rate 1e-5 with $100$ steps of warm-up starting from 1e-30. We train with a maximum sequence length of $8192$ for $2000$ steps.
+
+\textbf{Proof Sketching (Sec. \ref{subsec:proof-shortening-dataset})}: We use an effective batch size of $64$ ($2$ nodes, $8$ H100/node, $4$ gradient accumulation steps) and learning rate 1e-5 with $100$ steps of warm-up starting from 1e-30. We train with a maximum sequence length of $8192$ for $50$ steps. Evaluation is done with temperature $\tau=0.8$ and top-p $0.95$.
+
+\textbf{Comparison with Leading Models (Sec. \ref{subsec:leading-model-comparison})}: For our model and Qwen2.5-32B, we use $\tau=1.0$ and top-p 0.95. For GPT-4o and Gemini-2.5-Pro, we use the default settings with $\tau=1.0$. 
+
+\newpage
+\subsection{Prompts} \label{sec:appendix-prompts}
+
+\subsubsection{Proof Simplification Prompt} 
+\begin{lstlisting}[caption={Zero-shot Proof Sketching Prompt},label={prompt-proof-simp}, captionpos=t, breaklines=true, style=mystyle]
+You are given a correct Lean 4 proof of a mathematical theorem.
+Your goal is to simplify and clean up the proof, making it shorter and more readable while ensuring it is still correct.
+
+Here is the original proof:
+```lean4
+{statement}
+```
+
+Now, provide your simplified proof. Do NOT modify the theorem or header, and surround your proof in ```lean4 and ``` tags.
+\end{lstlisting}
+
+\subsubsection{Proof Sketching Prompts}
+
+\begin{lstlisting}[caption={Zero-shot Proof Sketching Prompt},label={prompt-sketch-zeroshot}, captionpos=t, breaklines=true, style=mystyle]
+Your task is to translate a natural language math solution into a Lean 4 proof sketch that follows the structure of the natural language solution. Follow these guidelines:
+1. Analyze the natural language solution and identify the key steps.
+2. Translate each key step into Lean 4 syntax, structuring your proof using 'have' statements for clarity. Include all core steps from the natural language solution.
+3. Use 'sorry' to replace individual proofs of lower-level steps, ensuring that your proof skeleton would compile successfully in Lean 4.
+4. Surround your Lean 4 proof sketch in ```lean4 and ``` tags.
+
+
+Problem:
+{problem}
+
+Solution:
+{solution}
+
+Lean 4 Statement:
+```lean4
+{statement}
+```
+
+Now, provide your Lean 4 proof sketch. Do NOT modify the theorem or header, and surround your proof sketch in ```lean4 and ``` tags.
+\end{lstlisting}
+
+\begin{lstlisting}[caption={One-shot Proof Sketching Prompt},label={prompt-sketch-oneshot}, captionpos=t, breaklines=true, style=mystyle, literate={ℕ}{{$\mathbb{N}$}}1 {≠}{{$\neq$}}1
+{∨}{{$\vee$}}1 {∣}{{|}}1]
+Your task is to translate a natural language math solution into a Lean 4 proof sketch that follows the structure of the natural language solution. Follow these guidelines:
+1. Analyze the natural language solution and identify the key steps.
+2. Translate each key step into Lean 4 syntax, structuring your proof using 'have' statements for clarity. Include all core steps from the natural language solution.
+3. Use 'sorry' to replace individual proofs of lower-level steps, ensuring that your proof skeleton would compile successfully in Lean 4.
+4. Surround your Lean 4 proof sketch in ```lean4 and ``` tags.
+
+Here is an example:
+
+Problem:
+Prove that if p, q are primes such that q is divisible by p, then p must be equal to q.
+
+Solution:
+Since q is prime, it only has 2 divisors: 1 and itself. Therefore, since p divides q, either $p=1$ or $p=q$. Because $p$ is a prime, $p \ne 1$, so $p=q$.
+
+Lean 4 Statement:
+```lean4
+import Mathlib
+
+theorem prime_divides_prime_equal (p q : ℕ) (hp : Prime p) (hq : Prime q) (h : p ∣ q) : p = q := by sorry
+```
+
+Lean 4 Proof Sketch:
+```lean4
+import Mathlib
+
+theorem prime_divides_prime_equal (p q : ℕ) (hp : Prime p) (hq : Prime q) (h : p ∣ q) : p = q := by
+  -- Lemma 1: Since q is prime, it only has 2 divisors: 1 and itself.
+  have lemma1 : p = 1 ∨ p = q := by
+    sorry
+
+  -- Lemma 2: Since p is prime, p ≠ 1.
+  have lemma2 : p ≠ 1 := by
+    sorry
+
+  -- Now, do case analysis on lemma1 to conclude p = q.
+  cases lemma1 with
+  | inl h_left =>
+    contradiction
+  | inr h_right =>
+    exact h_right
+```
+
+Now, it is your turn to provide your Lean 4 proof sketch for a new problem. Do NOT modify the theorem or header, and surround your proof sketch in ```lean4 and ``` tags.
+
+Problem:
+{problem}
+
+Solution:
+{solution}
+
+Lean 4 Statement:
+```lean4
+{statement}
+```
+
+Lean 4 Proof Sketch
+\end{lstlisting}
+
+\subsubsection{Goedel-Prover Repair Prompt}
+
+In Listing \ref{lst:goedel-prover-repair-prompt}, use a modified version of Goedel-Prover's repair prompt found in their \href{https://github.com/Goedel-LM/Goedel-Prover-V2}{codebase}. 
+The main difference is that because we do not have proofs annotated with CoT's, our \texttt{lean\_proof} only contains a proof. 
+
+\begin{lstlisting}[caption={Goedel-Prover Repair Prompt},label={lst:goedel-prover-repair-prompt}, captionpos=t, breaklines=true, style=mystyle, literate={ℕ}{{$\mathbb{N}$}}1 {≠}{{$\neq$}}1
+{∨}{{$\vee$}}1 {∣}{{|}}1]
+Complete the following Lean 4 code:
+
+```lean4
+{formal_statement}```
+
+Before producing the Lean 4 code to formally prove the given theorem, provide a detailed proof plan outlining the main proof steps and strategies.
+The plan should highlight key ideas, intermediate lemmas, and proof structures that will guide the construction of the final formal proof.
+
+Here is the proof:
+```lean4
+{lean_proof}```
+
+The proof (Round 1) is not correct. Following is the compilation error message, where we use <error></error> to signal the position of the error.
+
+{error_message_for_prev_round}
+
+Before producing the Lean 4 code to formally prove the given theorem, provide a detailed analysis of the error message.
+\end{lstlisting}
+
+\newpage
+\subsection{Python Code for Proof Length}
+\begin{lstlisting}[breaklines=true, style=mystyle, language=lean]
+import re
+from collections import Counter
+
+def proof_length(statement_and_proof):
+    lean_operators = [':=', '!=', '&&', '-.', '->', '<-', '..', '...', '::', ':>',
+                    '<;>', ';;', '==', '||', '=>', '<=', '>=', '⁻¹', '?_']
+    lean_operators_spaced = [' '.join(conn) for conn in lean_operators]
+    lean_operators_dict = dict(zip(lean_operators_spaced, lean_operators))
+    def lexer(lean_snippet):
+        tokenized_lines = []
+        for line in lean_snippet.splitlines():
+            tokens = []
+            token = ''
+            for ch in line:
+                if ch == ' ':
+                    if token:
+                        tokens.append(token)
+                        token = ''
+                elif str.isalnum(ch) or (ch in "_.'"):
+                    token += ch
+                else:
+                    if token:
+                        tokens.append(token)
+                        token = ''
+                    tokens.append(ch)
+            if token:
+                tokens.append(token)
+            tokenized_line = ' '.join(tokens)
+            for conn in lean_operators_spaced:
+                if conn in tokenized_line:
+                    tokenized_line = tokenized_line.replace(conn, lean_operators_dict[conn])
+            tokenized_lines.append(tokenized_line)
+        return '\n'.join(tokenized_lines)
+
+    def remove_statement(statement_and_proof):
+        if ":= by" in statement_and_proof:
+            return statement_and_proof.split(":= by", maxsplit=1)[1].strip()
+        return statement_and_proof.split(":=", maxsplit=1)[1].strip()
+
+    def remove_comments(lean_snippet):
+        # multi-line comments
+        lean_snippet = re.sub(r" */-.*-/", "", lean_snippet, flags=re.DOTALL)
+        # single-line comments
+        lean_snippet = re.sub(r" *--.*", "", lean_snippet)
+        return lean_snippet
+
+    try:
+        proof = remove_statement(statement_and_proof)
+        proof = remove_comments(proof)
+        proof_tokenized = lexer(proof)
+        return sum([len(l.split(' ')) for l in proof_tokenized.splitlines()])
+    except:
+        return 10**9
+\end{lstlisting}
+
+\newpage
+\subsection{Proofs}
+In this section, we include the original and simplified proofs for miniF2F, PutnamBench, and IMO 2025.

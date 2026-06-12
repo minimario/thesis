@@ -1,0 +1,20 @@
+\section{Related Work}
+\paragraph{Language models as judges and verifiers}
+LLMs are increasingly explored for their potential in evaluation and verification tasks in various domains. In open-ended question answering, \citet{zheng2023judging} demonstrate that models like GPT-4 align with human preferences, indicating their potential as tools for assessing LLM-generated responses. 
+
+In domains like mathematics and commonsense reasoning, various forms of automated LLM feedback have led to improved reasoning abilities \citep{cobbe2021training, zhou2023solving, weng2022large, lightman2023let, chen2023universal,wang2023math,shao2024deepseekmath}. 
+Additionally, Studies like \citep{schneider2023towards, matelsky2023large} investigate LLMs as auto-graders or judges for educators.
+On the other hand, \citet{valmeekam2023can, tyen2023llms, stechly2023gpt, chen2024tree} find that LLMs can struggle to find when they are wrong and that critiquing plans could harm performance.
+
+\paragraph{Evaluation and verification for code synthesis}
+The challenge of LLMs producing incorrect code in response to natural language prompts has led to a significant focus on automated evaluation and verification of generated code samples. Various studies have demonstrated that postprocessing the samples from LLMs can substantially enhance the accuracy of the system~\citep{chen2022codet, ridnik2024code, key2022speak, zhang2023algo, li2022competition, huang2023enhancing}.
+
+Also, \citet{inala2022fault,zhang2023coder,ni2023lever} have employed a neural model to verify code samples, with the aim of ranking more accurate codes higher.
+
+\paragraph{Code understanding in language models}
+Many benchmarks evaluate aspects of code understanding and code intelligence such as code summarization \citep{iyer2016summarizing, hasan2021codesc}, commit message generation \citep{liu2020atom}, code comprehension \citep{singhal2024nofuneval}, clone detection \citep{lu2021codexglue}, code question answering \citep{sahu2022learning}, and code explaining \citep{muennighoff2023octopack}. Neural-based code execution has been studied in \citep{austin2021program, nye2021show, gu2024cruxeval, la2024code}, and code repair has been studied in \citep{madaan2023self, chen2024teaching, zhang2023self, olausson2024repair}, and \citet{liu2024codemind} examine a suite of code reasoning benchmarks.
+
+A few controlled studies highlight the extent to which language models understand code. For example, code generation abilities have been shown to drop after syntactic changes like identifier swaps \citep{miceli2023larger} and semantic changes like 1-indexing \citep{wu2023reasoning}. \citet{dinh2024large} show that models fail at completing code with bugs. \citet{jin2023evidence} provide evidence that LMs can learn meaningful representations when trained on programs, \citet{zhang2023can} explore the behavior of transformers to simulate recursive functions, and \citet{min2023beyond} discover that code language models are inconsistent on various coding tasks.
+
+\paragraph{Models understanding their own generations}
+Some recent works investigate the extent to which models understand their generations. \citet{huang2023large, chen2024teaching, tyen2023llms, olausson2024repair} find that LLMs struggle to find their own reasoning errors, but are able to correct them with adequate external feedback. \citet{singhal2024nofuneval} discover that models are better at fixing buggy code than distinguishing between correct and buggy code. Relevant to our work, \citet{west2023generative} and \citet{oh2024generative} argue that generative capability may not be contingent on understanding capability in textual domains.

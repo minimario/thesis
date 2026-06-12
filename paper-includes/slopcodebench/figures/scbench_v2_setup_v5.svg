@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 540" font-family="Calibri, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+  <title id="t">SCBench V2 problem setup</title>
+  <desc id="d">Two panels. Phase 1 (left, narrow): the agent receives an underspecified spec and decides whether to ask a clarification LLM (which holds ground truth but only gives scripted partial replies) or skip ahead, then commits to an interpretation. Phase 2 (right, wide): the agent works continuously on the workspace (editing files, running tests). At its own choice (capped at N) it triggers a check-in event. At each check-in the manager LLM receives two inputs — the agent's self-report of progress, and the names of failing tests provided by SCBench — and probes the agent in conversation, after which the agent resumes coding. SCBench eval observes the workspace, every check-in, and all test outcomes, measuring progress across the sequence of check-ins.</desc>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowStart" viewBox="0 0 10 10" refX="2" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M8 1L2 5L8 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      .ts  { font-size: 12px; fill: #555555; }
+      .th  { font-size: 14px; font-weight: 500; fill: #1A1A1A; }
+      .arr { stroke: #555555; stroke-width: 1; fill: none; }
+      .phase  { fill: #F4F4F4; stroke: #C8C8C8; stroke-width: 0.5; }
+      .phase-title { font-size: 17px; font-weight: 600; fill: #1A1A1A; }
+      .phase-sub   { font-size: 12px; fill: #777777; font-style: italic; }
+      .gray   { fill: #F1EFE8; stroke: #888780; stroke-width: 0.5; }
+      .blue   { fill: #E6F1FB; stroke: #185FA5; stroke-width: 0.5; }
+      .teal   { fill: #E1F5EE; stroke: #0F6E56; stroke-width: 0.5; }
+      .coral  { fill: #FAECE7; stroke: #993C1D; stroke-width: 0.5; }
+      .amber  { fill: #FAEEDA; stroke: #854F0B; stroke-width: 0.5; }
+      .pink   { fill: #FBEAF0; stroke: #993556; stroke-width: 0.5; }
+      .label-on-gray  { fill: #444441; }
+      .label-on-blue  { fill: #0C447C; }
+      .label-on-teal  { fill: #085041; }
+      .label-on-coral { fill: #712B13; }
+      .label-on-amber { fill: #633806; }
+      .label-on-pink  { fill: #72243E; }
+      .sub-on-gray  { fill: #5F5E5A; }
+      .sub-on-blue  { fill: #185FA5; }
+      .sub-on-teal  { fill: #0F6E56; }
+      .sub-on-coral { fill: #993C1D; }
+      .sub-on-amber { fill: #854F0B; }
+      .sub-on-pink  { fill: #993556; }
+      .branch-label { fill: #1A1A1A; font-weight: 500; font-size: 12px; }
+    </style>
+  </defs>
+
+  <!-- ============================================== -->
+  <!-- PHASE 1                                         -->
+  <!-- ============================================== -->
+  <rect class="phase" x="20" y="20" width="350" height="500" rx="12"/>
+  <text class="phase-title" x="40" y="48">Phase 1 — disambiguation</text>
+  <text class="phase-sub"   x="40" y="66">Agent acts on partial information</text>
+
+  <!-- Spec -->
+  <rect class="gray" x="115" y="92" width="180" height="56" rx="8"/>
+  <text class="th label-on-gray" x="205" y="114" text-anchor="middle" dominant-baseline="central">Underspecified spec</text>
+  <text class="ts sub-on-gray"   x="205" y="132" text-anchor="middle" dominant-baseline="central">Ambiguities seeded by design</text>
+
+  <line x1="205" y1="148" x2="205" y2="170" class="arr" marker-end="url(#arrow)"/>
+
+  <!-- Agent -->
+  <rect class="blue" x="115" y="172" width="180" height="56" rx="8"/>
+  <text class="th label-on-blue" x="205" y="194" text-anchor="middle" dominant-baseline="central">Coding agent</text>
+  <text class="ts sub-on-blue"   x="205" y="212" text-anchor="middle" dominant-baseline="central">Ask, or commit to a guess?</text>
+
+  <line x1="205" y1="228" x2="205" y2="246" class="arr" marker-end="url(#arrow)"/>
+
+  <!-- Diamond -->
+  <polygon points="205,248 260,288 205,328 150,288" fill="#FFFFFF" stroke="#888780" stroke-width="0.75"/>
+  <text class="th" x="205" y="282" text-anchor="middle" dominant-baseline="central">Ask?</text>
+  <text class="branch-label" x="140" y="282" text-anchor="end">yes</text>
+  <text class="branch-label" x="270" y="282" text-anchor="start">no, skip</text>
+
+  <!-- yes branch -->
+  <path d="M150 288 L75 288 L75 348" class="arr" marker-end="url(#arrow)"/>
+
+  <!-- Clarification LLM -->
+  <rect class="teal" x="40" y="350" width="170" height="64" rx="8"/>
+  <text class="th label-on-teal" x="125" y="372" text-anchor="middle" dominant-baseline="central">Clarification LLM</text>
+  <text class="ts sub-on-teal"   x="125" y="390" text-anchor="middle" dominant-baseline="central" font-weight="700">holds ground truth</text>
+  <text class="ts sub-on-teal"   x="125" y="404" text-anchor="middle" dominant-baseline="central" font-style="italic">scripted partial replies only</text>
+
+  <!-- partial-reply loop -->
+  <path d="M40 380 L28 380 L28 200 L112 200" class="arr" marker-end="url(#arrow)" stroke-dasharray="3 3"/>
+  <text class="ts" x="35" y="296" font-style="italic">partial</text>
+  <text class="ts" x="35" y="310" font-style="italic">reply</text>
+  <text class="ts" x="35" y="324" font-style="italic">(may loop)</text>
+
+  <!-- yes path → commits -->
+  <path d="M125 414 L125 440 L180 440 L180 446" class="arr" marker-end="url(#arrow)"/>
+
+  <!-- no/skip path → commits -->
+  <path d="M260 288 L320 288 L320 440 L235 440 L235 446" class="arr" marker-end="url(#arrow)"/>
+
+  <!-- Agent commits -->
+  <rect class="blue" x="115" y="448" width="180" height="48" rx="8"/>
+  <text class="th label-on-blue" x="205" y="468" text-anchor="middle" dominant-baseline="central">Agent commits</text>
+  <text class="ts sub-on-blue"   x="205" y="484" text-anchor="middle" dominant-baseline="central">Settles on one interpretation</text>
+
+  <!-- ============================================== -->
+  <!-- PHASE 2                                         -->
+  <!-- ============================================== -->
+  <rect class="phase" x="390" y="20" width="670" height="500" rx="12"/>
+  <text class="phase-title" x="410" y="48">Phase 2 — code, then check in. Cap N times.</text>
+  <text class="phase-sub"   x="410" y="66">SCBench measures progress across the sequence of check-ins</text>
+
+  <!-- TOP: continuous coding cluster -->
+  <text class="ts" x="725" y="96" text-anchor="middle" font-style="italic" font-weight="600" fill="#444">Continuously:</text>
+
+  <!-- Workspace -->
+  <rect class="gray" x="460" y="108" width="200" height="55" rx="8"/>
+  <text class="th label-on-gray" x="560" y="128" text-anchor="middle" dominant-baseline="central">Workspace</text>
+  <text class="ts sub-on-gray"   x="560" y="146" text-anchor="middle" dominant-baseline="central">code, files, tests</text>
+
+  <!-- Coding agent -->
+  <rect class="blue" x="790" y="108" width="200" height="55" rx="8"/>
+  <text class="th label-on-blue" x="890" y="128" text-anchor="middle" dominant-baseline="central">Coding agent</text>
+  <text class="ts sub-on-blue"   x="890" y="146" text-anchor="middle" dominant-baseline="central">edits files, runs tests</text>
+
+  <!-- Bidirectional arrow workspace ↔ agent -->
+  <line x1="660" y1="135" x2="790" y2="135" stroke="#555555" stroke-width="1" marker-end="url(#arrow)" marker-start="url(#arrowStart)"/>
+
+  <!-- Agent triggers a check-in -->
+  <path d="M890 163 L890 192 L725 192 L725 218" class="arr" marker-end="url(#arrow)"/>
+  <text class="ts" x="807" y="186" text-anchor="middle" font-style="italic">at agent's choice · cap N</text>
+
+  <!-- CHECK-IN EVENT WRAPPER -->
+  <rect x="420" y="222" width="610" height="195" rx="10" fill="#FAFAF8" stroke="#888780" stroke-width="0.7" stroke-dasharray="6 3"/>
+  <text x="725" y="243" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="700" fill="#444" letter-spacing="1.2">AT EACH CHECK-IN</text>
+
+  <!-- Self-report (from agent) -->
+  <rect class="coral" x="445" y="262" width="200" height="55" rx="8"/>
+  <text class="th label-on-coral" x="545" y="282" text-anchor="middle" dominant-baseline="central">Self-report</text>
+  <text class="ts sub-on-coral"   x="545" y="300" text-anchor="middle" dominant-baseline="central">from agent · claims of progress</text>
+
+  <!-- Failing test names (from eval) -->
+  <rect class="amber" x="805" y="262" width="200" height="55" rx="8"/>
+  <text class="th label-on-amber" x="905" y="282" text-anchor="middle" dominant-baseline="central">Failing test names</text>
+  <text class="ts sub-on-amber"   x="905" y="300" text-anchor="middle" dominant-baseline="central">from eval · names only</text>
+
+  <!-- Both feed into Manager LLM -->
+  <path d="M545 317 L545 340 L660 340 L660 350" class="arr" marker-end="url(#arrow)"/>
+  <path d="M905 317 L905 340 L790 340 L790 350" class="arr" marker-end="url(#arrow)"/>
+
+  <!-- Manager LLM -->
+  <rect class="pink" x="595" y="350" width="260" height="55" rx="8"/>
+  <text class="th label-on-pink" x="725" y="370" text-anchor="middle" dominant-baseline="central">Manager LLM</text>
+  <text class="ts sub-on-pink"   x="725" y="388" text-anchor="middle" dominant-baseline="central">probes ↔ agent revises</text>
+
+  <!-- LOOP: agent resumes coding -->
+  <path d="M855 377 L1045 377 L1045 135 L992 135" class="arr" marker-end="url(#arrow)" stroke-dasharray="4 3"/>
+  <text class="ts" x="1041" y="244" text-anchor="end" font-style="italic">agent</text>
+  <text class="ts" x="1041" y="258" text-anchor="end" font-style="italic">resumes</text>
+
+  <!-- FOOTER: SCBench eval observation -->
+  <rect x="420" y="438" width="610" height="44" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.6"/>
+  <text x="450" y="458" font-size="12" font-weight="700" fill="#444441" letter-spacing="1">SCBench eval</text>
+  <text x="725" y="458" font-size="12" font-style="italic" fill="#5F5E5A" text-anchor="middle">observes workspace, every check-in, all test outcomes</text>
+  <text x="725" y="473" font-size="12" font-style="italic" fill="#5F5E5A" text-anchor="middle">— measures progress across the sequence of check-ins —</text>
+
+</svg>

@@ -1,0 +1,64 @@
+\begin{textcolorbox}[Prompt for Numerical Approximation Judge]
+\textbf{Task:} Evaluate the logical rigor of a solution to an inequality problem, specifically checking whether approximate numerical substitutions (e.g., replacing $\sqrt{2}$ with $1.414$) were improperly used in the reasoning process. \\
+
+\textbf{Instructions:}
+
+1. Carefully read the entire reasoning process used to solve the inequality.\\
+2. Identify whether the solution includes:
+
+\quad - Any replacement of exact expressions (such as radicals, fractions, or constants like $\pi$) with approximate decimal values.
+
+3.Strict rules for use of approximate values:
+
+\quad - If approximated values are directly involved in any operations (such as addition, subtraction, multiplication, or division), it must immediately be considered invalid, regardless of whether the operation is for comparing sizes or for further reasoning! 
+
+\quad - Examples of invalid actions: Approximating $\sqrt{5} \approx 2.236$ and then using it to compute $\sqrt{5} + 3$ approximately, or Approximating $\pi \approx 3.14$ and then evaluating $\pi/2$ based on $3.14$.
+
+4. Approximate substitutions are allowed only under the following conditions: If approximate numerical comparison is used between simple numbers (e.g., $\sqrt{4}$, $\frac{1}{2}$, $\sqrt{2}$) that humans can readily estimate, it is acceptable.
+
+5. Approximate substitution is invalid and must be flagged in these cases:
+
+\quad - If an approximate value is introduced for a complex irrational number (e.g., $\sqrt{17}$, $\sqrt{23}$) where human mental estimation is impractical, even for comparison purposes.
+
+\quad - If any approximation alters the rigor of the argument.\\
+6. You do not need to judge whether the final inequality direction is correct—only whether improper approximation substitution occurred.\\
+
+\textbf{Output Format:}
+
+\texttt{<Analysis>:} Step-by-step explanation of whether approximate numerical values were improperly substituted for exact expressions. Clarify whether approximations were used only illustratively or improperly incorporated into reasoning.\\
+% \texttt{<Conclusion>:} YES or NO. YES if any improper use of approximation occurred; NO if the use (if any) was acceptable\\
+\texttt{<Flagged Reasoning Step (if applicable)>:} Quote or summarize the specific step(s) where inappropriate approximations were made.\\
+\texttt{<Answer>:} \texttt{True} or \texttt{False}. \texttt{True} if the reasoning maintains acceptable rigor regarding approximations; \texttt{False} if it violates the rules.\\
+
+\textbf{Key Considerations:}
+
+1. If approximated values are directly involved in any operations (such as addition, subtraction, multiplication, or division), it must immediately be considered invalid, regardless of whether the operation is for comparing sizes or for further reasoning.\\
+2. Comparing simple, common values via approximation (e.g., $\sqrt{2} \approx 1.414$ vs $1.5$) is acceptable if human estimation is reasonable.\\
+3. Approximate values of \textit{complicated irrational numbers} (e.g., $\sqrt{17}$, $\sqrt{23}$, $\pi^{5/4}$) are invalid even for comparison.\\
+4. Any use of approximate values for calculations (such as adding, subtracting, multiplying, or dividing approximate numbers) is strictly invalid, even if the final result seems close. Only comparing two simple exact numbers by approximation is acceptable; calculating further with approximated values is never allowed.\\
+5. Widely known exact simplifications (e.g., $\sqrt{4}=2$, $\frac{1}{2}=0.5$) are acceptable.\\
+6. Do not suggest improvements—simply judge whether the solution follows the rules.\\
+
+\textbf{Examples of Inputs and Outputs:}
+
+\texttt{\{examples\}}\\
+
+\textbf{Now analyze the following problem and solution:}
+
+Original Problem:
+\texttt{\{query\}}
+
+Solution:
+\texttt{\{response\}}
+
+\end{textcolorbox}
+
+
+
+
+
+
+
+
+
+

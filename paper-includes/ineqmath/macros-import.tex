@@ -1,0 +1,24 @@
+
+\providecommand{\dataset}{\textsc{IneqMath}\xspace}
+\definecolor{mylinkcolor}{RGB}{11,20,110}
+\definecolor{forestgreen}{RGB}{13,55,13}
+\definecolor{LightBlue}{RGB}{220,230,250}
+\definecolor{LightRed}{RGB}{250,220,220}
+\providecommand{\prv}[1]{{\scriptsize\textcolor{blue}{$\downarrow$#1}}}
+\providecommand{\urv}[1]{{\scriptsize\textcolor{red}{$\uparrow$#1}}}
+\providecommand{\correct}[1]{{\textcolor{blue}{#1}}}
+\providecommand{\wrong}[1]{{\textcolor{red}{#1}}}
+\providecommand{\flagged}[1]{{\textcolor{forestgreen}{#1}}}
+\providecommand{\correcthl}{\textcolor{blue}{(blue-highlighted part)}}
+\providecommand{\wronghl}{\textcolor{red}{(red-highlighted part)\xspace}}
+\providecommand{\company}[1]{}
+\providecommand{\modelapi}[1]{{\texttt{#1}}}
+\providecommand{\link}[1]{{\href{#1}{\texttt{Link}}}}
+\definecolor{colorcardbox}{RGB}{240,248,255}
+\definecolor{colorcardborder}{RGB}{52,52,173}
+\definecolor{plannerbg}{RGB}{248,230,234}
+\definecolor{plannerframe}{RGB}{176,36,24}
+\definecolor{plannerbadge}{RGB}{225,151,168}
+\providecommand{\shortstack}[1]{\begin{tabular}{@{}c@{}}#1\end{tabular}}
+\newtcolorbox{textcolorbox}[1][]{colback=colorcardbox,colframe=colorcardborder,arc=2pt,title=#1,fonttitle=\bfseries,left=5pt,right=5pt,top=5pt,bottom=5pt,before skip=1em,after skip=1em,fontupper=\small,breakable}
+\newtcolorbox{examplebox}[1][]{colback=plannerbg,colframe=plannerframe,arc=2pt,title=#1,fonttitle=\bfseries,left=5pt,right=5pt,top=5pt,bottom=5pt,before skip=1em,after skip=1em,colbacktitle=plannerbadge,coltitle=black,breakable}

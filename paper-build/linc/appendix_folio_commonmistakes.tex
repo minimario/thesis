@@ -1,0 +1,18 @@
+\subsection{Shared mistakes between GPT-4 \texttt{CoT} and \texttt{LINC}} \label{sec:appendix_sharedmistakes}
+As shown in Fig. \ref{fig:gpt_cot_neurosym}, there are 21 common errors between GPT-4 \texttt{CoT} and GPT-4 \texttt{LINC}. After an in-depth analysis of the examples, we see that 16 of these arise due to inherent errors in the dataset:
+\begin{itemize}
+\item 2 of these samples contain the sentence fragment ``Either Zaha Hadid's design style or Kelly Wearstler's design style.'' as a premise. This premise is likely intended to mean all design styles are one of these two styles, but this is hard for the model to grasp from just the fragment (sample 41, 42).
+\item 2 of these samples contain the sentence fragment ``Either female tennis players at Roland Garros 2022 or male tennis players at Roland Garros 2022.'' as a premise (sample 43, 45).
+\item 2 of these samples have an ambiguous use of ``either'': ``Ben is either from The Simpsons or funny,'' which in this case ambiguously means \texttt{XOR}. We believe this sentence is an unnatural usage of ``either'' (sample 142, 143).
+\item In 4 samples, there is a name that is implicitly an animal, but this is not clear (sample 126, 127, 128, 199). Also, in samples 126-128, there is a statement ``If Rock is neither a fly nor a bird, then Rock neither flies nor breathes.'' that should likely say ``If Rock neither flies nor is a bird, ...''. With the original formulation, everything could be uncertain because nothing is known in the case that Rock is a fly (and this is a reasonable interpretation).
+\item In 5 samples, the ground-truth FOL representation of the natural language premise is incorrect, causing the label to be incorrect (samples 29, 79, 85, 86, 87).
+\item There is a sample where the conclusion is likely mis-worded and should be ``Barutin Cove is not located in Antarctica.'' instead of ``Barutin is not located in Antarctica.'' This changes the ground truth label. (sample 121).
+\end{itemize}
+
+The remaining 5 samples are examples where both methods fail. In all cases, \texttt{CoT} fails to find the correct reasoning chain, as the premises/reasoning path is convoluted and complex. Meanwhile, \texttt{LINC} fails as follows:
+\begin{itemize}
+    \item In sample 104, \texttt{LINC} generates separate symbols for \texttt{NotLiveAtHome} and \texttt{-LiveAtHome}, which are semantically equivalent.
+    \item In sample 149, \texttt{LINC} generates FOLs that miss implicit information; i.e. that people with names Rose and Jerry are humans.
+    \item In samples 172 and 173, \texttt{LINC} does not generate a single valid set of FOL premises because all generated expressions have a mismatched arity issue.
+    \item In sample 193, \texttt{LINC} fails to express the conclusion correctly: the conclusion is ``If Yuri is not an American basketball player, then Yuri is a basketball player.'', but the FOLs outputted are either \texttt{-American(Yuri) \& -BasketballPlayer(Yuri)} or \texttt{-American(Yuri) \& BasketballPlayer(Yuri)}
+\end{itemize}

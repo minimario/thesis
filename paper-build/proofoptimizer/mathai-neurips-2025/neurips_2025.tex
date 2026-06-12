@@ -1,0 +1,228 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+
+\PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2025
+
+% Use this for double-blind submission:
+\usepackage[nonatbib,dblblindworkshop,final]{neurips_2025}
+
+% Use this for the camera-ready version:
+% \usepackage[dblblindworkshop,final]{neurips_2025}
+
+\workshoptitle{MATH-AI}
+
+% Use this for preprint:
+% \usepackage[preprint]{neurips_2025}
+
+% to avoid loading the natbib package, add option nonatbib:
+%    \usepackage[nonatbib,dblblindworkshop]{neurips_2025}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+% \usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+
+\input{iclr2026/math_commands.tex}
+
+\usepackage{float}
+\usepackage{makecell}
+\usepackage{amsmath,amsbsy,amsgen,amscd,amssymb,amsthm,amsfonts}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{bm}
+\usepackage{arydshln}
+\usepackage{enumitem}
+\usepackage{fancyvrb}
+\usepackage{subcaption, geometry, graphicx, lipsum}
+\usepackage{microtype}
+\usepackage{multirow}
+%\usepackage{paralist}
+\usepackage[
+  pagebackref=true,
+  colorlinks=true,
+  citecolor=MidnightBlue,
+  linkcolor=Fuchsia,
+]{hyperref}
+\usepackage{pifont}
+\usepackage[nameinlink]{cleveref}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{algorithm,algorithmic}
+\usepackage[round]{natbib}
+\usepackage{xspace}
+\usepackage{caption}
+\captionsetup[table]{skip=5pt}
+\usepackage{listings}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  columns=fullflexible,
+  frame=single,
+  breaklines=true,
+  postbreak=\mbox{$\hookrightarrow$\space},
+  rulecolor=\color{black},
+  moredelim=[is][\color{red}]{!*}{*!},
+  belowskip=0pt,
+  belowcaptionskip=0pt
+}
+\lstset{moredelim=[is][\color{red}]{!*}{*!}}
+\def\lstlanguagefiles{iclr2026/lstlean.tex}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{keywordcolor}{rgb}{0.7, 0.1, 0.1}   % red
+\definecolor{tacticcolor}{rgb}{0.0, 0.1, 0.6}    % blue
+\definecolor{commentcolor}{rgb}{0.4, 0.4, 0.4}   % grey
+\definecolor{symbolcolor}{rgb}{0.0, 0.1, 0.6}    % blue
+\definecolor{sortcolor}{rgb}{0.1, 0.5, 0.1}      % green
+\definecolor{attributecolor}{rgb}{0.7, 0.1, 0.1} % red
+
+\lstdefinestyle{mystyle}{
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    basicstyle=\ttfamily\scriptsize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    moredelim=[is][\color{red}]{!*}{*!},
+}
+
+\lstdefinestyle{mystyletiny}{
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    basicstyle=\ttfamily\tiny,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    moredelim=[is][\color{red}]{!*}{*!},
+}
+
+\lstdefinestyle{boxed}{
+    frame=single,
+    breaklines=true,
+    postbreak=\mbox{$\hookrightarrow$\space},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=t,
+    keepspaces=true,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\usepackage[dvipsnames]{xcolor}
+\usepackage[most]{tcolorbox}
+
+\definecolor{lightgreen}{HTML}{C8E6C9}
+\definecolor{lightblue}{HTML}{E3F2FD}
+\definecolor{lightorange}{HTML}{FFF3E0}
+\definecolor{bg}{HTML}{F5FFE6}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{remark}{Remark}
+\newtheorem{theorem}{Theorem}
+\newtheorem{assumption}{Assumption}
+\crefname{assumption}{assumption}{assumptions}
+\newtheorem{definition}{Definition}
+
+\newcommand{\red}[1]{\textbf{\textcolor{red}{#1}}}
+\newcommand{\green}[1]{\textbf{\textcolor{ForestGreen}{#1}}}
+
+\newcommand{\cmark}{\green{\ding{51}}}
+\newcommand{\xmark}{\red{\ding{55}}}
+
+% \usepackage{hyperref}
+\usepackage{url}
+
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\newcommand{\kaiyu}[1]{\textcolor{purple}{[Kaiyu: #1]}}
+\newcommand{\tentative}[1]{\textcolor{blue}{#1}}
+\newcommand\tbd{\textcolor{red}{TBD }}
+\newcommand{\smallsec}[1]{\textbf{#1\,\,}}
+
+\renewcommand*\backref[1]{\ifx#1\relax \else (Cited on pg. #1) \fi}
+
+\setlength{\abovecaptionskip}{5pt}  % space above caption
+\setlength{\belowcaptionskip}{2pt}  % space below caption
+\setlength{\intextsep}{10pt}         % space above and below figure float
+
+\title{ProofOptimizer: Training Language Models to \\Simplify Proofs without Human Demonstrations}
+
+\workshoptitle{ProofOptimizer: Training Language Models to Simplify Proofs without Human Demonstrations}
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+
+\author{%
+  Alex Gu \\
+  Meta FAIR \& MIT CSAIL \\
+  \texttt{gua@mit.edu} \\
+  \And
+  Bartosz Piotrowski\\
+  Meta FAIR\\
+  \texttt{bpio@meta.com} \\
+  \And
+  Fabian Gloeckle \\
+  Meta FAIR \& École des Ponts Paris \\
+  \texttt{fgloeckle@meta.com} \\
+  \And
+  Kaiyu Yang\\
+  Meta FAIR \\
+  \texttt{kaiyuy@meta.com} \\
+  \And
+  Aram H. Markosyan \\
+  Meta FAIR \\
+  \texttt{aram.math@gmail.com} \\
+}
+
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Neural theorem proving has advanced rapidly in the past year, reaching IMO gold-medalist capabilities and producing formal proofs that span thousands of lines. Although such proofs are mechanically verified by formal systems like Lean, their excessive length renders them difficult for humans to comprehend and limits their usefulness for mathematical insight. Proof simplification is therefore a critical bottleneck. Yet, training data for this task is scarce, and existing methods---mainly agentic scaffolding with off-the-shelf LLMs---struggle with the extremely long proofs generated by RL-trained provers. We introduce \emph{ProofOptimizer}, the first language model trained to simplify Lean proofs without requiring additional human supervision. ProofOptimizer is trained via expert iteration and reinforcement learning, using Lean to verify simplifications and provide training signal. At inference time, it operates within an iterative proof-shortening workflow, progressively reducing proof length. Experiments show that ProofOptimizer substantially compresses proofs generated by state-of-the-art RL-trained provers on standard benchmarks, reducing proof length by 87\% on miniF2F, 57\% on PutnamBench, and 49\% on Seed-Prover's IMO 2025 proofs.
+\end{abstract}
+
+\input{mathai-neurips-2025/main-secs/sec1-introduction}
+\input{iclr2026/main-secs/sec2-task-setup}
+\input{mathai-neurips-2025/main-secs/sec3-methods}
+\input{mathai-neurips-2025/main-secs/sec4-experiments}
+\input{mathai-neurips-2025/main-secs/sec6-related-work}
+\input{iclr2026/main-secs/sec7-conclusion}
+% \input{iclr2026/main-secs/acknowledgements}
+
+\newpage
+\bibliography{iclr2026/main}
+\bibliographystyle{iclr2026/iclr2026_conference}
+
+\raggedbottom
+\appendix
+\input{mathai-neurips-2025/appendix}
+
+\end{document}

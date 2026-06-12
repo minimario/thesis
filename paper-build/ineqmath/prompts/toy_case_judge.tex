@@ -1,0 +1,54 @@
+\begin{textcolorbox}[Prompt for Toy Case Judge]
+\textbf{Task:} Evaluate the logical rigor of a solution to an inequality problem, focusing specifically on whether the direction of the inequality was justified using toy cases or special value substitution.\\
+
+\textbf{Instructions:}
+
+1. Carefully read the reasoning process used to solve the inequality.
+
+2. Identify whether the direction of the inequality was determined by testing special values, trying toy cases, or relying on extreme-case analysis, rather than providing a general proof valid over the entire domain.
+
+3. If the model uses a toy case (e.g., setting a variable to 0, 1, or choosing symmetric/equal values) or considers a variable tending to 0 or $\infty$ (extreme-case reasoning) to conclude the inequality direction, this should be flagged as logically unsound unless it is later supported by a rigorous or general argument.
+
+4. Substituting special values for the purpose of verifying equality or testing sharpness is acceptable and should not be flagged.
+
+5. If a toy case is used to show that the inequality does not hold (i.e., the two sides are incomparable), this is acceptable and should not be flagged.
+
+6. Trying toy cases or substituting special values for the purpose of exploring or analyzing the problem—without using them to directly conclude the inequality direction—is acceptable and should not be flagged.
+
+7. The goal is to confirm whether the final conclusion is justified for \textit{all variables in the given domain} by using sound and formal reasoning.\\
+
+\textbf{Output Format:}
+
+\texttt{<Analysis>:} Brief explanation of whether toy cases, special values, or extreme-case reasoning were used to justify inequality direction, and whether this undermines the rigor of the proof.\\
+\texttt{<Flagged Reasoning Step (if applicable)>:} Quote or summarize the step(s) where toy cases or extreme cases were used to justify the inequality.\\
+\texttt{<Answer>:} \texttt{True} or \texttt{False}. It indicates whether the solution's reasoning is logically valid (\texttt{True}) or contains flaws due to unjustified use of toy cases, special value substitution, or extreme-case reasoning (\texttt{False}).\\
+
+\textbf{Key Considerations:}
+
+1. Check which steps are used to justify the final general conclusion.
+
+2. Toy case examples should not be used to conclude general inequality directions.
+
+3. These techniques are allowed for illustration or equality testing, but not as a replacement for a full justification.
+
+4. Extreme-case analysis used as a substitute for proof to justify the final general conclusion should be flagged.
+
+5. Do not provide improvement suggestions---simply judge whether the logic used is valid or flawed.
+
+6. Only reasoning steps that fail to generalize and are used to justify the final general conclusion should be flagged.\\
+
+\textbf{Examples of Inputs and Outputs:}
+
+\texttt{\{examples\}}\\
+
+\textbf{Now analyze the following problem and solution:}
+
+Original Problem:
+\texttt{\{query\}}
+
+Solution:
+\texttt{\{response\}}
+
+\end{textcolorbox}
+
+

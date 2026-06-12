@@ -1,0 +1,343 @@
+\subsection{Quantitative Analysis} \label{sec:quantitative-analysis}
+
+\textbf{Correlation between scores on HumanEval and \benchmark}: After the release of Code Llama's model and GPT-3.5 and GPT-4's APIs, there have been many creative efforts to take data distilled from GPT models and use them to train more powerful code models such as WizardCoder \citep{luo2023wizardcoder}, Phi-1 \citep{gunasekar2023textbooks}, Phi-1.5 \citep{gunasekar2023textbooks}, and Phind \citep{Phind}. For example, WizardCoder 34B started with the Code Llama 34B base model and improved the HumanEval pass@1 score from 53.7\% to 73.2\%, a significant and impressive achievement. There remains curiosity about whether these models show more general improvements in other aspects of programming or code understanding \citep{gudibande2023false}. We measure this through \benchmark.
+
+In Fig. \ref{fig:quant-analysis-humaneval-correlation-1}, we plot reported HumanEval scores (we did not reproduce them ourselves) against scores on \benchmark. Indeed, we spot some interesting outliers: when comparing the distilled models WizardCoder 34B and Phind 34B to \codellamalarge, we see that the distilled models score over 20\% more than Code Llama on HumanEval but do not show this drastic improvement when evaluated on both input and output predictions. In addition, the Phi-1 model outperforms most of the bigger models on HumanEval, but performs among the worst of all our evaluated models on \benchmark. Overall, this suggests that models optimized for the HumanEval task by distilling data from GPT-3.5 and GPT-4 (WizardCoder, Phind, Phi) may not have learned other code reasoning capabilities along the way. On the other hand, for models such as StarCoder, Mistral, CodeLlama, and DeepSeek-Base, we still see a positive trend between HumanEval score and \benchmark score, suggesting that code generation and execution/understanding abilities are correlated.
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[scale=0.49]{figs/scatter/HumanEval_1_vs_input_pass1.pdf}
+         \subcaption{\benchmarki vs. HumanEval}
+         \label{fig:quant-analysis-humaneval-correlation-input}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[scale=0.49]{figs/scatter/HumanEval_1_vs_output_pass1.pdf}
+         \subcaption{\benchmarko vs. HumanEval}
+         \label{fig:quant-analysis-humaneval-correlation-output}
+     \end{subfigure}
+     \caption{Correlation between HumanEval pass@1 scores and \benchmarko pass@1 scores}
+     \label{fig:quant-analysis-humaneval-correlation-1}
+\end{figure}
+
+\begin{tcolorbox}[colback=lightgreen, boxrule=0pt, arc=10pt, outer arc=10pt]
+Base models show a weak correlation between HumanEval and \benchmark. For HumanEval, distilled models (WizardCoder, Phind, Phi) significantly beat their base models, but for \benchmark, no distilled model performs significantly better than \codellamalarge.
+\end{tcolorbox}
+
+\textbf{Relationship between input prediction and output prediction:}
+In Fig. \ref{fig:quant-analysis-input-output-direct}, we compare the input prediction and output prediction pass@1 scores with each other. Conceptually, the two tasks seem relatively different: output prediction is directly testing code execution ability, while input prediction requires a higher-level understanding of the code's functionality. However, we discover that there is a strong correlation between their performance. This suggests the hypothesis that performance on relatively distinct coding-related tasks may be closely correlated. In addition, we see a relatively clear impact of scaling the model size on our two tasks.
+
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[scale=0.49]{figs/scatter/output_1_vs_input_1.pdf}
+         \subcaption{Input vs. Output Prediction, Direct}
+         \label{fig:quant-analysis-input-output-direct}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[scale=0.5]{figs/scatter/cot_input_pass1_output_pass1.pdf}
+         \subcaption{Output vs. Input Prediction, CoT}
+         \label{fig:quant-analysis-input-output-cot}
+     \end{subfigure}
+     \caption{Correlation between Input and Output Prediction Scores, with and without CoT}
+     \label{fig:quant-analysis-input-output}
+\end{figure}
+
+\begin{tcolorbox}[colback=lightgreen, boxrule=0pt, arc=10pt, outer arc=10pt]
+With the potential exception of GPT models, performance on \benchmarki and \benchmarko seem to be very correlated. As the tasks seem relatively different, this suggests that the code reasoning capabilities of models may generalize from task to task.
+\end{tcolorbox}
+
+
+\textbf{Confusion matrix/error correlation for different models.}
+Fig.~\ref{fig:error_corr-input-output} shows the pairwise correlation of pass@1 scores for each pair of models. The correlation is chosen based on its highest signal among cosine distance, Spearman and Kendall. The middle section of ``open''-ish models (StarCoder, Code Llama, DeepSeek, etc.) are strongly correlated with each other. Strong correlations are seen between sizes of the same model, between models of the same size, and between instruct and base (\textsc{Phind 34B, Wizard 34B} vs. \codellamalarge). CoT results also tend to have strong correlations with other CoT results, even GPT-4 vs Llama 13B. For the output task, \textsc{Deepseek} forms a small sub-cluster of especially strong associations.
+
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[width=1\textwidth]{figs/error_correlation_input_heatmap.pdf}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[width=1\textwidth]{figs/error_correlation_output_heatmap.pdf}
+     \end{subfigure}
+     \caption{Correlation between predictions on input (left) and output (right)}
+     \label{fig:error_corr-input-output}
+\end{figure}
+
+
+\begin{tcolorbox}[colback=lightgreen, boxrule=0pt, arc=10pt, outer arc=10pt]
+Looking at model predictions, strong correlations are seen between sizes of the same model, between models of the same size, and between instruct and base models. Although what is hard for a better model tend to be hard for worse models on average, worse models succeeded on some examples where the better models fail completely.
+\end{tcolorbox}
+
+\subsection{Chain of Thought Prompting} \label{subsec:cot}
+Next, we evaluate how the popular chain-of-thought (CoT) prompting method \citep{wei2022chain} affects the performance of Code Llama, GPT-3.5, and GPT-4 models on \benchmark. All results are reported using $N=10$ samples other than CodeLlama 13B and 34B without CoT, which are reported with $N=100$ samples. As before, pass@1 is reported with $T=0.2$ and pass@5 with $T=0.8$.
+
+\textbf{Impact of CoT}: We begin by focusing our attention on the pass@1 scores of models with and without CoT. In Fig. \ref{fig:quant-analysis-input-output-cot}, we plot the input and output prediction scores of each model with and without CoT. First, GPT-4 benefits significantly more than other models. Second, output prediction boosts are generally larger than input prediction. In fact, CoT does not seem to improve Code Llama 13B and GPT-3.5 performance on input prediction. This is intuitive, as input prediction involves a more difficult reasoning task, while output prediction only requires executing the program step by step.
+
+\begin{tcolorbox}[colback=lightgreen, boxrule=0pt, arc=10pt, outer arc=10pt]
+CoT helps Code Llama 34B and GPT-4 on both input and output prediction, GPT-3.5 on only output prediction, and Code Llama 13B on neither task. CoT also leads to larger boosts on output prediction than input prediction. GPT-4 benefits significantly more from CoT than other models, achieving the highest pass@1 of 74.8\% on input prediction and 81.9\% on output prediction but still far from acing the benchmark.
+\end{tcolorbox}
+
+\textbf{CoT widens the gap between pass@5 and pass@1 scores}: In Fig. \ref{fig:pass5-vs-pass1-cot}, we plot the pass@5 scores against the pass@1 scores for all models. For models without CoT (shown in blue), there is a positive correlation between pass@1 and pass@5 scores. For models with CoT (shown in orange), we see an increase in the gap between pass@5 and pass@1 scores. This suggests that CoT increases generation diversity, which can improve the best-of-several score even when the first sample remains unreliable.
+
+\begin{tcolorbox}[colback=lightgreen, boxrule=0pt, arc=10pt, outer arc=10pt]
+Because CoT increases the diversity of generated inputs and outputs, models with CoT see a larger gap between pass@1 and pass@5 score compared to models without.
+\end{tcolorbox}
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[scale=0.45]{figs/scatter/input_pass_5v1.pdf}
+         \subcaption{Input prediction}
+         \label{fig:pass5-vs-pass1-cot-input}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[scale=0.45]{figs/scatter/output_pass_5v1.pdf}
+         \subcaption{Output prediction}
+         \label{fig:pass5-vs-pass1-cot-output}
+     \end{subfigure}
+     \caption{pass@5 score vs. pass@1 score with and without CoT}
+     \label{fig:pass5-vs-pass1-cot}
+\end{figure}
+
+\textbf{Predictions of CoT vs. Base Model}: In Fig. \ref{fig:confusion-cot-all}, we show a confusion matrix over samples to better understand the correlations between direct output predictions and CoT predictions. For CodeLlama 13B, 34B, and GPT-3.5, we observe a large number of samples where direct prediction succeeds but CoT fails. However, with GPT-4, we observe that there are relatively few samples where this is the case.
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[t]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{figs/confusion_cot/confusion_codellama_13B_codellama_cot13B.pdf}
+         \subcaption{Code Llama 13B}
+         \label{fig:confusion-cot-codellama-13b}
+     \end{subfigure}%
+     \hfill
+     \begin{subfigure}[t]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{figs/confusion_cot/confusion_codellama_30B_codellama_cot30B.pdf}
+         \subcaption{Code Llama 34B}
+         \label{fig:confusion-cot-codellama-34b}
+     \end{subfigure}
+     \newline
+     \newline
+     \newline
+     \begin{subfigure}[t]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{figs/confusion_cot/confusion_gpt35_gpt35_cot.pdf}
+         \subcaption{GPT-3.5}
+         \label{fig:confusion-cot-gpt35}
+     \end{subfigure}%
+     \hfill
+     \begin{subfigure}[t]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{figs/confusion_cot/confusion_gpt4_gpt4_cot.pdf}
+         \subcaption{GPT-4}
+         \label{fig:confusion-cot-gpt4}
+     \end{subfigure}
+     \caption{Confusion Matrix of Direct Prediction vs. CoT Prediction $(T=0.2)$}
+     \label{fig:confusion-cot-all}
+\end{figure}
+
+
+\begin{tcolorbox}[colback=lightgreen, boxrule=0pt, arc=10pt, outer arc=10pt]
+While CoT generally improves performance overall, there are many individual samples where CoT actually hurts the prediction accuracy for Code Llama 13B/34B and GPT-3.5 on both input and output prediction. For GPT-4, CoT generally improves individual sample accuracy, more so for output prediction than for input prediction.
+\end{tcolorbox}
+
+\subsection{Fine-tuning Experiments} \label{subsec:finetuning}
+Next, we do a preliminary analysis to understand the effect of simple fine-tuning schemes on \benchmark performance. We fine-tuned \codellamalarge on nearly 140K samples of Python functions distilled with the procedure outlined in Sec. \ref{sec:benchmark-construction}, without filtering. We perform weak decontamination, only removing samples where both the function and input-output pairs match samples in the benchmark. 
+
+In particular, we finetune on a mixture of 50\% samples where the function is not in the benchmark and 50\% samples where the function is in the benchmark but input-output pairs are not, a very liberal setup. The training and testing accuracy over time is shown in Fig. \ref{fig:finetuning-accuracy-samples-plot-main}. Despite finetuning on programs very similar to the benchmark, we still observe a plateauing effect in the test accuracy, suggesting that our execution tasks may be too difficult to learn from this simple fine-tuning scheme.
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[scale=0.4]{figs/finetuning/finetuning_input_moredata_accuracy.pdf}
+         \subcaption{Input prediction}
+         \label{fig:finetuning-accuracy-samples-plot-input-main}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[scale=0.4]{figs/finetuning/finetuning_output_moredata_accuracy.pdf}
+         \subcaption{Output prediction}
+         \label{fig:finetuning-accuracy-samples-plot-output-main}
+     \end{subfigure}
+     \caption{Improvements and Limits of \benchmark Performance after Fine-Tuning}
+     \label{fig:finetuning-accuracy-samples-plot-main}
+\end{figure}
+
+\begin{tcolorbox}[colback=lightgreen, boxrule=0pt, arc=10pt, outer arc=10pt]
+After fine-tuning on samples very similar to those in our benchmark, Code Llama 34B can match the performance of GPT-4 on both input and output prediction. However, accuracy plateaus at under 70\% for both tasks, so simple finetuning is far from solving the benchmark.
+\end{tcolorbox}
+
+\subsection{Qualitative Analysis} \label{sec:qualitative-analysis}
+All models except GPT4 has over 50\% failure rate, showing they cannot do simple executions. 
+In this section, we focus on GPT4 with CoT and verify that the remaining 20\% failures are due to the model, are consistent, and are indeed on \emph{simple} programs.
+
+\paragraph{Failures of GPT-4 CoT.}
+GPT-4 Cot scored 0/10 on 54 output prediction tasks and 65 input prediction tasks. On 22 problem, it scored 0/10 on both input and output prediction tasks. 
+We manually check the 22 problems if they pass our criteria of being simple problems. Most are indeed simple (Listings~\ref{lst:gpt-4-simple1}, ~\ref{lst:gpt-4-simple2}). There are 2 problems that require counting to around 30 (Listing~\ref{lst:gpt-4-hard1}) and 2 problems (Listing~\ref{lst:gpt-4-hard2}) that require simulating a few actual steps, which might be difficult for direct generation but within scope for CoT. 
+
+\begingroup
+\lstset{basicstyle=\ttfamily\scriptsize,breakindent=0pt,postbreak={},columns=fullflexible,keepspaces=true}
+
+\noindent\begin{minipage}[t]{.47\textwidth} % sample_218 steps: 37
+\vspace{0pt}
+\begin{lstlisting}[caption=GPT-4 has the right idea but cannot do the string concatenation correctly,label={lst:gpt-4-simple1}, breaklines=true, language=python]
+def f(string, sep):
+    cnt = string.count(sep)
+    return((string+sep) * cnt)[::-1]
+assert f('caabcfcabfc', 'ab') == 'bacfbacfcbaacbacfbacfcbaac'
+# GPT4+CoT preds:
+# f('baa', 'c')
+# f('cba', 'f')
+# 'bacfcabcfcaabcabfcabcfcaac'
+# 'bacfbacfcbaabcabfbacfcbaabc'
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}[t]{.47\textwidth} % sample_209	steps: 26	
+\vspace{0pt}
+\begin{lstlisting}[caption=GPT-4 might have been misled by the variable name prefix,label={lst:gpt-4-simple2}, breaklines=true, language=python]
+def f(prefix, s):
+    return str.removeprefix(prefix, s)
+assert f('hymi', 'hymifulhxhzpnyihyf') == 'hymi'
+# GPT4+CoT preds:
+# input
+# f('p', 'phymi')
+# f('', 'hymi')
+# output
+# 'fulhxhzpnyihyf'
+# 'fulhxhzpnyihyf'
+\end{lstlisting}
+\end{minipage}
+
+
+\noindent\begin{minipage}[t]{.47\textwidth} % sample_129	steps: 132	
+\vspace{0pt}
+\begin{lstlisting}[caption={GPT-4 CoT failures where solutions requires counting to 30}, label={lst:gpt-4-hard1}, breaklines=true, language=python]
+def f(text, search_string):
+    indexes = []
+    while search_string in text:
+        indexes.append(text.rindex(search_string))
+        text = text[:text.rindex(search_string)]
+    return indexes
+assert f('ONBPICJOHRHDJOSNCPNJ9ONTHBQCJ', 'J') == [28, 19, 12, 6]
+
+# GPT4+CoT preds:
+# input
+# f("0000123000012300001230000123", "123")
+# f('bbbbbbabbbbbbabbbbbbbabbbbbbab', 'a')
+# f("abcxxxxxxabcxxxxxxabcxxxxxxabc","abc")
+# output
+# [23, 13, 8, 5]
+# [25, 18, 15, 11, 6]
+# [7, 10, 14, 18]
+\end{lstlisting}
+\end{minipage}\hfill %sample_185	steps: 275	
+\begin{minipage}[t]{.47\textwidth}
+\vspace{0pt}
+\begin{lstlisting}[caption={GPT-4 CoT failure, cannot easily tell the answer without running the loops}, label={lst:gpt-4-hard2}, breaklines=true, language=python]
+def f(L):
+    N = len(L)
+    for k in range(1, N//2 + 1):
+        i = k - 1
+        j = N - k
+        while i < j:
+            # swap elements:
+            L[i], L[j] = L[j], L[i]
+            # update i, j:
+            i += 1
+            j -= 1
+    return L
+assert f([16, 14, 12, 7, 9, 11]) == [11, 14, 7, 12, 9, 16]
+# GPT4+CoT preds:
+# f([16, 9, 12, 7, 14, 11])
+# f([16, 9, 7, 12, 14, 11])
+# [11, 9, 7, 12, 14, 16]
+# [11, 9, 7, 12, 14, 16]
+\end{lstlisting}
+\end{minipage}
+
+
+Listings \ref{lst:gpt-4-output-fail1} and \ref{lst:gpt-4-output-fail2} show GPT-4 CoT failures for output prediction only. In Listing \ref{lst:gpt-4-output-fail2}, the model fails because it concludes that 6173 is not less than 1000. Small perturbations like changing to \texttt{0 < num and num < 1000} or changing the strings also failed. Both problems only have 2 possible answers and other models sometimes get them correctly whereas GPT4 CoT is consistently wrong. We manually tested scratchpad \cite{nye2021show} style prompts, which failed in the same way as regular CoT.
+
+\noindent\begin{minipage}[t]{.47\textwidth}
+\vspace{0pt}
+\begin{lstlisting}[caption=GPT-4 CoT output,label={lst:gpt-4-output-fail1}, breaklines=true, language=python]
+def f(text, suffix):
+    if suffix == '':
+        suffix = None
+    return text.endswith(suffix)
+assert f('uMeGndkGh', 'kG') == ??
+# GPT-4 CoT: True
+# should be False
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}[t]{.47\textwidth}
+\vspace{0pt}
+\begin{lstlisting}[caption=GPT-4 CoT output,label={lst:gpt-4-output-fail2}, breaklines=true, language=python]
+def f(num):
+    if 0 < num < 1000 and num != 6174:
+        return 'Half Life'
+    return 'Not found'
+assert f(6173) == ??
+# GPT-4 CoT: 'Half Life'
+# should be 'Not found'
+\end{lstlisting}
+\end{minipage}
+
+\textbf{Failures of GPT-4, Input Prediction}: Here are two simple failures on input prediction. Listings \ref{lst:gpt-4-input-fail1} and \ref{lst:gpt-4-input-fail2} show input prediction failures for concise and simple Python programs with and without CoT, respectively.
+
+\noindent\begin{minipage}[t]{.47\textwidth}
+\vspace{0pt}
+\begin{lstlisting}[caption=GPT-4 CoT input,label={lst:gpt-4-input-fail1}, breaklines=true, language=python]
+def f(text, repl):
+    trans = str.maketrans(text.lower(), repl.lower())
+    return text.translate(trans)
+assert f(??) == 'lwwer case'
+
+# GPT4 CoT: 'lower case', 'ow'
+# could be 'lower case', 'lwwer case'
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}[t]{.47\textwidth}
+\vspace{0pt}
+\begin{lstlisting}[caption=GPT-4 CoT input,label={lst:gpt-4-input-fail2}, breaklines=true, language=python]
+def f(text):
+    string = ''
+    for char in text:
+        string += char + char.lower()
+    return string
+assert f(??) == 'llaallaakk'
+# GPT-4 CoT: 'LAK'
+# should be 'lalak'
+\end{lstlisting}
+\end{minipage}
+\endgroup
+
+
+\textbf{Other GPT-4 Failures}: Finally, we conclude with a set of six relatively simple string manipulation tasks that we discovered that GPT-4 fails on. We suspect the errors could be partially due to tokenization.
+These examples are enough for the thesis point: even the strongest model we tested can fail consistently on small execution problems whose semantics are unambiguous.
+
+\begin{lstlisting}
+- What is a string containing 'a' three times, 'b' three times, 'c' twice, 'd' three times, and 'z' twice?
+- In Python, what is " BaB ".rfind(" B ")?
+- In Python, if I have a string s = 'iabnm~~~~~~~~~~', what is s[1::2]?
+- In Python, what is "+".join(['*', '+', 'n', 'z', 'o', 'h'])?
+- In Python, if text = "!123Leap and the net will appear" and res = 123, what is text[len(str(res)):]?
+- What is "pomodoro".replace("or", "pomodoro")?
+\end{lstlisting}
+

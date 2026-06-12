@@ -1,0 +1,249 @@
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\newcommand{\term}[1]{\emph{#1}}
+\definecolor{rewriteblue}{RGB}{0,70,170}
+\definecolor{mygreen}{RGB}{226,240,217}
+\definecolor{myblue}{RGB}{222,235,247}
+\definecolor{myorange}{RGB}{251,229,214}
+\definecolor{lightblue}{RGB}{232,242,255}
+\definecolor{lightorange}{RGB}{255,241,224}
+\definecolor{good}{HTML}{1B7837}
+\definecolor{bad}{HTML}{B2182B}
+\newcommand{\needsrewrite}[1]{\textcolor{rewriteblue}{[SOURCE-DERIVED; REWRITE: #1]}}
+\newenvironment{rewriteblock}{%
+  \par\begingroup\color{rewriteblue}%
+  \noindent
+}{%
+  \par\endgroup
+}
+\newenvironment{draftblock}{%
+  \par\noindent
+}{%
+  \par
+}
+\newcommand{\sourcepaper}[2]{}
+
+\definecolor{lightgreen}{HTML}{C4FFCF}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+
+\newcommand{\red}[1]{\textbf{\textcolor{red}{#1}}}
+\newcommand{\green}[1]{\textbf{\textcolor{ForestGreen}{#1}}}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\benchmark}{\textsc{CRUXEval}\xspace}
+\newcommand{\benchmarki}{\textsc{CRUXEval-I}\xspace}
+\newcommand{\benchmarko}{\textsc{CRUXEval-O}\xspace}
+\newcommand{\codellamamed}{\textsc{Code Llama 13B}\xspace}
+\newcommand{\codellamalarge}{\textsc{Code Llama 34B}\xspace}
+\providecommand{\multirow}[3]{#3}
+\providecommand{\hdashline}[1][]{\midrule}
+\NewDocumentCommand{\cdashline}{m o}{}
+\providecommand{\makecell}[1]{\begin{tabular}{@{}c@{}}#1\end{tabular}}
+\providecommand{\smallsec}[1]{\textbf{#1\,\,}}
+\providecommand{\llm}{\textsc{LLM}\xspace}
+\providecommand{\llms}{\textsc{LLMs}\xspace}
+\providecommand{\lean}{\textsc{Lean}\xspace}
+\providecommand{\setstretch}[1]{}
+\providecommand{\smallsim}{\mathrel{\sim}}
+\providecommand{\subfloat}[2][]{%
+  \begin{minipage}{0.49\textwidth}%
+  \centering
+  #2%
+  \if\relax\detokenize{#1}\relax\else\subcaption{#1}\fi
+  \end{minipage}%
+}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\lstdefinelanguage{Lean}{
+  morekeywords={theorem,lemma,def,by,have,show,calc,let,fun,match,with,if,then,else,import,open,namespace,end,where,structure,inductive,example},
+  sensitive=true,
+  morecomment=[l]{--},
+  morecomment=[s]{/-}{-/},
+  morestring=[b]"
+}
+\lstdefinelanguage{triton}{
+  morekeywords={tl,triton,jit,program_id,load,store,arange,zeros,where,constexpr,block_ptr,dtype},
+  sensitive=true,
+  morecomment=[l]{\#},
+  morestring=[b]"
+}
+\lstdefinelanguage{CUDA}{
+  morekeywords={__global__,__device__,__shared__,__constant__,__host__,__syncthreads,threadIdx,blockIdx,blockDim,gridDim},
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]",
+  morestring=[b]'
+}
+\lstdefinelanguage{Rust}{
+  morekeywords={as,break,const,continue,crate,else,enum,extern,false,fn,for,if,impl,in,let,loop,match,mod,move,mut,pub,ref,return,self,Self,static,struct,super,trait,true,type,unsafe,use,where,while,async,await,dyn},
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]",
+  morestring=[b]'
+}
+\lstdefinelanguage{Python}{
+  morekeywords={and,as,assert,break,class,continue,def,del,elif,else,except,False,finally,for,from,global,if,import,in,is,lambda,None,nonlocal,not,or,pass,raise,return,True,try,while,with,yield},
+  sensitive=true,
+  morecomment=[l]{\#},
+  morecomment=[s]{\"\"\"}{\"\"\"},
+  morecomment=[s]{\'\'\'}{\'\'\'},
+  morestring=[b]',
+  morestring=[b]"
+}
+\lstdefinelanguage{json}{
+  morekeywords={true,false,null},
+  sensitive=false,
+  morestring=[b]",
+  morecomment=[l]{//},
+}
+
+\lstdefinestyle{mystyle}{
+  commentstyle=\color{codegreen},
+  keywordstyle=\color{blue},
+  basicstyle=\ttfamily\footnotesize,
+  breakatwhitespace=false,
+  breaklines=true,
+  captionpos=b,
+  keepspaces=true,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  tabsize=2
+}
+\lstdefinestyle{boxed}{
+  frame=single,
+  breaklines=true,
+  postbreak=\mbox{$\hookrightarrow$\space},
+  commentstyle=\color{codegreen},
+  keywordstyle=\color{blue},
+  basicstyle=\ttfamily\footnotesize,
+  breakatwhitespace=false,
+  captionpos=t,
+  keepspaces=true,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  tabsize=2
+}
+\lstdefinestyle{specblock}{
+  frame=single,
+  breaklines=true,
+  basicstyle=\ttfamily\scriptsize,
+  keepspaces=true,
+  showstringspaces=false,
+  columns=fullflexible
+}
+\DefineVerbatimEnvironment{codebox}{Verbatim}{fontsize=\small}
+\DefineVerbatimEnvironment{examplecodebox}{Verbatim}{fontsize=\small}
+\lstdefinestyle{reasoning}{
+  breaklines=true,
+  commentstyle=\color{codegreen},
+  keywordstyle=\color{blue},
+  breakautoindent=0pt,
+  breakindent=0pt,
+  basicstyle=\itshape\footnotesize,
+  breakatwhitespace=true,
+  captionpos=t,
+  keepspaces=true,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false
+}
+\lstdefinestyle{mystylesmaller}{
+  commentstyle=\color{codegreen},
+  keywordstyle=\color{blue},
+  basicstyle=\ttfamily\scriptsize,
+  breaklines=true,
+  captionpos=b,
+  keepspaces=true,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  tabsize=2
+}
+\lstdefinestyle{mystyletiny}{
+  commentstyle=\color{codegreen},
+  keywordstyle=\color{blue},
+  basicstyle=\ttfamily\tiny,
+  breaklines=true,
+  captionpos=b,
+  keepspaces=true,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  tabsize=2
+}
+\lstdefinestyle{leancompact}{
+  language=Lean,
+  basicstyle=\fontsize{3}{3.5}\ttfamily,
+  breaklines=true,
+  captionpos=b,
+  keepspaces=true,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  frame=none
+}
+\lstset{
+  style=mystyle,
+  columns=fullflexible,
+  frame=single,
+  postbreak=\mbox{$\hookrightarrow$\space},
+  rulecolor=\color{black},
+  moredelim=[is][\color{red}]{!*}{*!},
+  literate={₀}{{$_0$}}1
+           {₁}{{$_1$}}1
+           {₂}{{$_2$}}1
+           {₃}{{$_3$}}1
+           {₄}{{$_4$}}1
+           {₅}{{$_5$}}1
+           {₆}{{$_6$}}1
+           {₇}{{$_7$}}1
+           {₈}{{$_8$}}1
+           {₉}{{$_9$}}1
+           {¹}{{$^1$}}1
+           {²}{{$^2$}}1
+           {³}{{$^3$}}1
+           {⁻}{{$^-$}}1
+           {·}{{$\cdot$}}1
+           {×}{{$\times$}}1
+           {∀}{{$\forall$}}1
+           {∃}{{$\exists$}}1
+           {ℕ}{{$\mathbb{N}$}}1
+           {ℚ}{{$\mathbb{Q}$}}1
+           {ℝ}{{$\mathbb{R}$}}1
+           {ℤ}{{$\mathbb{Z}$}}1
+           {∧}{{$\wedge$}}1
+           {∨}{{$\vee$}}1
+           {∈}{{$\in$}}1
+           {∉}{{$\notin$}}1
+           {∑}{{$\sum$}}1
+           {∫}{{$\int$}}1
+           {∣}{{$\mid$}}1
+           {≠}{{$\ne$}}1
+           {≡}{{$\equiv$}}1
+           {≤}{{$\le$}}1
+           {≥}{{$\ge$}}1
+           {←}{{$\leftarrow$}}1
+           {→}{{$\to$}}1
+           {↑}{{$\uparrow$}}1
+           {⊢}{{$\vdash$}}1
+           {⟨}{{$\langle$}}1
+           {⟩}{{$\rangle$}}1
+           {…}{{\ldots}}1
+}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}

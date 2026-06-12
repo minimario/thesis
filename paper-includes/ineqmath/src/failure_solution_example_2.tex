@@ -1,0 +1,50 @@
+\begin{examplebox}[\footnotesize Failure Example 2: Correct Answer with Incorrect Steps (Logical Gap)]
+\textbf{Problem:} Let $a, b, c, d, e$ be positive real numbers such that $a+b+c+d+e=5$. Find the minimal constant $C$ such that the following inequality holds for all $a, b, c, d, e$ satisfying the given constraint:
+$$
+a b c + b c d + c d e + d e a + e a b \leq C.
+$$
+\\\\
+\textbf{Ground Truth:} \boxed{C = 5}
+\\\\
+\textbf{Concise Solution:} 
+
+Without loss of generality, we may assume that $e=\min \{a, b, c, d, e\}$.\\
+By $A M \geq G M$, we have
+$$\begin{aligned}a b c+b c d+c d e+d e a+e a b & =e(a+c)(b+d)+b c(a+d-e) \\
+& \leq e\left(\frac{a+c+b+d}{2}\right)^{2}+\left(\frac{b+c+a+d-e}{3}\right)^{3} \\
+& =\frac{e(5-e)^{2}}{4}+\frac{(5-2 e)^{3}}{27}\\
+&= 5-\frac{5(e-1)^{2}(e+8)}{108}\leq 5\end{aligned}$$
+Equality holds if and only if $e=e=\min \{a, b, c, d, e\}=1$,  i.e. $a=b=c=d=e=1$.\\
+Therefore, the answer is \boxed{C = 5}.
+\\\\
+\textbf{Response by o4-mini:}
+
+By symmetry under the cyclic shift \((a,b,c,d,e)\mapsto(b,c,d,e,a)\), any interior maximizer must have
+\[
+a=b=c=d=e.
+\]
+Since \(a+b+c+d+e=5\), this forces
+\[
+a=b=c=d=e=1.
+\]
+At this point,
+\[
+S \;=\;5\cdot(1\cdot1\cdot1)\;=\;5.
+\]
+
+\wrong{Since we know what the global maximum is reached when every variables are the same (i.e. a=b=c=d=e)}, the global maximum of \(S\) under \(a+b+c+d+e=5\) is attained at the interior point \(a=b=c=d=e=1\), and its value is
+\[
+C \;=\;5.
+\]
+
+Therefore, the answer is \boxed{C=5}.
+\\\\
+\textbf{Expert Comment}: \\
+The model incorrectly assumes that symmetry implies the maximum is always achieved in every case \wronghl. This is not generally true and requires proof in each case. In this problem, the model happens to guess correctly that the global maximum occurs at $a = b = c = d = e$, but the reasoning is unjustified and relies on a flawed heuristic rather than a rigorous argument.
+
+\end{examplebox}
+
+
+
+
+

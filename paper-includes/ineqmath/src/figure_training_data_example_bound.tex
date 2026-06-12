@@ -1,0 +1,9 @@
+% \vspace{-2mm}
+\begin{examplebox}[\footnotesize \dataset Training Example 1: Bound Problem]
+    \footnotesize
+    \setstretch{0.8}  % Local line spacing adjustment
+    \textbf{Question:} Find the maximal constant $C$ such that for all real numbers $a, b, c$, the inequality holds:$$\sqrt{a^{2}+(1-b)^{2}}+\sqrt{b^{2}+(1-c)^{2}}+\sqrt{c^{2}+(1-a)^{2}} \geq C$$
+    \textbf{Solution:} Applying Minkowsky's Inequality to the left-hand side we have$$\sqrt{a^{2}+(1-b)^{2}}+\sqrt{b^{2}+(1-c)^{2}}+\sqrt{c^{2}+(1-a)^{2}} \geq \sqrt{(a+b+c)^{2}+(3-a-b-c)^{2}}$$ By denoting $a+b+c=x$, we get$$\sqrt{(a+b+c)^{2}+(3-a-b-c)^{2}}=\sqrt{2\left(x-\frac{3}{2}\right)^{2}+\frac{9}{2}} \geq \sqrt{\frac{9}{2}}=\boxed{\frac{3 \sqrt{2}}{2}}.$$
+    \textbf{Minkowsky's Inequality Theorem:} For any real number $r \geq 1$ and any positive real numbers $a_{1}, a_{2}, \ldots, a_{n}, b_{1}, b_{2}, \ldots, b_{n}$$$\left(\sum_{i=1}^{n}\left(a_{i}+b_{i}\right)^{r}\right)^{\frac{1}{r}} \leq\left(\sum_{i=1}^{n} a_{i}^{r}\right)^{\frac{1}{r}}+\left(\sum_{i=1}^{n} b_{i}^{r}\right)^{\frac{1}{r}}$$
+\end{examplebox}
+

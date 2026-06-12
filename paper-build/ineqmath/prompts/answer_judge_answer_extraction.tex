@@ -1,0 +1,47 @@
+\begin{textcolorbox}[Prompt for Final Answer Judge: Answer Extraction for Bound problems]
+
+You are an expert in extracting numbers from answer sentences. 
+Below are examples of sentences and the corresponding numbers:\\
+
+Example 1: answer is $C=2$. \\
+Answer: $C=2$ \\
+
+Example 2: answer is $C = \frac{1}{\sqrt{2}}$. \\
+Answer: $C = \frac{1}{\sqrt{2}}$ \\
+
+Example 3: answer is $\boxed{C=2}$.\\
+Answer: $C=2$ \\
+
+Now, extract the number from the following sentence:
+\texttt{\{answer\_sentence}\}. \\
+
+Make sure to return the answer in the format as ``\texttt{C=<extracted\_answer>}'', where \texttt{<extracted\_answer>} is the extracted number or expression.
+\end{textcolorbox}
+
+
+\begin{textcolorbox}[Prompt for Final Answer Judge: Answer Extraction for Relation Problems]
+You are an expert in extracting option letters (A, B, C, D, E, F) from answer sentences. \\
+
+The options are given below:\\
+A: (A) $\leq$ \\
+B: (B) $\geq$ \\
+C: (C) $=$ \\
+D: (D) $<$\\
+E: (E) $>$\\
+F: (F) None of the above\\
+
+Below are examples of sentences and the corresponding option letters:\\
+
+Example 1: answer is (B) $\geq$. \\
+Answer: B\\
+
+Example 2: answer is (E) >. \\
+Answer: E\\
+
+Example 3: answer is: $\boxed{\leq}$. \\
+Answer: A\\
+
+Now, extract the option letter from the following sentence: \texttt{\{answer\_sentence\}}. \\
+
+Make sure to return the option letter only, without any other characters.
+\end{textcolorbox}

@@ -1,0 +1,143 @@
+\vspace{-0.2cm}
+
+\section{Tasks in AI Software Engineering} 
+
+\vspace{-0.2cm}
+
+\label{sec:tasks-milestones}
+We first provide a taxonomy of tasks in AI software engineering. To provide a structured way to consider concrete realizations of each task, we define three measures that apply across them: scope, algorithmic complexity, and level of human intervention. To achieve an AI software engineer, we strive for AI to be capable across all three measures.
+
+\textbf{Scope Measure}: We define three levels of scope, the extent of changes that the AI makes to the codebase. \textit{Function-level} scope refers to single, self-contained functions such as in HumanEval \citep{chen2021evaluating}. \textit{Self-contained unit} scope goes beyond singular functions and to larger chunks of code such as entire files and classes. Finally, \textit{project-level} scope refers to larger codebases such as entire repositories, such as in Commit0 \citep{zhao2024commit0} and SWE-Bench \citep{jimenez2024swebench}.
+
+
+% The AI for code community generally began with function-level benchmarks, where the goal was to write or complete a single self-contained function. In early function-level benchmarks, the specification generally contained a natural language description of the function and test cases. Examples of this are HumanEval \citep{chen2021evaluating} and MBPP \citep{austin2021program}. Later, to mimic more real-world scenarios, function-level benchmarks began to require usage of more specialized APIs and packages such as \texttt{numpy, pandas}, and \texttt{scipy}. Some of these benchmarks include ODEX \citep{wang2022execution}, Jigsaw \citep{jain2022jigsaw}, DS-1000 \citep{lai2023ds}, and JuICe \citep{agashe2019juice}, and BigCodeBench \citep{zhuo2024bigcodebench}.
+% \item \textbf{Self-contained unit}: Beyond singular functions, people have studied coding capabilities in self-contained units like files, classes 
+% \item \textbf{Repository-level}: With increasing capabilities of AI systems, repository-level 
+% Commit0 \citep{zhao2024commit0}, SWE-Bench \citep{jimenez2024swebench}
+% \end{itemize}
+
+\textbf{Algorithmic Complexity Measure}: Tasks require a wide range of reasoning abilities when it comes to devising algorithms to solve them. \textit{Low algorithmic complexity} tasks require little to no reasoning, such as writing CRUD (create, read, update, delete) applications or using APIs. \textit{Medium algorithmic complexity} tasks include most LeetCode problems, finding inputs to fuzz simple programs, and reasoning about execution behavior of multithreaded programs. \textit{High algorithmic complexity} tasks require meticulous and challenging levels of algorithmic reasoning, either because the algorithm is complex or because the problem requires clever thinking and insights. This includes difficult competition programming problems, writing large thread-safe concurrent programs, cracking cryptographic ciphers, and solving SMT-like problems. Many popular coding benchmarks are function-level, medium-high algorithmic complexity, such as APPS \citep{hendrycksapps2021}, CodeContests \citep{li2022competition}, and LiveCodeBench \citep{jain2024livecodebenchholisticcontaminationfree}. 
+
+\textbf{Level of Human Intervention Measure}: AI coding is a collaborative task. Following the autonomy taxonomy in \citet{morris2023levels}, we define three levels of human intervention. \textit{Low autonomy} is when the human has full control over the task and uses AI to automate simple sub-tasks. \textit{Medium autonomy} is when there is a similar amount of human-AI collaboration, with interactive coordination of goals and tasks. \textit{High autonomy} is when AI drives the tasks, with the human providing feedback. 
+
+Next, with our taxonomy of measures in place, we turn to the set of tasks that are reflective of the tasks and capabilities of a human software engineer. 
+
+
+% \ms{maybe add 1-2 examples for each? code completion is "low" ig}
+
+% \todo{Talk about a few benchmarks or tools, and fit them on these three measures}.
+
+
+% \todo{Algorithmic complexity vs Repository Scope (ex: CRUD app, SMT, Cipher). OOD stuff in high algorithmic complexity.}
+
+% \todo{Call these Measures (scale, complexity, lvl of human interv)}
+
+% \textbf{Scope}: Tasks in the field of AI for code vary by scope. Here, we categorize scope into several groups:
+% \begin{itemize}
+
+%     \item \textbf{Algorithmic and competition programming}: With the increased attention to the reasoning abilities of large language models, competition programming has emerged as an attractive domain to evaluate coding capabilities. Examples of competitive programming benchmarks include APPS \citep{hendrycksapps2021}, CodeContests \citep{li2022competition}, USACOBench \citep{shi2024can}, Code4Bench \citep{majd2019code4bench}, \todo{more}, and LiveCodeBench \citep{jain2024livecodebenchholisticcontaminationfree}. This domain has been attractive because problems are often crisp, concise, and have no ambiguity. Solving these problems requires sharp algorithmic reasoning capabilities, often necessitating insights that may not be obvious upon first reading the problem. Solutions are generally written in a single file comprising of at most a few functions and rarely requiring external packages beyond the standard library. 
+%     \item \textbf{Self-contained unit}: Beyond singular functions, people have studied coding capabilities in self-contained units like files, classes 
+%     \item \textbf{Repository-level}: With increasing capabilities of AI systems, repository-level 
+%     Commit0 \citep{zhao2024commit0}, SWE-Bench \citep{jimenez2024swebench}
+%     \item OOD: This could include niche repositories, domains, low-resource languages. CRUXEval, Test Generation, Vulnerability Detection, Code Optimization
+% \end{itemize}
+
+
+% \todo{diff domains have diff requirements for the 3 measures}
+
+% \textbf{Domains}: Web, Games, Security ??
+% Web: low reasoning complexity
+% SMT: high reasoning complexity
+
+% \todo{Strengths and weaknesses of a few interesting benchmarks}
+
+\vspace{-0.25cm}
+
+\subsection{Code Generation}
+
+\vspace{-0.1cm}
+
+Code generation is the task of generating code from a specification. In \textit{code completion} (e.g. Github Copilot), the specification takes the form of a pre-existing code snippet. In \textit{natural language to code}, where the specification is a natural language description containing information such as the task description, input-output examples, libraries to use, and other requirements about the code. The difficulty of a code generation task depends highly on its scope and algorithmic complexity.
+
+\vspace{-0.25cm}
+
+\subsection{Code Transformation}
+
+\vspace{-0.1cm}
+% \todo{Manish}
+
+\textbf{Code Optimization:} Transforming programs to improve performance characteristics while maintaining functional correctness is a critical software task.
+% 
+These optimizations span multiple dimensions, including execution time, memory usage, energy consumption, and parallel efficiency. 
+The challenge lies not only in identifying opportunities for optimization but also in reasoning about complex performance trade-offs across different hardware architectures and usage scenarios. 
+% 
+% For instance, optimizing memory access patterns may improve cache utilization but potentially increase register pressure, requiring sophisticated analysis to determine the net benefit \todo{cite/improve example}
+% 
+% For instance, when deploying machine learning workloads, VRAM utilization, throughput, and latency can have complex relationships. 
+% Increasing the batch sizes improves throughput oftentimes at the cost of some increased latency. 
+% Similarly, CPU or disk offloading of model weights in low-memory systems can allow serving large models at the cost of increased inference times.
+
+% The progression towards sophisticated code optimization systems could advance through 
+% several key milestones: first, leveraging historical data (e.g., version control systems) to learn and 
+% apply variants of proven optimization patterns; then develop systems that can deeply reason, explore, and experiment with
+% novel optimization changes; and ultimately creating end-to-end optimization systems that can 
+% transform code across the entire software stack, from application logic and libraries, through compiler passes, while maintaining correctness guarantees.
+
+\textbf{Code Translation:} Code translation is the task of translating code from a source language to a target language. This task is difficult because it requires understanding, in depth, how constructs expressed in the source language map to the target language. This requires reasoning at a very high level of abstraction. In the industry, there are many large-scale code translation attempts (like C to Rust, or Python to C), and this task is also useful for porting legacy code to modern programming languages.
+
+
+\textbf{Code Refactoring:} Code refactoring presents a unique challenge in code transformation because success extends far beyond functional correctness or metrics. The goal is often to improve code maintainability, readability, or extensibility—qualities that are inherently difficult to quantify and highly context-dependent.
+% 
+For instance, extracting shared functionality into helper methods presents trade-offs between modularity and cognitive complexity \citep{parnas1972criteria}.
+%
+% \naman{there should be a more standard citation for this from 1980s and not 2024 XD}
+% 
+These challenges are further compounded by the need to understand implicit trade-offs customized to specific codebases, respect conventions, and reason about the long-term maintenance implications of structural changes.
+
+\vspace{-0.25cm}
+
+\subsection{Code Understanding}
+
+\vspace{-0.1cm}
+
+Understanding the moving parts of a codebase is an important skill for being a stellar engineer. Code can often be difficult to understand due to many wrapper functions, error-handling boilerplate, deep call stacks, and sometimes even poor code cleanliness. We identify four practical code-understanding tasks that we find practical and important:
+
+\textbf{Code Summarization and Documentation}: To ensure maintainability, readability, and ease of collaboration, code must be documented well. Writing good documentation is challenging because it needs to be written cleanly and crisply, describing both what the function does and how the function works. Importantly, it must also anticipate and address any misunderstandings that a programmer might have, such as potential side effects or special cases.
+
+\textbf{Code Navigation}: It is challenging to navigate and get accustomed to a mature codebase for new joiners. Code navigation means finding where relevant functionality is implemented. Doing this well requires understanding both the high-level layout of where every functionality lies in the codebase and the low-level understanding of which helper functions are used to implement each functionality. 
+
+% \textbf{Pull Request (PR) Review}: To review pull requests, a person must be familiar enough with the codebase to judge how well newly introduced changes fit the style and structure of the existing code. The most essential requirement is that the PR implements the new feature correctly. The reviewer must also determine how to integrate the PR with the existing codebase most smoothly. This includes checking whether the repository's style conventions are satisfied, ensuring that the PR does not introduce any new bugs, verifying that program invariants and guarantees still hold, and inspecting whether tests are robust. All of these require a global understanding of the codebase. 
+
+\textbf{Code Question Answering}: The holy grail of code understanding is the ability to answer arbitrarily complex questions about a codebase, which requires sophisticated code understanding and reasoning abilities. Models should not hallucinate or give incorrect information that skews a developer's mental model of the code. Beyond other tasks mentioned in this section, developers might commonly ask questions related to data flow (when and where data structures get mutated), code functionality (whether there are any side effects), performance characteristics (determining the runtime and memory complexity of a function), or error handling (whether certain corner cases are handled). 
+
+\vspace{-0.25cm}
+
+\subsection{Code Debugging}
+
+\vspace{-0.1cm}
+
+Software inevitably will have bugs that vary in scope and algorithmic complexity. Minor bugs might miss a few corner cases and require only a few lines of modification, e.g. \textit{simple, stupid bugs} \citep{mosolygo2021rise}. Complex bugs (e.g. concurrency bugs) might have very high algorithmic complexity. Because bugs can often pass tests and syntax checks, even detecting them can be tricky and requires thorough testing both during development and production work. The difficulty of fixing a bug depends on scope and algorithmic complexity. Function-level, low algorithmic complexity bugs can easily fixed by feeding in the error information. Repository-level, high algorithmic complexity bugs could require locating the bug, re-thinking the algorithm, and restructuring or refactoring the codebase. These changes must be general and should not break the functionality of other parts of the codebase.
+
+
+% \citet{mosolygo2021rise} defines \textit{simple, stupid bugs} as ``minor inaccuracies that do not prevent the code from running or compiling, but change its behavior in a subtle way that may lead to unforeseen consequences''. 
+
+\vspace{-0.25cm}
+
+\subsection{Scaffolding and Meta-Code} 
+\vspace{-0.1cm}
+\label{subsec:scaffolding-metacode}
+
+For a software system to work, the core logic must be written well, but that is not enough. Many infrastructural aspects must be in place to support the software. We group these into two main categories: \textit{scaffolding} and \textit{meta-code}. We define \textit{scaffolding} to be code that is important to make the system work but does not actually participate in the execution of its main logic. Examples of scaffolding include test harnesses, configuration files, CI/CD code, Makefiles, Dockerfiles, sandbox databases, and preprocessors. In contrast, we define \textit{meta-code} as a task outside of the code that must be done to get the software running the property. Examples of meta-code include setting up Google authentication, subscribing to APIs, managing file storage, and generating API tokens.
+
+\vspace{-0.25cm}
+
+\subsection{Formal Verification}
+\vspace{-0.1cm}
+
+The task of formal verification involves generating checkable, mechanized proofs that can guarantee that a piece of code works as intended. Formal verification of software is necessary in mission-critical applications such as aircraft software, where it is crucial that code is correct with absolute certainty. Over the years, there have been countless programming languages designed specifically for formal verification. Some of the popular ones include TLA \citep{lamport1994introduction}, Coq \citep{Coq-refman}, Lean \citep{de2015lean}, Dafny \citep{leino2010dafny}, Isabelle \citep{nipkow2002isabelle}, and Verus \citep{lattuada2024verus}. 
+
+In the formal methods literature, there are two major classes of formal verification: full functional verification (FFV) and property verification (PV). In FFV, the goal is to design a complete and precise formal specification that captures the desired behavior of the implementation. 
+% For example, \citet{zee2008full} developed a method for full functional verification of data structures like mutable lists, trees, graphs, and hash tables. The challenge in full functional verification generally lies in writing the specification in a way that captures all the required aspects that need to be shown.
+% 
+While FFV provides a complete set of guarantees, it is usually sufficient to opt for PV, where a few key properties of a system are proven correct, such as ensuring that two threads do not simultaneously enter a critical section of a program.
+Unlike in FFV, the specification is simpler to write and the challenge is finding the right domain-specific tool and algorithms to write the proof.

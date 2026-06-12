@@ -1,0 +1,54 @@
+\input{paper-includes/livecodebench/macros-import}
+
+\subsection[Overfitting to HumanEval+]{Overfitting to \humanevalplus{}}
+
+We first compare the code generation performance of models on \humanevalplus{} vs. \livecodebench{},
+shown in Figure~\ref{fig:he_vs_lcb}. We observe two distinct clusters of models, shown in red and green. The green cluster shows models that perform 
+similarly on both benchmarks, consisting mostly of base and closed-access models. 
+The red cluster shows models that perform significantly better on \humanevalplus{} than \livecodebench{}. Careful analysis reveals that
+this cluster consists primarily of fine-tuned variants of open-access models, strongly indicative of overfitting
+or data contamination.  In particular, we draw attention to \deepseekcodeB{1.3}, which achieves
+$60\%$ on \humanevalplus{} but only $26\%$ on \lcb{}-Easy.
+
+Overall, the lesson is that high scores on familiar benchmarks can be ambiguous. Sometimes, it may indicate
+general programming abilities, but other times it may be due to benchmark-specific adaptation. It is 
+crucial to compare across a varied suite of different benchmarks to understand the full picture, and we should be 
+careful of techniques that promote overfitting rather than developing general abilities.
+
+\input{paper-includes/livecodebench/figures/main_results/scatter_plot.tex}
+
+\subsection{Role of Post-Training}
+Next, we analyze the performance of base models vs. post-trained models. In terms of 
+base models, we see that \llamabase{} and \deepseek{} significantly outperform \cllama{} and
+\starcodertwo. However, these differences may partially be due to the training data
+distribution. For example, \starcodertwo uses competition coding problems in its
+pre-training corpus.
+
+Our benchmark also shows that post-training significantly improves performance, as 
+\llamaB{70}, \deepseekcodeB{33}, and \phind{} achieve 28.3, 23.6, and 21.0 \passmetric{1} on \lcb{},
+improving over their base models by 8.2, 7.3, and 9.5 points respectively.
+
+On the other hand, while base models generally fall into the green cluster of models,
+post-trained models generally end up in the red cluster.  
+We hypothesize that compared to data used in closed-access models, the fine-tuning 
+datasets for open models are lacking in diversity and quality, which may lead to poorer
+generalization. 
+
+\subsection{Gap Between Closed and Open Models}
+
+In Figure~\ref{fig:lcb-beyond-open-closed-gap}, we investigate the gap between
+open-access and closed-access models. Overall, closed models generally outperform open models.
+However, the gap is not uniform, as models like \llamaB{70}, \mixtral{}, and \deepseekcodeB{33}
+perform on-par with the weaker closed models like \geminipro{} and \gptthreefiveturbo{}, and 
+\claudesonnet. However, this varies across scenarios, as closed-access models perform better in the 
+test output prediction and code execution scenarios. This suggests that strong base models
+and high-quality post-training data can partially close the gap, but that there are several 
+capabilities where closed models still have a significant lead.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.65\linewidth]{figures/overview/lc_barchart.png}
+  \caption{Comparison of open-access and closed-access models on the
+  \livecodebench{}-Easy code-generation scenario.}
+  \label{fig:lcb-beyond-open-closed-gap}
+\end{figure}

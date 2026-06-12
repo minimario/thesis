@@ -1,0 +1,89 @@
+\begin{textcolorbox}[Prompt for Rephrasing Proofs to Relation Problems]
+\textbf{Task:} Transform the given inequality proof problem into a relation prediction problem.
+\\\\
+\textbf{Instructions:}
+
+1. Analyze the original problem, identifying key components such as variables, domains, conditions, and the main inequality. \\
+2. Rephrase the problem by maintaining the original expressions and replacing the relation symbol with a blank to be filled. \\
+3. Preserve any additional conditions or constraints from the original problem in your rephrased version. \\
+4. Change the task from ``Prove'' to ``Determine the correct inequality relation to fill in the blank.'' \\
+5. Provide a set of options for the relation, always including $\leq$, $\geq$, $=$, $<$, $>$, and ``None of the above''. \\
+6. Determine the correct answer based on your modification and analysis. \\
+
+\textbf{Output Format:}
+
+Provide your response in the following structure:
+
+\vspace{2mm}
+\texttt{<Analysis>}: Detailed step-by-step analysis of the original problem and your approach to rephrasing it.
+
+\vspace{2mm}
+\texttt{<Conclusion>}: YES or NO, followed by a brief explanation of whether and how the problem can be effectively rephrased.
+
+\vspace{2mm}
+\texttt{<Rephrased Problem>}: 
+
+\quad Transformed problem statement.
+
+\quad Options:
+(A) $\leq$ \quad
+(B) $\geq$\quad
+(C) $=$ \quad
+(D) $<$ \quad
+(E) $>$ \quad
+(F) None of the above
+
+\vspace{2mm}
+\texttt{<Answer>}: Option letter.
+\\\\
+\textbf{Key Considerations:} \\
+1. Maintain the original mathematical expressions and any given conditions as much as possible.\\
+2. Ensure the rephrased problem captures the essence and complexity of the original problem.\\
+3. For problems with multiple inequalities, focus on one main inequality for the relation prediction task.\\
+4. When dealing with complex fractions or expressions, keep them intact to maintain the problem's difficulty level.\\
+5. If the relation depends on specific values of the variables or cannot be definitively determined, consider using ``None of the above'' as the correct answer.
+% 6. Use LaTeX format ($$) for all variables and formulas, not \\( and \\).
+% ations, use double dollar signs ($$) on separate lines.
+\\\\
+\textbf{Example:} \\
+% \texttt{\{examples\}}
+Original problem:
+Let $a, b, c \in \mathbb{R}^{+}$. Prove the inequality
+$$
+\frac{a b c}{(1+a)(a+b)(b+c)(c+16)} \leq \frac{1}{81}
+$$
+\vspace{2mm}
+\texttt{<Analysis>}: To rephrase it to a relation prediction problem, we can focus on the following steps: \\
+1. The original problem is a proof task for an inequality involving positive real numbers $a$, $b$, and $c$. \\
+2. The left side of the inequality is a complex fraction $\frac{a b c}{(1+a)(a+b)(b+c)(c+16)}$. \\
+ % with a product in the numerator and a product of sums in the denominator
+3. The right side is a constant fraction $\frac{1}{81}$. \\
+4. The original inequality uses the ``less than or equal to'' ($\leq$) relation, which needs to hold for all positive real values of $a$, $b$, and $c$. \\
+5. We can transform the proof task into determining the correct relation between the left and right sides of the inequality.
+
+\vspace{2mm}
+\texttt{<Conclusion>}: YES, the inequality can be effectively rephrased as a relation prediction problem.
+
+\vspace{2mm}
+\texttt{<Rephrased problem>}: \\
+Let $a, b, c \in \mathbb{R}^{+}$. Consider the following inequality:
+$$
+\frac{a b c}{(1+a)(a+b)(b+c)(c+16)} \quad (\quad) \quad \frac{1}{81} .
+$$
+Determine the correct inequality relation to fill in the blank. 
+\\
+Options:
+(A) $\leq$ \quad
+(B) $\geq$\quad
+(C) $=$ \quad
+(D) $<$ \quad
+(E) $>$ \quad
+(F) None of the above
+
+\vspace{2mm}
+\texttt{<Answer>:} A
+\\\\
+\textbf{Now, please rewrite the following problem:}
+
+Original problem: \texttt{\{problem\}}
+\end{textcolorbox}

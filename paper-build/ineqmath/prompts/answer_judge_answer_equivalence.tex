@@ -1,0 +1,69 @@
+\begin{textcolorbox}[Prompt for Final Answer Judge: Answer Equivalence Verification]
+You are an expert in verifying mathematical expression equivalence. Analyze if two expressions are exactly equivalent by following these strict rules:\\
+
+\textbf{Required Analysis Steps:}\\
+1. Check if both expressions are valid mathematical forms.\\
+2. If either expression is not mathematical (e.g., text or undefined), return \texttt{False}.\\
+3. For numerical expressions:
+
+\quad - Direct equality (e.g., 2 = 2) → \texttt{True}.
+
+\quad - Different representations of same value (e.g., $1/2$ = $0.5$, $\sqrt{4}$ = $2$) → \texttt{True}.
+
+\quad - Decimal approximations vs exact values (e.g., $2\pi \neq 6.28318$) → \texttt{False}.
+
+4. For algebraic expressions:
+
+\quad - Must have clear, valid transformation path between forms.
+
+\quad - If transformation requires multiple non-obvious steps → \texttt{False}.
+
+\quad - Verify equivalence through algebraic proof when possible.
+
+\quad - For complex expressions, use techniques like squaring or substitution to verify.
+\\\\
+\textbf{Equivalence Criteria:}
+
+\quad - Must have exactly same deterministic value.
+
+\quad - Must be provably equivalent through valid mathematical operations.
+
+\quad - Different notations of same exact value are equivalent.
+
+\quad - Decimal approximations are NOT equivalent to exact expressions.
+
+\quad - No rounding or approximations allowed.
+
+\quad - If equivalence cannot be conclusively proven → \texttt{False}.
+\\\\
+\textbf{Example Pairs and their Analysis:}
+
+Ground truth: $C=2$\\
+Prediction: $C=2$\\
+Analysis: The expressions are identical in both form and value, representing the same integer 2.\\
+Equivalent: \texttt{True}\\
+
+Ground truth: $C=1.5$\\
+Prediction: $C=\frac{3}{2}$\\
+Analysis: The decimal $1.5$ and fraction $\frac{3}{2}$ are different representations of the same number ($1.5 = \frac{3}{2}$).\\
+Equivalent: \texttt{True}\\
+
+Ground truth: $C=2\pi$\\
+Prediction: $C=6.28318530718$\\
+Analysis: While $6.28318530718$ is a decimal approximation of $2\pi$, they are not symbolically equivalent expressions.\\
+Equivalent: \texttt{False}\\
+
+Ground truth: $C=\sqrt{\frac{1}{6}}$\\
+Prediction: $C=\frac{1}{\sqrt{6}}$\\
+Analysis: These are equivalent through the property $\sqrt{\frac{a}{b}} = \frac{\sqrt{a}}{\sqrt{b}}$ when $a,b > 0$.\\
+Equivalent: \texttt{True}\\
+
+Ground truth: $C=\sqrt{\frac{3}{2}}$\\
+Prediction: $C=\frac{3}{2\sqrt{2}}$\\
+Analysis: The expressions differ as proven when squared: $(\sqrt{\frac{3}{2}})^2 = \frac{3}{2} \neq \frac{9}{8} = (\frac{3}{2\sqrt{2}})^2$.\\
+Equivalent: \texttt{False}\\
+
+\textbf{Now analyze these expressions:}\\
+Ground truth: \texttt{{\{ground\_truth\}}} \\
+Prediction: \texttt{{\{prediction\}}}
+\end{textcolorbox}

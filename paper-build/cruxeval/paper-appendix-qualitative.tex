@@ -1,0 +1,1235 @@
+\section{Qualitative Analysis} \label{sec:appendix-qualitative}
+In this section, we see some examples of interesting successes and failures of the best performing model, GPT-4, with and without CoT. GPT-4 is relatively sensitive to its prompt, and slight tweaks in the prompt may lead correct examples to fail or incorrect examples to succeed. However, we believe that these examples are nevertheless interesting and reveal insights into the operating modes of GPT-4. Note that some of these examples may not be in the benchmark and were taken from a larger set of generated examples.
+
+% \textbf{Capabilities of GPT-4, Output Prediction}:
+% In Listing \ref{lst:gpt-4-output-nocot}, we see that GPT-4 is able to correctly deduce that the function reverses the letters of "pdrq". Further probing shows that this example succeeds when replacing the input with short sequences of distinct letters, but fails for longer strings of distinct characters (incorrect string reversal) and strings where characters occur multiple times (incorrect behavior). For some other programs with relatively few steps, we see that GPT-4 is able to keep track of internal state and execute correctly without CoT. With CoT, we see that GPT-4 is able to execute programs that require more complicated reasoning steps. In Listing \ref{lst:gpt-4-output-cot}, we see GPT-4's ability to understand and execute a more complicated control flow with a while loop, similar to what was observed when using scratchpads \citep{nye2021show}.
+
+% \begin{minipage}{.48\textwidth}
+% \begin{lstlisting}[caption=GPT-4 Success without CoT (Output),label={lst:gpt-4-output-nocot}, breaklines=true, language=python]
+% def f(text):
+%     d = {}
+%     updated = []
+%     for ch in text:
+%         if ch in d:
+%             d[ch] += 1
+%         else:
+%             d[ch] = 1
+%     while len(d) != 0:
+%         el = d.popitem()
+%         for i in range(el[1]):
+%             updated.append(el[0])
+%     return ''.join(updated)
+% assert f('pdrq') == 'qrdp'
+% \end{lstlisting}
+% \end{minipage}\hfill
+% \begin{minipage}{.48\textwidth}
+% \begin{lstlisting}[caption=GPT-4 Success with CoT (Output),label={lst:gpt-4-output-cot}, breaklines=true, language=python]
+% def f(number):
+%     multiplier = 2
+%     power = 1
+%     while number > 0:
+%         remainder = number % multiplier
+%         number //= multiplier
+%         if remainder == 0:
+%             power += 1         
+%         if number == 1:
+%             return f'{2 ** power}-free'
+% assert f(8) == '16-free'
+% \end{lstlisting}
+% \end{minipage}
+
+% \textbf{Capabilities of GPT-4, Input Prediction}:
+% We see similar evidence of GPT-4's ability to reason about programs and keep track of internal state during input prediction. Listing \ref{lst:gpt-4-input-nocot} shows an input prediction task with a sequence of six steps that GPT-4 succeeds at. CoT enhances this behaviour further. When asked to reason step by step, GPT-4 generally summarizes the function, reasons about the function's behaviour, and sometimes does backward deduction from the output to produce an input. It also sometimes goes through the code backwards line by line starting from the output. In Listing \ref{lst:gpt-4-input-cot}, GPT-4 reasons about the three cases of the function and correctly decides that the output must have been produced by the second case.
+
+% \begin{minipage}{.48\textwidth}
+% \begin{lstlisting}[caption=GPT-4 Success without CoT (Input),label={lst:gpt-4-input-nocot}, breaklines=true, language=python]
+% def f(l, elems):
+%     l.reverse()
+%     l.extend(elems)
+%     l.extend(l)
+%     l.reverse()
+%     l.reverse()
+%     del l[(len(l)-1):]
+%     return l
+% assert f([], [-1, 2, 7, 2, 8]) == [-1, 2, 7, 2, 8, -1, 2, 7, 2]
+% \end{lstlisting}
+% \end{minipage}\hfill
+% \begin{minipage}{.48\textwidth}
+% \begin{lstlisting}[caption=GPT-4 Success with CoT (Input),label={lst:gpt-4-input-cot}, breaklines=true, language=python]
+% def f(nums):
+%     count = len(nums)
+%     if count == 0:
+%         nums = [0] * int(nums.pop())
+%     elif count % 2 == 0:
+%         nums.clear()
+%     else:
+%         del nums[:count//2:]
+%     return nums
+% assert f([1, 2]) == []
+% \end{lstlisting}
+% \end{minipage}
+
+\subsection{Output Prediction without CoT}
+
+\subsubsection{GPT-4 Successes without CoT, Output Prediction}
+Even without CoT, we found that GPT-4 achieves impressively high pass@1 scores on output prediction. We highlight a few GPT-4 successes below that we found impressive, suggesting that GPT-4 has the capability to perform somewhat complex reasoning and code execution. 
+
+\begin{lstlisting}[language=python]
+def f(text):
+    if ',' in text:
+        before, _, after = text.partition(',')
+        return after + ' ' + before
+    return ',' + text.partition(' ')[-1] + ' 0'
+assert f('244, 105, -90') == ' 105, -90 244'
+
+# GPT-3.5 output: '-90 244'
+# CodeLlama 34B output: '244, 105, -90 0'
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(text):
+    text = text.lower()
+    count = 0
+    for char in text:
+        if char.isalpha():
+            count += 1
+    return count
+assert f("The computer factory") == 18
+
+# GPT-3.5 output: 3
+# CodeLlama 34B output: 16
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(text):
+    d = {}
+    updated = []
+    for ch in text:
+        if ch in d:
+            d[ch] += 1
+        else:
+            d[ch] = 1
+    while len(d) != 0:
+        el = d.popitem()
+        for i in range(el[1]):
+            updated.append(el[0])
+    return ''.join(updated)
+assert f('pdrq') == 'qrdp'
+
+# GPT-3.5 output: 'pdrq'
+# CodeLlama 34B output: 'qprd'
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(a, b):
+    b.reverse()
+    c = b.copy()
+    b.extend(a.copy())
+    b.extend(c)
+    return b
+assert f([5, 2, 3], [4, 9, 3, 1]) == [1, 3, 9, 4, 5, 2, 3, 1, 3, 9, 4]
+
+# GPT-3.5 output: [1, 3, 9, 4, 5, 2, 3]
+# CodeLlama 34B output: [4, 9, 3, 1, 5, 2, 3, 4, 9, 3, 1]
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(s):
+    ret = ';'.join(sorted([c for c in s if c.isalnum()]))
+    return ret
+assert f('%*^8938a(6^' * 3) == '3;3;3;6;6;6;8;8;8;8;8;8;9;9;9;a;a;a'
+
+# GPT-3.5 and CodeLlama 34B both do not terminate after 500 tokens
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(nums, a, b):
+    new_nums = []
+    for n in nums:
+         if n < a or n > b:
+             new_nums.append(n)
+    new_nums.sort()
+    new_nums.extend(nums)
+    return new_nums
+assert f([25, 44, 24, 22, 38, 5, 35, 15], 20, 44) == [5, 15, 25, 44, 24, 22, 38, 5, 35, 15]
+
+# GPT-3.5 output: [5, 15, 22, 24, 25, 35, 38, 44, 25, 44, 24, 22, 38, 5, 35, 15]
+# CodeLlama 34B output: [5, 15, 22, 24, 25, 35, 38, 44, 25, 44, 24, 22, 38, 5, 35, 15]
+\end{lstlisting}
+
+\subsubsection{GPT-4 Failures without CoT, Output Prediction}
+We still find a set of relatively simple failures on output prediction, which we expect would be relatively simple without CoT.
+
+\begin{lstlisting}[language=python]
+def f(nums):
+    nums.reverse()
+    return "".join(map(str, nums))
+assert f([-1, 9, 3, 1, -2]) == '-2139-1'
+
+# GPT-4 output: "-2, 1, 3, 9, -1"
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(nums, num):
+    for i in nums:
+        if nums[i]==num:
+            return num
+    return 'Not Found'
+assert f({'elad': 186, 'colton': 162, '12': 5}, 5) == '5'
+
+# GPT-4 output: 'Not found'
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(text):
+    dups = list(text)
+    dups.append(dups[0])
+    return ''.join(dups)
+assert f('u') == 'uu'
+
+# GPT-4 output: 'u'
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(match, fill, n):
+    return fill[:n] + match
+assert f('9', '8', 2) == '89'
+
+# GPT-4 output: '889'
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(string, prefix):
+    if string.startswith(prefix):
+        return string.removeprefix(prefix)
+    return string
+assert f("Vipra", "via") == 'Vipra'
+
+# GPT-4 output: ""
+\end{lstlisting}
+
+
+\subsection{Input Prediction without CoT}
+Similarly, we highlight examples from input prediction.
+\subsubsection{GPT-4 Successes without CoT, Input Prediction}
+\begin{lstlisting}[language=python]
+def f(l, elems):
+    l.reverse()
+    l.extend(elems)
+    l.extend(l)
+    l.reverse()
+    l.reverse()
+    del l[(len(l)-1):]
+    return l
+assert f([], [-1, 2, 7, 2, 8]) == [-1, 2, 7, 2, 8, -1, 2, 7, 2]
+
+# GPT-3.5 output: f([2, 7, 2, 8], [-1])
+# CodeLlama 34B output: f([-1, 2, 7, 2, 8], [-1, 2, 7, 2])
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(text, position):
+    length = len(text)
+    index = position % length
+    if position < 0 or index < 0:
+        index = length // 2
+    new_text = list(text)
+    new_text.pop(index)
+    return ''.join(new_text)
+assert f('voxnzcuo', 7) == 'voxnzcu'
+
+# GPT-3.5 output: f('voxnzcu', 42)
+# CodeLlama 34B output: f('voxnzcu', -4)
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(data, num):
+    new_dict = {}
+    temp = list(data.items())
+    for i in range(len(temp) - 1, num - 1, -1):
+        new_dict[temp[i]] = None
+    return temp[num:] + list(new_dict.items())
+assert f({2: 10, 3: 1}, 0) == [(2, 10), (3, 1), ((3, 1), None), ((2, 10), None)]
+
+# GPT-3.5 output: f({(2, 10): None, (3, 1): None}, 0)
+# CodeLlama 34B output: f({2: 10, 3: 1}, 2)
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(nums):
+    nums = [y for y in nums if y > 0]
+    if len(nums) <= 3:
+        return nums
+    nums.reverse()
+    half = len(nums)//2
+    return nums[:half] + [0]*5 + nums[half:]
+assert f([10, -1, 3, 2, -5, -6, 2, 6]) == [6, 2, 0, 0, 0, 0, 0, 2, 3, 10]
+
+# GPT-3.5 output: f([6, 2, 0, 0, 0, 0, 0, 2, 3, 10])
+# CodeLlama 34B output: f([6, 2, 3, 10])
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(text):
+    upper = 0
+    lower = 0
+    for i in range(len(text)):
+        if text[i].islower():
+            lower+=1
+        else:
+            upper+=1
+    if lower > upper:
+        return text.swapcase()
+    return text
+assert f('iAv,sual6eaParntEnthuhsisth,{kasae}') == 'IaV,SUAL6EApARNTeNTHUHSISTH,{KASAE}'
+
+# GPT-3.5 output: f("\'iAv,sual6eaparnteNthuhsisth,{kasae}\'")
+# CodeLlama 34B output: f("IaV,sual6eApArnTeNthuhsiStH,{KASAE}")
+\end{lstlisting}
+
+\subsubsection{GPT-4 Failures without CoT, Input Prediction}
+
+\begin{lstlisting}[language=python]
+def f(name):
+    return [name[0], name[1][::-1][0]]
+assert f(??) == ['m', 'a']
+
+# GPT-4 output: f(['m', 'apple'])
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(nums):
+    if 0 in nums:
+        nums.pop(nums.index(0))
+        nums.insert(0, 0)
+    if 1 in nums:
+        nums.pop(nums.index(1))
+        nums.append(1)
+    return nums
+assert f(??) == [0, 0, 1, 0, 1]
+
+# GPT-4 output: f([0, 0, 1, 0, 1])
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(text, speaker):
+    while text.startswith(speaker):
+        text = text[len(speaker):]
+    return text
+assert f(??) == 'Do you know who the other was? [NEGMENDS]'
+
+# GPT-4 output: f('Do you know who the other was? [NEGMENDS]', '')
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(text):
+    if text.isdecimal():
+        return text
+    else:
+        s = ''.join(sorted(text))
+        if s.isdecimal():
+            return 'true'
+        else:
+            return 'false'
+assert f(??) == '133476815'
+
+# GPT-4 output: 134678315
+\end{lstlisting}
+
+\begin{lstlisting}[language=python]
+def f(length, text):
+    if len(text) == length:
+        return text[::-1]
+    return False
+assert f(??) == False
+
+# GPT-4 output: f(5, "Hello")
+\end{lstlisting}
+
+\subsection{Output Prediction with CoT}
+\label{sub:output_cot}
+\subsubsection{GPT-4 Successes with CoT, Output Prediction}
+We see that when equipped with CoT, GPT-4 has some abilities to simulate an execution process, similar to what was seen in \citep{nye2021show}.
+
+In this example, we see both the ability to reason about the flow of the code and the ability to count uppercase letters.
+\begin{lstlisting}
+def f(string):
+    upper = 0
+    for c in string:
+        if c.isupper():
+            upper += 1
+    return upper * (2,1)[upper % 2]
+assert f('PoIOarTvpoead') == 8
+
+GPT-4: The function f(string) counts the number of uppercase letters in the input string. If the number of uppercase letters is even, it multiplies this count by 2. If the number of uppercase letters is odd, it multiplies this count by 1.
+
+In the string 'PoIOarTvpoead', there are 4 uppercase letters: 'P', 'I', 'O', and 'T'. Since 4 is an even number, the function will return 4 * 2 = 8.
+
+So, the correct output of the function for the input 'PoIOarTvpoead' is 8.
+
+[ANSWER] 8 [/ANSWER]
+\end{lstlisting}
+
+In the next two examples, we see the ability of GPT-4 with CoT to do relatively complex string manipulation tasks.
+\begin{lstlisting}
+def f(text):
+    replaced = list(text)
+    while ' ' in replaced: replaced.remove(' ')
+    while '@' in replaced: replaced.remove('@')
+    while '&' in replaced: replaced.remove('&')
+    return ''.join(replaced)
+assert f('&C C#BiOt &[(15-5%#-u&1@t') == 'CC#BiOt[(15-5%#-u1t'
+
+GPT-4: The function `f(text)` takes a string as input and returns a new string where all spaces (' '), '@' symbols, and '&' symbols have been removed. 
+
+Let's apply this function to the string '&C C#BiOt &[(15-5%#-u&1@t':
+
+1. Remove all spaces: '&CC#BiOt&[(15-5%#-u&1@t'
+2. Remove all '@' symbols: '&CC#BiOt&[(15-5%#-u&1t'
+3. Remove all '&' symbols: 'CC#BiOt[(15-5%#-u1t'
+
+So, the output of the function for the given string should be 'CC#BiOt[(15-5%#-u1t'.
+
+[ANSWER] 'CC#BiOt[(15-5%#-u1t' [/ANSWER]
+\end{lstlisting}
+
+\begin{lstlisting}
+def f(widths):
+    reversed_names = []
+    for skill in sorted(widths, key=widths.get, reverse=True):
+        reversed_names.append("{0}={1}".format(widths[skill], skill))
+    return '&'.join(reversed_names)
+assert f({'craftsmanship':2, 'upholstery':1, 'tailoring':3}) == '3=tailoring&2=craftsmanship&1=upholstery'
+
+GPT-4: The function f takes a dictionary as an argument. The dictionary keys are skill names and the values are their corresponding widths. The function sorts the dictionary based on the values in descending order. Then it creates a list of strings where each string is a combination of the value and the key separated by an equal sign. Finally, it joins all the strings in the list with an ampersand (&) and returns the resulting string.
+
+Let's break down the steps:
+
+1. The dictionary {'craftsmanship':2, 'upholstery':1, 'tailoring':3} is sorted based on the values in descending order, resulting in the list ['tailoring', 'craftsmanship', 'upholstery'].
+
+2. For each skill in the list, a string is created with the format "{value}={key}". The resulting list is ['3=tailoring', '2=craftsmanship', '1=upholstery'].
+
+3. The strings in the list are joined with an ampersand (&), resulting in the string '3=tailoring&2=craftsmanship&1=upholstery'.
+
+So, the output of the function f({'craftsmanship':2, 'upholstery':1, 'tailoring':3}) should be '3=tailoring&2=craftsmanship&1=upholstery'.
+
+[ANSWER]'3=tailoring&2=craftsmanship&1=upholstery'[/ANSWER]
+\end{lstlisting}
+
+In the next two examples, we see the ability to simulate and reason about for/while loops.
+\begin{lstlisting}
+def f(nums):
+    count = 0
+    for i in range(len(nums)):
+        if len(nums) == 0:
+            break
+        if count % 2 == 0:
+            nums.pop()
+        else:
+            nums.pop(0)
+        count += 1
+    return nums
+assert f([3, 2, 0, 0, 2, 3]) == []
+
+GPT-4: The function `f(nums)` takes a list of numbers as input. It initializes a counter `count` to 0. Then it enters a loop that runs for the length of the list. 
+
+In each iteration, it checks if the length of the list is 0. If it is, it breaks the loop. This condition will never be true because the loop runs for the initial length of the list and not the current length of the list.
+
+Then it checks if the counter is even. If it is, it removes the last element from the list. If it's not, it removes the first element from the list. 
+
+After each iteration, it increments the counter by 1.
+
+So, for the input list [3, 2, 0, 0, 2, 3], the function will perform the following operations:
+
+- Remove the last element (3) because the counter is 0 (even). The list becomes [3, 2, 0, 0, 2].
+- Remove the first element (3) because the counter is 1 (odd). The list becomes [2, 0, 0, 2].
+- Remove the last element (2) because the counter is 2 (even). The list becomes [2, 0, 0].
+- Remove the first element (2) because the counter is 3 (odd). The list becomes [0, 0].
+- Remove the last element (0) because the counter is 4 (even). The list becomes [0].
+- Remove the first element (0) because the counter is 5 (odd). The list becomes [].
+
+So, the function should return an empty list for the input [3, 2, 0, 0, 2, 3].
+
+[ANSWER]
+[]
+[/ANSWER]
+\end{lstlisting}
+
+\begin{lstlisting}
+def f(number):
+    multiplier = 2
+    power = 1
+    while number > 0:
+        remainder = number % multiplier
+        number //= multiplier
+        if remainder == 0:
+            power += 1         
+        if number == 1:
+            return f'{2 ** power}-free'
+assert f(8) == '16-free'
+
+# GPT-4: The function f takes a number as input and checks if it is divisible by 2. If it is, it increments the power by 1 and continues to divide the number by 2 until the number is no longer divisible by 2. The function then returns a string that says the number is "2 to the power of (power + 1)-free".
+
+In the case of the number 8, the function will divide 8 by 2 three times before it is no longer divisible by 2. This means the power will be incremented three times, from 1 to 4. Therefore, the function will return the string "2 to the power of 4-free", or "16-free".
+
+So, the output of the code should be "16-free" for the assertion to be correct.
+
+[ANSWER]"16-free"[/ANSWER]
+\end{lstlisting}
+
+
+\subsubsection{GPT-4 Failures with CoT, Output Prediction} \label{sec:appendix-gpt4-cot-output}
+Now, we highlight some failure cases of GPT-4 output prediction with CoT. One interesting failure mode is that the CoT makes a mistake on information that GPT-4 seems to know when prompted independently. For example, in the first example below, the CoT insists that 6173 is less tan 1000. However, when prompted independently, GPT-4 knows this is not true. We provide a few examples of these paired mistakes with proof of knowledge below. The outputs are abbreviated for brevity and to highlight the failures.
+
+The first example shows a failure in number comparison.
+\begin{lstlisting}
+Prompt: What is the output of the code?
+
+def f(num):
+    if 0 < num < 1000 and num != 6174:
+        return 'Half Life'
+    return 'Not found'
+assert f(6173) == ??
+
+GPT-4: ... In the case of `f(6173)`, the number 6173 is !*greater than 0, less than 1000*!, and not equal to 6174, so the function will return 'Half Life'...
+\end{lstlisting}
+
+\begin{lstlisting}
+Prompt: If num = 6173, is it true that 0 < num < 1000 and num != 6174?
+
+GPT-4: No, the statement is not true. The variable num is assigned the value 6173, so the condition 0 < num < 1000 is false because 6173 is not less than 1000. The second condition, num != 6174, is true because 6173 is indeed not equal to 6174. However, since the first condition is false, the overall statement is false.
+\end{lstlisting}
+
+This example is showing a semantic misunderstanding of \texttt{str.islower}.
+\begin{lstlisting}
+Prompt: What is the output of the code?
+
+def f(text):
+    if not text.islower():
+        temp_text = ''
+        for i in range(len(text)):
+            if text[i].islower():
+                temp_text += text[i]
+        return temp_text
+    return text
+assert f("816a") == ??
+
+GPT-4: ... !*The function `f` takes a string `text` as input and checks if the string is not all lowercase using the `islower()` method *!...
+
+...!*In the given assertion, the input string is `"816a"`. This string is not all lowercase because it contains digits, which are neither lowercase nor uppercase. Therefore, the function will go into the loop and check each character*!
+...
+\end{lstlisting}
+
+\begin{lstlisting}
+Prompt: What is "816a".islower()?
+
+GPT-4: ... The string "816a" contains digits and a lowercase alphabetic character 'a'. Since the only alphabetic character in the string is lowercase, the `islower()` method would return `True` when called on this string...
+\end{lstlisting}
+
+This example shows a failure with sorting \texttt{"h e l l o"}, which seems like it could be a tokenization artifact.
+
+\begin{lstlisting}
+Prompt: What is the output of this code?
+
+def f(str):
+    return str and ''.join(sorted(str))
+assert f("h e l l o") == ??
+
+GPT-4: ...
+1. The input string `"h e l l o"` is truthy, so the condition `str` is `True`.
+!*2. The `sorted` function is called on the string, which results in the list `[' ', ' ', ' ', 'e', 'h', 'l', 'l', 'o']`.*!
+...
+\end{lstlisting}
+
+\begin{lstlisting}
+Prompt: In Python, what is sorted("h e l l o")?
+
+GPT-4: ...Here's what happens:
+
+```python
+result = sorted("h e l l o")
+```
+
+The `result` will be a list that contains the characters of the string, including spaces, sorted in ascending order based on their Unicode code points. The space character has a lower code point than any of the letters, so it will appear first in the sorted list. The result will look like this:
+
+```python
+[' ', ' ', ' ', ' ', 'e', 'h', 'l', 'l', 'o']
+```
+\end{lstlisting}
+
+This example shows a failure with the \texttt{str.strip} method.
+
+\begin{lstlisting}
+Prompt: What is the output of this code?
+
+def f(text, strip_chars):
+    return text[::-1].strip(strip_chars)[::-1]
+assert f('tcmfsmj', 'cfj') == ??
+
+GPT-4: The function `f` takes two arguments: `text` and `strip_chars`. It reverses the `text` string, strips characters from both ends that are found in `strip_chars`, and then reverses the string back to its original order.
+
+Let's break down what happens step by step with the input `f('tcmfsmj', 'cfj')`:
+
+1. The string `'tcmfsmj'` is reversed, resulting in `'jmsfmct'`.
+2. The `strip` method is called with `'cfj'` as the argument, which removes any leading or trailing characters found in `'cfj'` from the reversed string `'jmsfmct'`.
+!*3. The leading `'j'` and the trailing `'c'` and `'t'` are stripped from the string, resulting in `'msfm'`.*!
+4. The stripped string `'msfm'` is then reversed again, resulting in `'mfsm'`.
+
+Therefore, the assertion should be:
+
+```python
+assert f('tcmfsmj', 'cfj') == 'mfsm'
+```
+
+The output of the code, if the assertion passes, is nothing since assertions do not produce output if the condition is true.
+\end{lstlisting}
+
+\begin{lstlisting}
+Prompt: In Python, what is "jmsfmct".strip("cfj")?
+
+GPT-4: ... Here's what happens step by step:
+
+- The first character 'j' is in the set of characters to remove ('cfj'), so it is removed.
+- The next character 'm' is not in the set of characters to remove, so the stripping stops at the beginning of the string.
+- Looking at the end of the string, the last character 't' is not in the set of characters to remove, so the stripping stops at the end of the string without removing anything.
+
+The resulting string after the `strip` operation will be `"msfmct"`.
+\end{lstlisting}
+
+In this example, we observe a list indexing error.
+\begin{lstlisting}
+Prompt: What is the output of this code?
+
+def f(nums):
+    count = len(nums)
+    for i in range(-count+1, 0):
+        nums.extend([nums[i], nums[i]])
+    return nums
+assert f([0, 6, 2, -1, -2]) == ??
+
+GPT-4: ...
+- Initial list: `[0, 6, 2, -1, -2]`
+- i = -4: Extend with two copies of `nums[-4]` which is `6`. New list: `[0, 6, 2, -1, -2, 6, 6]`
+- i = -3: Extend with two copies of !*`nums[-3]` which is `2`.*! New list: `[0, 6, 2, -1, -2, 6, 6, 2, 2]`
+...
+\end{lstlisting}
+
+\begin{lstlisting}
+Prompt: In Python, what is the value at index -3 of [0, 6, 2, -1, -2, 6, 6]?
+
+GPT-4: In Python, negative indices count from the end of the list, with -1 being the last element. To find the value at index -3, we count three places from the end of the list.
+
+Given the list:
+
+```
+[0, 6, 2, -1, -2, 6, 6]
+```
+
+The indices of the elements are as follows:
+
+```
+ 0   1   2   3   4   5   6  (positive indices)
+-7  -6  -5  -4  -3  -2  -1  (negative indices)
+```
+
+So, the value at index -3 is `-2`.
+\end{lstlisting}
+
+In this example, we see a string indexing error.
+
+\begin{lstlisting}
+Prompt: In Python, what is the output of this code?
+
+def f(text):
+    for i in range(-len(text), 0):
+        if text[i].islower():
+            return text[:i] + text[i].swapcase() + text[-i:]
+    return text
+assert f('Boo5') == ??
+
+GPT-4: ...
+- When `i = -3`, `text[i]` is `'o'`, which is lowercase. So the function will return a new string according to the rule above...
+
+!*- `text[-i:]` is `'o5'`*! (the substring from the character after the current character to the end of the string).
+
+Therefore, the function will return `'BOo5'`...
+\end{lstlisting}
+
+\begin{lstlisting}
+Prompt: In Python, if text = "Boo5" and i = -3, what is text[-i:]?
+
+GPT-4: ...Given `text = "Boo5"` and `i = -3`, let's calculate `-i`:
+
+`-i = -(-3) = 3`
+
+So, `text[-i:]` is equivalent to `text[3:]`, which means we start from the 3rd index (keeping in mind that indexing starts at 0) and take all characters from that position to the end of the string.
+
+The character at index 3 in the string "Boo5" is '5'. Therefore, `text[-i:]` will return '5'.
+\end{lstlisting}
+
+\subsection{Input Prediction with CoT}
+\subsubsection{GPT-4 Successes with CoT, Output Prediction}
+
+The following examples highlights code reasoning abilities.
+\begin{lstlisting}
+def f(text, size):
+    counter = len(text)
+    for i in range(size-int(size%2)):
+        text = ' '+text+' '
+        counter += 2
+        if counter >= size:
+            return text
+assert f(??) == '     7     '
+
+GPT-4: The function f takes two arguments: a text and a size. It adds spaces to the beginning and end of the text until the length of the text is greater than or equal to the size. The function stops adding spaces when the length of the text is greater than or equal to the size.
+
+In this case, the output is '     7     ', which is a string of length 11. The text in the middle is '7', which is of length 1. The function adds 5 spaces to the beginning and end of the text to reach a total length of 11.
+
+So, the input to the function should be '7' and 11.
+
+[ANSWER]
+f('7', 11)
+[/ANSWER]
+\end{lstlisting}
+
+\begin{lstlisting}
+def f(text):
+    uppercase_index = text.find('A')
+    if uppercase_index >= 0:
+        return text[:uppercase_index] + text[text.find('a') + 1 :]
+    else:
+        return ''.join(sorted(text))
+assert f(??) == '   DEGHIVjkptx'
+
+GPT-4: The function f takes a string as input. It first checks if there is an uppercase 'A' in the string. If there is, it removes the first occurrence of lowercase 'a' from the string and returns the string. If there is no uppercase 'A', it sorts the string in alphabetical order and returns it.
+
+In this case, the output is '   DEGHIVjkptx', which is a sorted string. This means that the input string did not contain an uppercase 'A', and the function sorted the string.
+
+To get this output, we can input a string that contains the same characters but in a different order. For example, the string 'xtpkjVIGHED   ' contains the same characters and when sorted by the function, it will give the output '   DEGHIVjkptx'.
+
+So, the answer is 'xtpkjVIGHED   '.
+
+[ANSWER]
+'xtpkjVIGHED   '
+[/ANSWER]    
+\end{lstlisting}
+
+The next example shows some ability in hexadecimal conversion. This may be partially due to memorization and data contamination effects, but this exact hex string was not found after a cursory Google search.
+
+\begin{lstlisting}
+def f(text):
+    hex_string = text.encode('utf-16')
+    result = "0x"
+    for c in hex_string:
+        result += "%.2X" % c
+    return result
+assert f(??) == '0xFFFE66006E007700200052006F006D0065002100'
+
+GPT-4: The function f takes a string as input, encodes it in utf-16 format, and then converts each character into a hexadecimal representation. The output '0xFFFE66006E007700200052006F006D0065002100' is the hexadecimal representation of a string in utf-16 format.
+
+To find the input, we need to convert the hexadecimal representation back to a string. We can do this by first removing the '0x' prefix and then converting each pair of hexadecimal digits back to a character.
+
+The hexadecimal string 'FFFE66006E007700200052006F006D0065002100' corresponds to the utf-16 encoded string 'nw Rome!'. 
+
+So, the input to the function f that will give the output '0xFFFE66006E007700200052006F006D0065002100' is 'nw Rome!'.
+
+[ANSWER] f('nw Rome!') [/ANSWER]
+\end{lstlisting}
+
+Just like we see in output prediction, GPT-4 is able to reason about non-trivial string manipulation code.
+\begin{lstlisting}
+def f(text):
+    text = text.split(',')
+    text.pop(0)
+    text.insert(0, text.pop(text.index('T')))
+    return 'T' + ',' + ','.join(text)
+assert f(??) == 'T,T,Sspp,G ,.tB,Vxk,Cct'
+
+GPT-4: The function f takes a string as input, splits it into a list of substrings divided by commas, removes the first element of the list, finds the index of the substring 'T', removes it from its current position and inserts it at the beginning of the list. Finally, it joins the list into a string separated by commas and adds 'T' at the beginning of the string.
+
+To get the output 'T,T,Sspp,G ,.tB,Vxk,Cct', we need to have 'T' as the second element in the list after splitting the input string by commas. The rest of the elements can be in any order. So, one possible input could be 'any,T,Sspp,G ,.tB,Vxk,Cct'.
+
+Let's check this:
+
+f('any,T,Sspp,G ,.tB,Vxk,Cct') will split the input into ['any', 'T', 'Sspp', 'G ', '.tB', 'Vxk', 'Cct'], remove the first element to get ['T', 'Sspp', 'G ', '.tB', 'Vxk', 'Cct'], find the index of 'T' (which is 0), remove it from the list and insert it at the beginning to get the same list ['T', 'Sspp', 'G ', '.tB', 'Vxk', 'Cct'], join the list into a string 'T,Sspp,G ,.tB,Vxk,Cct' and add 'T' at the beginning to get 'T,T,Sspp,G ,.tB,Vxk,Cct', which is the desired output.
+
+So, the answer is 'any,T,Sspp,G ,.tB,Vxk,Cct'.
+
+[ANSWER] 'any,T,Sspp,G ,.tB,Vxk,Cct' [/ANSWER]
+\end{lstlisting}
+
+In the following example, GPT-4 shows simple code analysis abilities, understanding that the first case will produce an error.
+\begin{lstlisting}
+def f(nums):
+    count = len(nums)
+    if count == 0:
+        nums = [0] * int(nums.pop())
+    elif count % 2 == 0:
+        nums.clear()
+    else:
+        del nums[:count//2:]
+    return nums
+assert f(??) == []
+
+GPT-4: The function f takes a list of numbers as input. If the length of the list is 0, it tries to pop an element from the list, which will cause an error because the list is empty. If the length of the list is even, it clears the list. If the length of the list is odd, it deletes the first half of the list. 
+
+To get an empty list as output, we can input an even-length list. 
+
+For example, we can input a list with two elements: [1, 2]. 
+
+So, the answer is [1, 2].
+
+[ANSWER]
+[1, 2]
+[/ANSWER]
+\end{lstlisting}
+\subsubsection{GPT-4 Failures with CoT, Input Prediction}
+As with output prediction, also notice some relatively simple failures of CoT. One observation is that GPT-4 often tries to check the incorrect input against the assertion and says that it passes, even when it does not. We believe this is not necessarily just due to the lack of execution ability, but a prior that the solution it found is more likely to be correct.
+
+In these first three examples, the model goes directly to a wrong answer without much step-by-step reasoning.
+
+\begin{lstlisting}
+def f(text):
+    odd = ''
+    even = ''
+    for i, c in enumerate(text):
+        if i % 2 == 0:
+            even += c
+        else:
+            odd += c
+    return even + odd.lower()
+assert f(??) == 'Mmohamt'
+
+GPT-4: The function f takes a string as input and separates the characters at even and odd indices. It then concatenates the characters at even indices with the characters at odd indices converted to lowercase. 
+
+!*To get the output 'Mmohamt', we can see that the even indexed characters are 'M', 'o', 'a', 't' and the odd indexed characters are 'm', 'h', 'm'.*!
+
+So, the input string can be 'Mmohamt'. 
+
+[ANSWER]
+f('Mmohamt')
+[/ANSWER]
+\end{lstlisting}
+
+\begin{lstlisting}
+def f(text):
+    string = ''
+    for char in text:
+        string += char + char.lower()
+    return string
+assert f(??) == 'llaallaakk'
+
+GPT-4: The function f takes a string as input and for each character in the string, it appends the character itself and its lowercase version to a new string. The function then returns this new string.
+
+Given the output 'llaallaakk', we can see that each character is repeated twice, once in its original form and once in lowercase. !*This means that the input string must have been 'LAK'.*!
+
+So, the input that leads to the given output when passed to function f is 'LAK'.
+
+[ANSWER]
+'LAK'
+[/ANSWER]
+\end{lstlisting}
+
+\begin{lstlisting}
+def f(nums, i):
+    nums.append(nums.pop(i % len(nums)))
+    nums[i % len(nums)] = '?'
+    split = nums[::2]
+    split.remove('?')
+    return split + nums[1::2]
+assert f(??) == [2, 4, 4]
+
+GPT-4: The function f takes a list of numbers and an index as input. It pops the element at the index (modulo the length of the list) and appends it to the end of the list. Then it replaces the element at the same index with a '?'. It then splits the list into two lists: one with elements at even indices and one with elements at odd indices. It removes the '?' from the first list and returns the concatenation of the two lists.
+
+To get the output [2, 4, 4], we need to find a list and an index such that after popping the element at the index and appending it to the end, and replacing the element at the index with '?', the list split into even and odd indexed elements (with '?' removed) gives [2, 4, 4].
+
+!*One possible input could be the list [2, 4, 4, 4] and the index 1.*! After popping the element at index 1 and appending it to the end, the list becomes [2, 4, 4, 4]. Replacing the element at index 1 with '?' gives [2, '?', 4, 4]. Splitting into even and odd indexed elements gives [2, 4] and ['?', 4]. Removing '?' from the first list gives [2, 4], and concatenating the two lists gives [2, 4, 4].
+
+So, the input f([2, 4, 4, 4], 1) will give the output [2, 4, 4].
+\end{lstlisting}
+
+The following example is a bit tricky, because the naming of the variables does not match the semantics of str.removeprefix. 
+\begin{lstlisting}
+def f(prefix, s):
+    return str.removeprefix(prefix, s)
+assert f(??) =='hymi'
+
+GPT-4: First, we need to understand what the function does. !*The function f takes two arguments: a prefix and a string s. It then removes the prefix from the string s and returns the result.*!
+
+Given that the output is 'hymi', we can infer that the string s must have ended with 'hymi' after the prefix was removed. Therefore, we can choose any prefix and append 'hymi' to it to form the string s.
+
+For example, if we choose the prefix to be 'hello', then the string s would be 'hellohymi'. When the prefix 'hello' is removed from 'hellohymi', the result is 'hymi', which is the desired output.
+
+So, the input to the function f that would give the output 'hymi' is ('hello', 'hellohymi').
+
+[ANSWER]
+('hello', 'hellohymi')
+[/ANSWER]
+\end{lstlisting}
+
+The following example shows a case where GPT-4 "checks" the forward execution incorrectly.
+\begin{lstlisting}
+def f(text):
+    count = len(text)
+    for i in range(-count+1, 0):
+        text = text + text[i]
+    return text
+assert f(??) =='wlace Alc l  '
+
+GPT-4: The function f takes a string as input and appends the characters from the end of the string to the string itself. The number of characters appended is equal to the length of the original string minus one. 
+
+To get the output 'wlace Alc l  ', we need to find a string that when appended with its last len(string)-1 characters, gives 'wlace Alc l  '. 
+
+By observing the output, we can see that the last 3 characters are spaces. This means that the last 3 characters of the original string must also be spaces. 
+
+The first character of the output is 'w', which is the first character of the original string. The second character of the output is 'l', which is the last character of the original string. 
+
+From this, we can infer that the original string is 'w l  '. 
+
+Let's check this:
+
+!*f('w l  ') = 'w l  ' + ' l  ' = 'wlace Alc l  '}*!
+
+So, the input that gives the output 'wlace Alc l  ' when passed to the function f is 'w l  '. 
+
+So, the answer is:
+
+[ANSWER] 'w l  ' [/ANSWER]
+\end{lstlisting}
+
+\subsubsection{GPT-4 Failures with CoT, Examples Requiring Insights}
+Unlike output prediction, where stepping through the code line by line suffices, some input prediction examples require insights and observations that can be difficult for models like GPT-4 to make. These examples are a bit more challenging, and passing them can require making these insights. Here, we highlight some of these examples, corresponding relevant insights, and GPT-4's failure modes.
+
+In the following example, \texttt{new\_nums} consists of a sorted portion and an unsorted portion. One insight is that the sorted portion must be a subarray of the unsorted portion. GPT-4 always takes \texttt{[5, 15, 25, 44]} to be the sorted portion and \texttt{[24, 22, 38, 5, 35, 15]} to be the unsorted portion, which cannot be the case because 44 (from the sorted portion) is not in the unsorted portion.
+
+\begin{lstlisting}[language=python]
+def f(nums, a, b):
+    new_nums = []
+    for n in nums:
+         if n < a or n > b:
+             new_nums.append(n)
+    new_nums.sort()
+    new_nums.extend(nums)
+    return new_nums
+assert f(??) == [5, 15, 25, 44, 24, 22, 38, 5, 35, 15]
+\end{lstlisting}
+
+In the following example, the simplest solution is to bypass the while loop completely, but the model does not find it. However, the model chooses an output like \texttt{"baec"} because it back-translates the "a" to "i" using the translation table. Unfortunately, it does not take into account that other characters also get translated in the translation table.
+\begin{lstlisting}[language=python]
+def f(input_string):
+    table = str.maketrans('aioe', 'ioua')
+    while 'a' in input_string or 'A' in input_string:
+        input_string = input_string.translate(table)
+    return input_string
+assert f(??) == 'biec'
+\end{lstlisting}
+
+In the following example, one must notice that \texttt{x} cannot end with a number and \texttt{y} cannot start with a number. Reasoning about \texttt{x+y = 'nisou79-85233'}, GPT-4 incorrectly deduces that the \texttt{y} portion must be \texttt{85233}, while in reality, it must be \texttt{79-85233} because \texttt{x} cannot end with a digit. 
+
+\begin{lstlisting}[language=python]
+def f(urn):
+    pieces = urn.split('--')
+    x = pieces[0].rstrip('0123456789')
+    y = pieces[1].lstrip('0123456789')
+    return x+y
+assert f(??) == 'nisou79-85233'
+\end{lstlisting}
+
+In the following example, it is very easy to solve the task by choosing \texttt{source} and \texttt{target} to make \texttt{target in source} false, going directly to the last line. However, GPT-4 tries to go down the more complicated path.
+\begin{lstlisting}[language=python]
+def f(source, target):
+    if target in source:
+        prefix, suff = source.split(target)
+        prefix = prefix[:len(prefix) // 2] + target + prefix[len(prefix) // 2:]
+        return prefix + suff
+    return source
+assert f('abcjava', 'python') =='abcjava'
+\end{lstlisting}
+
+In the following example, an important insight is that the last line of the function is a \texttt{"....".join()}, but that \texttt{"...."} does not occur in the output. This confuses the model.
+
+\begin{lstlisting}[language=python]
+def f(letters):
+    letters_only = letters.strip("., !?*")
+    return "....".join(letters_only.split(" "))
+assert f(??) =='h,e,l,l,o,wo,r,ld'
+\end{lstlisting}
+
+\subsection{Simple and Isolated GPT-4 Failures} \label{appendix:simple-isolated-failures}
+Some of the failures from both input prediction and output prediction can be isolated to capabilities on smaller subtasks. Here, we highlight some interesting subtasks, as well as GPT-4's response to these subtasks. 
+
+\begin{lstlisting}
+Prompt: What is a string containing 'a' three times, 'b' three times, 'c' twice, 'd' three times, and 'z' twice?
+
+GPT-4: A string containing the specified number of each letter can be constructed in many different ways, as the order of the characters is not specified. Here is one example of such a string:
+
+!*`aaabbbccdzz`*!
+\end{lstlisting}
+
+\begin{lstlisting}
+Prompt: In Python, what is " BaB ".rfind(" B ")?
+
+GPT-4: In Python, the `rfind()` method of a string object returns the highest index of the substring if found in the given string. If the substring is not found, it returns -1.
+
+The string `" BaB "` has a space, followed by a capital 'B', followed by another space as the substring we are looking for with `rfind(" B ")`.
+
+Let's break down the string `" BaB "`:
+
+- Index 0: space (' ')
+- Index 1: 'B'
+- Index 2: 'a'
+- Index 3: 'B'
+- Index 4: space (' ')
+
+We are looking for the substring `" B "` (space, 'B', space). !*This substring appears only once in the string, starting at index 3 and ending at index 5 (if we consider the space after the last 'B').*!
+
+Therefore, `" BaB ".rfind(" B ")` will return 3, because that is the highest index at which the substring `" B "` starts.
+\end{lstlisting}
+
+\begin{lstlisting}
+Prompt: In Python, if I have a string s = 'iabnm~~~~~~~~~~', what is s[1::2]?
+
+GPT-4: In Python, the slicing operation `s[start:stop:step]` allows you to extract a substring from a string `s` by specifying a starting index `start`, a stopping index `stop`, and a step `step`. If `start` is omitted, it defaults to the beginning of the string (index 0). If `stop` is omitted, it defaults to the end of the string. If `step` is omitted, it defaults to 1.
+
+In your example, `s[1::2]` means that you want to start at index 1 of the string `s`, go until the end of the string (since no stop index is provided), and select every second character (because the step is 2).
+
+Given the string `s = 'iabnm~~~~~~~~~~'`, let's break down what `s[1::2]` will return:
+
+- Start at index 1: 'a'
+!*- Every second character from index 1: 'abnm~~~~~~~~~~' -> 'an~'*!
+
+So, `s[1::2]` will return the string `'an~'`.
+\end{lstlisting}
+
+\begin{lstlisting}
+Prompt: In Python, what is "+".join(['*', '+', 'n', 'z', 'o', 'h'])?
+
+GPT-4: In Python, the `join` method is used to concatenate a sequence of strings with a specified separator. In the example you provided, `"+".join(['*', '+', 'n', 'z', 'o', 'h'])`, the `join` method is called on the string `"+"`, which is the separator, and it concatenates the elements of the list `['*', '+', 'n', 'z', 'o', 'h']` with a plus sign between each element.
+
+The result of this operation would be a single string where each element from the list is separated by a plus sign:
+
+!*```
+*+*+n+z+o+h
+```*!
+
+Each element in the list is a string, and they are joined together in the order they appear in the list, with the `+` character inserted between each pair of elements.
+\end{lstlisting}
+
+\begin{lstlisting}
+Prompt: In Python, if text = "!123Leap and the net will appear" and res = 123, what is text[len(str(res)):]?
+
+GPT-4: In the given Python code snippet, you have a string `text` and an integer `res`.
+
+```python
+text = "!123Leap and the net will appear"
+res = 123
+```
+
+You want to know what `text[len(str(res)):]` evaluates to. Let's break it down step by step:
+
+1. `str(res)` converts the integer `res` to a string, which is `"123"`.
+2. `len(str(res))` calculates the length of the string `"123"`, which is `3`.
+3. `text[len(str(res)):]` slices the string `text` starting from the index equal to the length of the string representation of `res` (which is `3`) to the end of the string.
+
+So, `text[len(str(res)):]` will return the substring of `text` starting from the 4th character (since indexing in Python starts at 0) to the end of the string.
+
+!*The 4th character in the string `text` is the character `'L'` (the first three characters are `"!12"`), so the result will be:
+
+```python
+"Leap and the net will appear"
+```*!
+
+This is the substring of `text` starting from the 4th character to the end.
+\end{lstlisting}
+
+\begin{lstlisting}
+Prompt: In Python, what is "pomodoro".replace("or", "pomodoro")?
+
+GPT-4: In Python, the `replace` method is used to replace occurrences of a substring within a string with another substring. When you call `"pomodoro".replace("or", "pomodoro")`, you are asking Python to replace every occurrence of the substring `"or"` in the string `"pomodoro"` with the substring `"pomodoro"`.
+
+Here's what happens step by step:
+
+1. Python finds the first occurrence of `"or"` in `"pomodoro"`, which is at the end of the string.
+2. !*Python replaces this occurrence with `"pomodoro"`, resulting in the string `"pomodopomodoro"`.*!
+
+There is only one occurrence of `"or"` in the original string, so the final result of the `replace` method in this case is `"pomodopomodoro"`.
+\end{lstlisting}
+
+\subsection{Failing Gems}
+Next, we identify a collection of examples that we find GPT-4 often fails on, even with CoT. Some of these examples overlap with examples shown above, but others are new. Overall, we believe this collection of examples provides an interesting lens to understand the behaviour of GPT-4 on input and output prediction.
+
+\subsubsection{Failing Gems, Output Prediction}
+\begin{lstlisting}[breaklines=true, language=python]
+def f(nums):
+    for i in range(-len(nums), 0):
+        nums.insert(-i, nums[i])
+    return nums
+assert f([-6, -2, 1, -3, 0, 1]) == [-6, -6, -2, 1, 1, 1, -3, 0, 0, 1, 1, -6]
+
+def f(text):
+    if not text.islower():
+        temp_text = ''
+        for i in range(len(text)):
+            if text[i].islower():
+                temp_text += text[i]
+        return temp_text
+    return text
+assert f("816a") == '816a'
+
+def f(list, separator):
+    text = separator.join(list)
+    return separator.join(reversed(text))
+assert f(['is', 'it', 'top'], '@') == 'p@o@t@@@t@i@@@s@i'
+
+def f(text, res):
+    for c in '*\n"':
+        text = text.replace(c, '!' + str(res))
+    if text.startswith('!'):
+        text = text[len(str(res)):]
+    return text
+assert f('"Leap and the net will appear', 123) == '3Leap and the net will appear'
+
+def f(num):
+    if 0 < num < 1000 and num != 6174:
+        return 'Half Life'
+    return 'Not found'
+assert f(6173) == 'Not found'
+
+def f(date):
+    return  date[6:] + date[4:6] + date[0:4]
+assert f("08-10-2009") == '20090-08-1'
+
+def f(text, suffix):
+    if suffix and suffix[-1] in text:
+        return f(text.rstrip(suffix[-1]), suffix[:-1])
+    else:
+        return text
+assert f('rpyttc', 'cyt') == 'rpytt'
+
+def f(s, x):
+    count = 0
+    for i, c in enumerate(s):
+        if x in s[i:] and x not in s[:i]:
+            count += 1
+    return count
+assert f('fvyijrtwrjrsasgt', 'g') == 15
+
+def f(text):
+    segments = text.split()
+    for i in range(len(segments)):
+        segments[i] = segments[i][0].upper() + segments[i][1:-1] + segments[i][-1].upper()
+    return ' '.join(segments)
+assert f("hey !") == 'HeY !!'
+
+def f(pattern, items):
+    result = []
+    for text in items:
+        pos = text.rfind(pattern)
+        if pos >= 0:
+            result.append(pos)
+
+    return result
+assert f(" B ", [" bBb ", " BaB ", " bB", " bBbB ", " bbb"]) == []
+
+def f(str):
+    return str and ''.join(sorted(str))
+assert f("h e l l o") == '    ehllo'
+
+def f(t):
+    return t.replace('or', t.center(len(t), 'o'))
+assert f("pomodoro") == 'pomodpomodoroo'
+\end{lstlisting}
+
+\subsubsection{Failing Gems, Input Prediction}
+\begin{lstlisting}[breaklines=true, language=python]
+def f(dimension):
+    dinline = str(dimension)[1:].zfill(2)
+    return dinline[0] * int(dinline[1])
+assert f(??) == 'kkkkk'
+
+def f(text):
+    for elem in text:
+        if elem.isupper():
+            try:
+                text.remove(elem)
+            except ValueError:
+                pass
+    return text
+assert f(??) == ''
+
+def f(text):
+    ls = list(text)
+    for i in range(0, len(ls)):
+        if ls[i]!='+':
+            ls.insert(i, '+')
+            ls.insert(i, '*')
+            break
+    return '+'.join(ls)
+assert f('nzoh') == '*+++n+z+o+h'
+
+def f(text):
+    new_text = list(text)
+    dict = {}
+    for char in new_text:
+        dict[char] = new_text.count(char)
+    return dict
+assert f('aaabbbccdddzz') == {'a': 3, 'b': 3, 'c': 2, 'd': 3, 'z': 2}
+
+def f(text):
+    odd = ''
+    even = ''
+    for i, c in enumerate(text):
+        if i % 2 == 0:
+            even += c
+        else:
+            odd += c
+    return even + odd.lower()
+assert f('Mammoth') == 'Mmohamt'
+
+def f(nums, i):
+    nums.append(nums.pop(i % len(nums)))
+    nums[i % len(nums)] = '?'
+    split = nums[::2]
+    split.remove('?')
+    return split + nums[1::2]
+assert f([4, 2, 4, 2], 0) == [2, 4, 4]
+
+def f(prefix, s):
+    return str.removeprefix(prefix, s)
+assert f('hymi', 'hymifulhxhzpnyihyf') == 'hymi'
+
+def f(text):
+    if ',' in text:
+        before, _, after = text.partition(',')
+        return after + ' ' + before
+    return ',' + text.partition(' ')[-1] + ' 0'
+assert f('244, 105, -90') == ' 105, -90 244'
+
+def f(s):
+    return '{}{}{}'.format(s[3:], s[2], s[5:8])
+assert f('jbucwc') == 'cwcuc'
+
+def f(nums):
+    for i in range(len(nums)):
+        nums.insert(i, nums[i]**2)
+    return nums
+assert f([1, 2, 4]) == [1, 1, 1, 1, 2, 4]
+
+def f(c, text):
+    t = c
+    for c in reversed(text):
+        t = c + t*2
+        t = c + t
+    return t + text
+assert f(';?', 'i') == 'ii;?;?i'
+
+def f(nums, location, item):
+    if len(nums) >= location and 0 <= location:
+        return nums.insert(location, item)
+    return nums
+assert f([1, 2, 3, 4, 5, 6], -5, -5) == [1, 2, 3, 4, 5, 6]
+
+def f(text):
+    return max(text.find(ch) for ch in 'aeiou')
+assert f("qsqgijwmmhbchoj") == 13
+\end{lstlisting}

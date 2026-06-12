@@ -1,0 +1,62 @@
+\begin{examplebox}[Self-improvement via Critic as Feedback: Example]
+\textbf{Problem}: Let $a, b > 0$ such that $a + b = 1$. Determine the largest constant $C$ such that the following inequality holds for all $a, b$:
+$$
+\left(a+\frac{1}{a}\right)^2+\left(b+\frac{1}{b}\right)^2 \geq C.
+$$
+
+\textbf{Ground Truth:} \boxed{C = \frac{25}{2}}
+
+
+\textbf{Initial Response by o4-mini (Incorrect Response \xmark):}\\
+Define
+$
+f(a) = \left(a + \frac{1}{a} \right)^2 + \left((1 - a) + \frac{1}{1 - a} \right)^2, \quad 0 < a < 1.
+$
+
+1. \wrong{The function \( f \) is symmetric about \( a = \frac{1}{2} \). Hence any interior extremum must occur at \( a = \frac{1}{2} \).}
+
+2. At \( a = \frac{1}{2} \), we have
+    $
+    f\left(\frac{1}{2}\right) = 2 \cdot \frac{25}{4} = \frac{25}{2}.
+    $
+
+3. \wrong{Checking the second derivative shows this is indeed a minimum.} The answer is \boxed{ C = \frac{25}{2} }.
+
+\textbf{Self-critic Feedback by o4-mini}:
+
+These are what make this solution incompletely justified:
+
+\begin{itemize}
+    \item symmetry alone guarantees \( f'(1/2) = 0 \), but it does \emph{not} by itself rule out other critical points \( a \ne 1/2 \). In general, a symmetric \( C^1 \)-function can have multiple stationary points symmetrically placed about the center. 
+    
+    \item You assert ``checking the second derivative shows this is indeed a minimum,'' but you never exhibit \( f''(1/2) \) or argue it is positive. 
+\end{itemize}
+$\quad$\\
+\textbf{Refined Solution by o4-mini (Correct Response \cmark):} \\Define the function
+$
+f(a) = \left(a + \frac{1}{a} \right)^2 + \left((1 - a) + \frac{1}{1 - a} \right)^2,
+$
+for \( a \in (0,1) \). Let \( g(x) = \left(x + \frac{1}{x} \right)^2 \) for \( x > 0 \). Then \( f(a) = g(a) + g(1 - a) \).
+\\
+\\
+Compute:
+
+\[
+g(x) = x^2 + 2 + \frac{1}{x^2}, \quad g'(x) = 2x - \frac{2}{x^3}, \quad g''(x) = 2 + \frac{6}{x^4} > 0.
+\]
+Hence, \( g \) is strictly convex on \( (0, \infty) \).
+\\\\
+Since \( f''(a) = g''(a) + g''(1 - a) \) and each term is positive for \( a \in (0,1) \), \correct{we have \( f''(a) > 0 \). Thus, \( f \) is strictly convex on \( (0,1) \)}
+A strictly convex \( C^1 \)-function on an open interval has at most one critical point, which, if it exists, is its global minimum. We compute:
+\[\correct{
+f'(a) = g'(a) - g'(1 - a)=0}
+\]
+
+\correct{By symmetry, we can solve it and get \( a = \frac{1}{2} \)}. Hence the unique solution of \( f'(a) = 0 \) in \( (0,1) \) is \( a = \frac{1}{2} \).
+
+Therefore, the smallest possible value is  \boxed{C=f\left(\frac{1}{2} \right) = \frac{25}{2}}.
+\\\\
+\textbf{Expert Comment:}
+The initial solution gets the correct value $C = \frac{25}{2}$, but lacks rigor: it incorrectly assumes that symmetry implies a unique minimum, and references the second derivative without computing it \wronghl. The critic accurately points out these gaps. The refined solution corrects them by proving convexity through second derivatives and confirming $a = \frac{1}{2}$ is the unique minimizer through first derivatives \correcthl. This demonstrates that self-criticism effectively improves the mathematical soundness of the argument.
+
+\end{examplebox}

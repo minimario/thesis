@@ -1,0 +1,63 @@
+\begin{table}[H]
+\centering
+\begin{tabular}{cc | c | c | c}
+\toprule
+\textbf{Dataset} & \textbf{Model} &
+\textbf{Avg@64} & \textbf{Med@64} & \textbf{Red@64} \\
+\midrule
+\multirow{6.5}{*}{miniF2F}
+& \textit{Original} & 333.60 & 166.50 & 0\% \\
+\noalign{\vskip 1pt}
+\cdashline{2-5}[0.5pt/2pt] % dashed line under only data columns
+\noalign{\vskip 2pt}
+ & Linter  & 302.38 & 154.5 & 9.2\% \\
+ & Ours (It 1)  & 143.65 & 11.0 & 76.57\% \\
+\noalign{\vskip 1pt}
+\cdashline{2-5}[0.5pt/2pt] % dashed line under only data columns
+\noalign{\vskip 2pt}
+ & It 2   & 126.3 & 9.0 & 80.04\% \\
+ & It 3   & 121.25 & 9.0 & 80.95\% \\
+ & It 4   & 116.82 & 9.0 & 81.45\% \\
+ & It 5   & 105.75 & 9.0 & 82.94\% \\
+ & It 6   & 104.03 & 9.0 & 83.12\% \\
+\noalign{\vskip 1pt}
+ \cdashline{2-5}[0.5pt/2pt]
+ \noalign{\vskip 2pt}
+ & It 7 (@1024)   & 87.89 & 8.0 & 85.74\% \\
+ & It 8 (@1024)  & 74.80 & 7.0 & 87.85\% \\
+ \noalign{\vskip 1pt}
+ \cdashline{2-5}[0.5pt/2pt]
+ \noalign{\vskip 2pt}
+ & TTT & 152.21 & -- & 76.14\% \\
+
+\midrule
+\multirow{6.5}{*}{\shortstack{Putnam \\ Bench}}
+ & \textit{Original} & 1468.40 & 1179 & 0\% \\
+ \noalign{\vskip 1pt}
+ \cdashline{2-5}[0.5pt/2pt]
+ \noalign{\vskip 2pt}
+ & Linter  & 1359.44 & 1012 & 7.43\% \\
+ & Ours (It 1) & 1122.83 & 829 & 34.83\% \\
+\noalign{\vskip 1pt}
+\cdashline{2-5}[0.5pt/2pt] % dashed line under only data columns
+\noalign{\vskip 2pt}
+ & It 2   & 1061.24 & 725 & 40.02\% \\
+ & It 3   & 1024.25 & 681 & 42.51\% \\
+ & It 4   & 1007.49 & 681 & 43.62\% \\
+ & It 5   & 975.24 & 681 & 46.44\% \\
+ & It 6   & 968.64 & 681 & 47.14\% \\
+ \noalign{\vskip 1pt}
+ \cdashline{2-5}[0.5pt/2pt]
+ \noalign{\vskip 2pt}
+ & It 7 (@1024)   & 889.91 & 568 & 52.20\% \\
+ & It 8 (@1024)  & 810.72 & 506 & 57.24\% \\
+ \noalign{\vskip 1pt}
+ \cdashline{2-5}[0.5pt/2pt]
+ \noalign{\vskip 2pt}
+ & TTT & 1253.39 & -- & 30.12\% \\
+\bottomrule
+\end{tabular}
+\caption{Proof length of miniF2F and PutnamBench proofs throughout inference-time iteration and with test-time training.}
+\label{tab:inference-iteration-results}
+% TODO(fg): so far RL numbers use "with replacement", others use "without"
+\end{table}

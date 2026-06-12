@@ -1,0 +1,57 @@
+\begin{examplebox}[Retrieving Training Problems as Demonstrations: Example]
+\textbf{Question:} Let $a, b > 0$ such that $a + b = 1$. Determine the largest constant $C$ such that the following inequality holds for all $a, b$:
+$$
+\left(a+\frac{1}{a}\right)^2+\left(b+\frac{1}{b}\right)^2 \geq C.
+$$
+\\
+\textbf{Ground Truth:} \boxed{C = \frac{25}{2}}
+\\\\
+\textbf{Response by o4-mini without Examples (Incorrect Response \xmark)}:
+
+Define
+$
+f(a) = \left(a + \frac{1}{a} \right)^2 + \left((1 - a) + \frac{1}{1 - a} \right)^2, \quad 0 < a < 1.
+$
+
+1. \wrong{The function \( f \) is symmetric about \( a = \frac{1}{2} \). Hence any interior extremum must occur at \( a = \frac{1}{2} \).}
+
+2. At \( a = \frac{1}{2} \), we have
+    $
+    f\left(\frac{1}{2}\right) = 2 \cdot \frac{25}{4} = \frac{25}{2}.
+    $
+
+3. \wrong{Checking the second derivative shows this is indeed a minimum.} The answer is \boxed{ C = \frac{25}{2} }.
+\\\\
+\textbf{Example Questions:}Let $a, b, c$ be positive real numbers such that $a^2 + b^2 + c^2 = 3abc$. Find the largest constant $C$ such that the following inequality holds for all $a, b, c$ satisfying the given constraint:
+$$
+\frac{a}{b^2 c^2} + \frac{b}{c^2 a^2} + \frac{c}{a^2 b^2} \geq \frac{C}{a+b+c}
+$$
+\textbf{Example Solution:} The given inequality is equivalent to$$\left(a^{3}+b^{3}+c^{3}\right)(a+b+c) \geq 9 a^{2} b^{2} c^{2}$$Applying the Cauchy-Schwarz inequality we have$$\left(a^{3}+b^{3}+c^{3}\right)(a+b+c) \geq\left(a^{2}+b^{2}+c^{2}\right)^{2}$$Since $a^{2}+b^{2}+c^{2}=3 a b c$ we obtain$$\left(a^{3}+b^{3}+c^{3}\right)(a+b+c) \geq\left(a^{2}+b^{2}+c^{2}\right)^{2}=(3 a b c)^{2}=9 a^{2} b^{2} c^{2}$$Equality holds if and only if $a=b=c=1$.
+Therefore, the answer is \boxed{C = 9}.
+\\\\
+\textbf{Response by o4-mini with Examples (Correct Response \cmark):}
+Let \(a,b>0\) with \(a+b=1\).  Define the function
+$
+f(a)\;=\;\Bigl(a+\tfrac1a\Bigr)^2\;+\;\Bigl(b+\tfrac1b\Bigr)^2
+,\quad b=1-a.
+$\\
+Convexity argument: consider the function 
+    $h(x)=\Bigl(x+\tfrac1x\Bigr)^2\quad(x>0).$ 
+    
+\correct{Compute its second derivative: $ h(x)=x^2+2+\tfrac1{x^2}, \quad h''(x)=2+6x^{-4}>0,\quad\forall x>0$}
+
+    \correct{Hence \(h\) is convex on \((0,\infty)\).}  Since \(a\) and \(b\) satisfy \(a+b=1\), by \textcolor{blue}{Jensen’s inequality for the convex function \(h\) we have}
+    \[
+      \frac{h(a)+h(b)}2
+      \;\ge\;
+      h\!\Bigl(\tfrac{a+b}2\Bigr)
+      =h\!\Bigl(\tfrac12\Bigr)
+      =\Bigl(\tfrac12+2\Bigr)^2
+      =\Bigl(\tfrac52\Bigr)^2
+      =\frac{25}4.
+    \]
+    Therefore$f(a)=h(a)+h(b)\;\ge\;2\cdot\frac{25}4=\frac{25}{2}.$, i.e. The answer is \boxed{C=\frac{25}{2}}.
+
+\textbf{Expert Comment:} The initial solution lacks rigor: it incorrectly assumes that symmetry implies a unique minimum, and references the second derivative without computing it \wronghl. However, after being provided with a related example that uses a careful convexity argument and the Cauchy-Schwarz inequality, the model is able to imitate the correct reasoning. It verifies convexity via the second derivative, correctly applies Jensen’s inequality, and explicitly justifies the minimum \correcthl. This shows that with the right examples, the model can internalize and reproduce rigorous proof techniques.
+\end{examplebox}
+

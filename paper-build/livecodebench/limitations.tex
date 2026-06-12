@@ -1,0 +1,11 @@
+We describe key limitations here and provide a deeper discussion in Appendix~\ref{app:sec:limitations}.
+
+\noindent \textbf{Evaluation Noise.}
+%We believe noise is one of the key limitations of current evaluations. 
+We anticipate noise from benchmark size, prompts, and sampling.
+For benchmark size, while $612$ problems is fairly larger than existing code benchmarks (e.g. $164$ problems in \humaneval{}), this set reduces on ``scrolling'' over the more recent problems. 
+Next, prompting can cause large variations in model performance and we do not tune prompts across models. %(except perhaps small adjustment).
+For sampling, we use bootstrapped \passmetric{1} using $10$ completions, which should limit this noise considerably.
+
+\textbf{Problem Domain.} \livecodebench{} comprises competition programming problems which might not correlate with how \llms{} are used in practice. 
+Even then, our results are well correlated with findings from human evaluations like Chatbot-Arena~\cite{chiang2024chatbot} thus providing useful signal.

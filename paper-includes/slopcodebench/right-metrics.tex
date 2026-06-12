@@ -1,0 +1,190 @@
+\input{paper-includes/slopcodebench/macros-import}
+
+Most of today's benchmarks measure the ability of language models to solve
+a single, static programming task. However, this does not adequately capture 
+the way that software is developed in the real world. Codebases frequently
+evolve over time as new features are added, requirements change, and designs 
+are prototyped. The design decisions and abstractions introduced in a codebase 
+frequently have long-term consequences for the maintainability and extensibility
+of the codebase.
+
+
+SlopCodeBench was designed to capture this setting and desiderata. It contains 
+\transProblems{} language-agnostic problems spanning
+\overallTotalCheckpoints{} checkpoints. Each problem is specified solely in
+terms of observable behavior at a command-line or API boundary. At the first
+checkpoint, an agent implements the initial specification from scratch; at each
+later checkpoint, it must modify and extend its own prior solution. Figure \ref{fig:slopcodebench-overview} illustrates this process. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/hero_v3.pdf}
+    \caption{Iterative evaluation in SlopCodeBench. A task unfolds over
+    checkpoints. At each step, the agent extends its prior solution to satisfy
+    an updated specification. Correctness, erosion, and verbosity are scored
+    externally and withheld from the agent.}
+    \label{fig:slopcodebench-overview}
+\end{figure}
+
+Below, we show an example of a task from SlopCodeBench:
+\begin{runningexample}[Example: \href{https://www.scbench.ai/problems/code_search}{\codesearch{}}]
+\label{box:slopcodebench-code-search}
+\textbf{Running example: \codesearch{}.}
+The agent is tasked with building a CLI tool for semantic source-file search,
+inspired by \href{https://ast-grep.github.io}{ast-grep}, across five checkpoints:
+\begin{itemize}
+    \item[$\ckpt{1}$ -] Python files only exact and regex matching. Establishes the core CLI contract.
+    \item[$\ckpt{2}$ -] Support for Javascript and C++.
+    \item[$\ckpt{3}$ -] AST-based pattern matching with metavariable capture.
+    \item[$\ckpt{4}$ -] Selector rules and auto-fix functionality.
+    \item[$\ckpt{5}$ -] Add support for Go, Rust, and Java.
+\end{itemize}
+An agent that hardcodes language-specific logic at $\ckpt{1}$ faces cascading
+rewrites at $\ckpt{2}$ and $\ckpt{5}$; one that builds an extensible parser
+interface does not.
+\end{runningexample}
+
+In addition to an iterative benchmark, SlopCodeBench introduces two trajectory-level metrics to measure the quality of
+the generated code as it evolves: \textbf{structural erosion} and \textbf{verbosity}. 
+Structural erosion captures the concentration of complexity in already-complex functions.
+Verbosity captures how much redundant, duplicated, or unnecessary code is present.
+These metrics are designed to measure two dimensions of code quality while being independent of
+functional correctness.
+
+\subsection{Measuring Code Slop}
+The central metric contribution is to measure not only whether the code passes
+tests, but how its quality changes over time. SlopCodeBench tracks two
+trajectory-level quality signals: \textbf{structural erosion} and
+\textbf{verbosity}.
+
+Structural erosion captures the concentration of control-flow complexity in
+already-complex functions. We first score each callable $f$ with a
+\emph{complexity mass}. In this formula, $\text{CC}(f)$ is the cyclomatic
+complexity of $f$: roughly, the number of independent paths through the
+callable's control flow, increasing with branches, loops, and other decision
+points. $\text{SLOC}(f)$ is the number of source lines of code in $f$. We define
+\begin{equation*}
+\label{eq:slopcodebench-mass}
+\text{mass}(f) = \text{CC}(f) \times \sqrt{\text{SLOC}(f)}.
+\end{equation*}
+
+Erosion measures the fraction of the codebase's total complexity mass that sits
+inside high-complexity functions:
+\begin{equation}
+\label{eq:slopcodebench-erosion}
+\text{Erosion}
+=
+\frac{\sum_{f \in \mathcal{F}} \mathbb{I}[\text{CC}(f) > 10]\cdot\text{mass}(f)}
+     {\sum_{f \in \mathcal{F}} \text{mass}(f)}.
+\end{equation}
+Here, $\mathcal{F}$ is the set of callables in the program, and
+$\mathbb{I}[\text{CC}(f) > 10]$ is an indicator that equals 1 only for callables
+whose cyclomatic complexity exceeds 10. This metric is designed to penalize an anti-pattern where
+instead of introducing helpful abstractions, an agent repeatedly patches a large dispatch function 
+or main loop until the codebase's complexity collapses into a few hard-to-maintain functions.
+
+Verbosity captures a different failure mode: redundant, duplicated, or
+unnecessary code. It combines two sources of evidence. The first is lines
+flagged by 137 AST-Grep rules for wasteful patterns; the second is lines that
+belong to structural code clones. We deduplicate overlapping hits and normalize
+by $\text{LOC}$, the total lines of code in the solution:
+\begin{equation*}
+\label{eq:slopcodebench-verbosity}
+\text{Verbosity}
+=
+\frac{|\{\text{AST-Grep Flagged Lines} \cup \text{Clone Lines}\}|}
+     {\text{LOC}}.
+\end{equation*}
+
+\subsection{Measuring Correctness and Cost Over Time}
+In Table~\ref{tab:performance-overview}, we show the performance of models 
+on SlopCodeBench. We group solutions into three categories: strict, isolatd, and core.
+Core means that a solution passes only a set of core tests, testing 
+behavior explicitly mentioned in the specification. Isolated (Iso) means that
+the solution passes all tests that only depend on the current checkpoint (it can fail regression tests).
+Strict means that the solution passes the full test suite, including regression tests from prior checkpoints.
+
+\input{paper-includes/slopcodebench/figures/performance_table}
+
+Across \overallNumModels{} evaluated coding agents, no agent fully solves any
+of the \transProblems{} problems end-to-end. The best strict solve rate is
+\overallBestStrictSolveRate{}\%, achieved by \overallBestModel{}, while the
+best isolated solve rate reaches \overallIsoSolveMax{}\% and the best core
+solve rate reaches \overallCoreSolveMax{}\%. In Figure~\ref{fig:slopcodebench-solve-cost} (left), 
+we plot the correctness metrics across the trajectory of checkpoints. We find that the core pass rate falls from
+\overallTestCorePassEarlyPct{}\% early in the trajectory to
+\overallTestCorePassLatePct{}\% late, even as mean cost per checkpoint grows by
+\abFigCostGrowth{}$\times$. These results highlight something that is not evident from
+single-task benchmarks: later checkpoints are harder not only because the
+specification grows, but because the agent must operate inside the codebase it
+previously created.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/overview_solve_cost.pdf}
+    \caption{SlopCodeBench shows that correctness degrades as iterative problems
+    progress while cost per checkpoint rises. The left panel separates strict,
+    isolated, and core solve rates; the right panel shows mean cost per
+    checkpoint over the trajectory.}
+    \label{fig:slopcodebench-solve-cost}
+\end{figure}
+
+\subsection{Measuring Code Quality Over Time}
+Next, we examine the quality of code generated by agents throughout the process
+of completing checkpoints for each task. As shown in Figure~\ref{fig:slopcodebench-quality-accumulation}, 
+both structural erosion and verbosity tend to increase as agents progress through the checkpoints.
+Across all settings, structural erosion increases in
+\erosionPctIncreasing{}\% of trajectories and verbosity increases in
+\vfTrajIncPct{}\%. The average number of functions with cyclomatic complexity
+at least 10 rises from \erosionHighCcCountFirstMean{} to
+\erosionHighCcCountLastMean{}, and mean maximum cyclomatic complexity rises
+from \newErosionFirstCcMaxMean{} to \newErosionLastCcMaxMean{}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/complexity_sign_flip.pdf}
+    \caption{Structural erosion and verbosity increase as agents progress
+    through SlopCodeBench tasks. Iterative evaluation makes this accumulation
+    visible because quality is measured at every checkpoint, not only on the
+    final artifact.}
+    \label{fig:slopcodebench-quality-accumulation}
+\end{figure}
+
+\clearpage
+\subsection{Calibration Against Human Repository Histories}
+Finally, we compare agent trajectories against existing human-maintained Python
+repositories. We sample \avhPanelN{} repositories across web
+frameworks, scientific computing, infrastructure, command-line utilities, and
+other domains, with up to 30 source-modifying commits per repository for a
+total of \avhTemporalCkpts{} checkpoints. 
+
+Figure~\ref{fig:slopcodebench-agent-human} shows that agent code is
+\avhAllVerbRatio{}$\times$ above the human mean for verbosity and
+\avhAllErosionRatio{}$\times$ above the human mean for erosion. Only
+\avhHumanAboveAgentVerbN{} of \avhPanelN{} human-written repositories exceed the agent
+verbosity mean. When comparing individual checkpoints across trajectories, we find that 
+agent repositories accumulate verbosity \avhAgentVerbSlopeRatio{}$\times$ faster
+and erosion \avhAgentErosSlopeRatio{}$\times$ faster than human repositories.
+
+Table~\ref{tab:agent-vs-human} gives the corresponding HEAD snapshot by
+GitHub-star tier, showing that the agent gap is larger than the variation across
+the sampled human repository groups.
+
+\input{paper-includes/slopcodebench/sections/generated/agent_vs_human_repo_table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/agent_human_trajectory.pdf}
+    \caption{Agent trajectories have higher verbosity and erosion than sampled
+    human repository histories, and they degrade faster over normalized
+    trajectory progress.}
+    \label{fig:slopcodebench-agent-human}
+\end{figure}
+
+\subsection{Discussion}
+Overall, SlopCodeBench sheds light on a model's ability to write high-quality code in an environment 
+that mirrors real-world software development. Rather than testing one-shot performance, 
+our iterative feature-adding paradigm requires that the models plan ahead and write code
+that can be maintained through many iterations. Our benchmark makes evident that as more feature requirements are added, models struggle
+to maintain correctness despite increasing cost. In addition, by introducing verbosity and structural erosion metrics,
+we are able to quantitatively observe that code quality degrades throughout checkpoints.

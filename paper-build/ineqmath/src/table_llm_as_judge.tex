@@ -1,0 +1,25 @@
+\begin{table}[tbp]
+% \vspace{-2mm}
+\centering
+\scalebox{0.90}{
+\begin{tabular}{lccccc}
+\toprule
+\textbf{LLM-as-Judge} & \textbf{Judge type} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1  score} \\
+\midrule
+Final Answer Judge & Answer checking & 1.00 & 1.00 & 1.00 & 1.00 \\
+\midrule
+Toy Case Judge & Step soundness & 0.91 & 0.86 & 0.97 & 0.91 \\
+Logical Gap Judge & Step soundness & 0.96 & 0.95 & 0.98 & 0.96 \\
+Numerical Approximation Judge & Step soundness & 0.96 & 0.95 & 0.98 & 0.96 \\
+Numerical Computation Judge & Step soundness & 0.71 & 0.68 & 0.98 & 0.80 \\
+\midrule
+\rowcolor{blue!15}
+\textbf{Average} & - & 0.91 & 0.89 & 0.98 & \textbf{0.93} \\
+\bottomrule
+\end{tabular}
+}
+\vspace{2mm}
+\caption{Performance metrics of \textit{LLM-as-judge} framework on development set.}
+\label{tab:judge_performance}
+\vspace{-5mm}
+\end{table}

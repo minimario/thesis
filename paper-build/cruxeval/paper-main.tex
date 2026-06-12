@@ -1,0 +1,688 @@
+\documentclass{article}
+
+\usepackage{ssArxiv}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage[title]{appendix}
+
+\usepackage{amsmath,amsbsy,amsgen,amscd,amssymb,amsthm,amsfonts}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{subcaption, geometry, graphicx, lipsum}
+\usepackage{microtype}
+\usepackage{multirow}
+\usepackage[
+  pagebackref=true,
+  colorlinks=true,
+  citecolor=MidnightBlue,
+  linkcolor=Fuchsia,
+]{hyperref}
+\usepackage{pifont}
+\usepackage[nameinlink]{cleveref}
+\usepackage{url} 
+\usepackage{graphicx}
+\usepackage{algorithm,algorithmic}
+\usepackage{natbib}
+\usepackage{xspace}
+\usepackage{caption}
+\captionsetup[table]{skip=5pt}
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  columns=fullflexible,
+  frame=single,
+  breaklines=true,
+  postbreak=\mbox{$\hookrightarrow$\space},
+  rulecolor=\color{black},
+}
+\lstset{moredelim=[is][\color{red}]{!*}{*!}} 
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\lstdefinestyle{mystyle}{  
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\usepackage[dvipsnames]{xcolor}
+\usepackage[most]{tcolorbox}
+
+% Define the color
+\definecolor{lightgreen}{HTML}{C4FFCF}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{remark}{Remark}
+\newtheorem{theorem}{Theorem}
+\newtheorem{assumption}{Assumption}
+\crefname{assumption}{assumption}{assumptions}
+\newtheorem{definition}{Definition}
+
+\newcommand{\red}[1]{\textbf{\textcolor{red}{#1}}}
+\newcommand{\green}[1]{\textbf{\textcolor{ForestGreen}{#1}}}
+
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\benchmark}{\textsc{CRUXEval}\xspace}
+\newcommand{\benchmarki}{\textsc{CRUXEval-I}\xspace}
+\newcommand{\benchmarko}{\textsc{CRUXEval-O}\xspace}
+
+\newcommand{\codellamamed}{\textsc{Code Llama 13B}\xspace}
+\newcommand{\codellamalarge}{\textsc{Code Llama 34B}\xspace}
+
+\makeatletter
+\newcommand\nnfootnote[1]{%
+  \begin{NoHyper}
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \end{NoHyper}
+}
+
+\makeatother
+  
+\setlength{\parindent}{0em}
+\setlength{\parskip}{0.75em}
+
+
+\renewcommand*\backref[1]{\ifx#1\relax \else (Cited on pg. #1) \fi}
+% Measuring code grounding through predicting execution
+% Measuring execution ability of code models
+% Execution Benchmark
+% World models of code models
+\title{CRUXEval: A Benchmark for Code Reasoning, Understanding and Execution \\ \
+%\newline \large \href{https://crux-eval.github.io/}{crux-eval.github.io}
+}
+
+\author{\name Alex Gu$^{\star}$
+\email{gua@mit.edu} \\
+\addr{MIT CSAIL} \\
+\name Baptiste Rozière
+\email{broz@meta.com} \\
+\addr{Meta AI} \\
+\name Hugh Leather
+\email{hleather@meta.com} \\
+\addr{Meta AI} \\
+\name Armando Solar-Lezama
+\email{asolar@csail.mit.edu} \\
+\addr{MIT CSAIL} \\
+\name Gabriel Synnaeve
+\email{gab@meta.com} \\
+\addr{Meta AI} \\
+\name Sida I. Wang
+\email{sida@meta.com} \\
+\addr{Meta AI} \\
+}
+
+\begin{document}
+
+\maketitle
+\raggedbottom
+
+\nnfootnote{$^{\star}$ Work primarily done during an internship at Meta AI}
+
+\begin{abstract}
+We present \benchmark (\textbf{C}ode \textbf{R}easoning, \textbf{U}nderstanding, and e\textbf{X}ecution \textbf{Eval}uation), a benchmark consisting of 800 Python functions (3-13 lines). Each function comes with an input-output pair, leading to two natural tasks: input prediction and output prediction. First, we propose a generic recipe for generating our execution benchmark which can be used to create future variation of the benchmark. Second, we evaluate twenty code models on our benchmark and discover that many recent high-scoring models on HumanEval do not show the same improvements on our benchmark. Third, we show that simple CoT and fine-tuning schemes can improve performance on our benchmark but remain far from solving it. The best setup, GPT-4 with chain of thought (CoT), achieves a pass@1 of 75\% and 81\% on input and output prediction, respectively. In contrast, Code Llama 34B achieves a pass@1 of 50\% and 46\% on input and output prediction, highlighting the gap between open and closed source models. As no model is close to acing \benchmark, we provide examples of consistent GPT-4 failures on simple programs as a lens into its code reasoning capabilities and areas for improvement. 
+\end{abstract}
+
+\section{Introduction} \label{sec:introduction}
+In recent months, software engineering and programming have become increasingly mainstream domains for language models (LMs) as they attempt to conquer a potpourri of tasks including code completion, program repair, debugging, test case generation, and code optimization (see \citet{zan2023large} and \citet{fan2023large} for surveys). Recent models including Code Llama \citep{roziere2023code}, GPT-3.5 \citep{brown2020language, ouyang2022training}, and GPT-4 \citep{openai2023gpt} have shown promise in code-related tasks and are being used to develop tools to help programmers write code more efficiently.
+
+The primary way that the community has been evaluating code LMs is via benchmarks such as HumanEval \citep{chen2021evaluating} and MBPP \citep{austin2021program}, which test the ability to generate short code snippets from natural language specifications. While HumanEval and MBPP capture code generation abilities on simple and fundamental tasks, there is an absence of benchmarks capturing other fundamental dimensions of code LMs such as code understanding and execution. 
+
+Motivated by this, we contribute a new benchmark, \benchmark (\textbf{C}ode \textbf{R}easoning, \textbf{U}nderstanding, and e\textbf{X}ecution \textbf{Eval}uation) with two tasks: 1) output prediction, \benchmarko to measure code execution following and 2) input prediction, \benchmarki to measure code reasoning and understanding. An example of a sample in \benchmark is shown in Listings \ref{lst:benchmark-example1} and \ref{lst:benchmark-example} (modified for readability). \benchmark examines the abilities of code LMs to reason about the execution behaviour of \textit{simple} Python programs. While LMs shouldn't be expected to replace an interpreter on arbitrarily complex problems, we ensure the samples in our benchmark are simple (maximum 13 lines, no complex arithmetic) and solvable by a university-level CS graduate without needing more memory (in our opinion). \benchmark provides a useful and important probe for better understanding the capabilities of code LMs, as following a few simple steps of code execution should be a basic requirement for these models. The ability to reason about the execution behavior of code also paves the way to tackling more difficult tasks such as code repair with execution feedback and code summarization. 
+
+
+\begin{minipage}{.48\textwidth}
+\begin{lstlisting}[caption={Sample problem},label={lst:benchmark-example1}, captionpos=t, breaklines=true, language=Python]
+def f(string):
+    string_x = string.rstrip("a")
+    string = string_x.rstrip("e")
+    return string
+
+# output prediction, CRUXEval-O
+assert f("xxxxaaee") == ??
+## GPT4: "xxxx", incorrect
+
+# input prediction, CRUXEval-I
+assert f(??) == "xxxxaa"
+## GPT4: "xxxxaae", correct
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.48\textwidth}
+\begin{lstlisting}[caption={Sample problem},label={lst:benchmark-example}, captionpos=t, breaklines=true, language=python]
+def f(nums):
+    count = len(nums)
+    for i in range(-count+1, 0):
+        nums.append(nums[i])
+    return nums
+# output prediction, CRUXEval-O
+assert f([2, 6, 1, 3, 1]) == ??
+# GPT4: [2, 6, 1, 3, 1, 6, 1, 3, 1], incorrect
+
+# input prediction, CRUXEval-I
+assert f(??) == [2, 6, 1, 3, 1, 6, 3, 6, 6]
+# GPT4: [2, 6, 1], incorrect
+\end{lstlisting}
+\end{minipage}
+
+
+
+
+
+At a high level, our benchmark is constructed as follows. First, we use \codellamalarge to generate a large set of functions and inputs. The outputs are generated by executing the functions on the inputs. Second, we filter the set so that our benchmark only consists of short problems with low computation and memory requirements, problems which a good human programmer should be able to do without extra memory in a minute or so. Third, we randomly select 800 samples passing the filter, ensuring the benchmark is both small enough to easily run but large enough to reliably see performance differences among various models. We use this approach because while it is difficult to manually come up with example where the strongest models like GPT-4 fail completely, we observe that they fail quite often on random yet reasonable programs. We also highlight that as models improve, this generate-and-filter approach can be used to create future benchmarks that are more difficult and test different aspects of program execution.
+
+The best model, GPT-4, achieves a pass@1 of 67\% on \benchmarki and 63\% on \benchmarko. In contrast, the best open-source models only achieve 47\% on \benchmarki and 44\% on \benchmarko, failing over half the time at simple execution prediction and code reasoning despite being trained on ~100G of Python code and ~1T of code data. We also observe that for base models, stronger HumanEval performance correlates with stronger \benchmark performance. However, this trend breaks down for models distilled on GPT-4 like data such as WizardCoder, Phind, and Phi, which have impressively high HumanEval scores but no better than CodeLlama on \benchmark.
+
+We also observe that CoT and fine-tuning on input-output assertions are effective techniques for improving performance on \benchmark, but are far from enough to ace it. Overall, our benchmark reveals that the gap between GPT-4 and open source models reflects GPT-4's stronger ability to reason about the behavior of code. As existing benchmarks like HumanEval and MBPP are insufficient for measuring code understanding and execution ability, capturing it through our benchmark is critical to make progress towards closing the gap between open models and GPT-4. Finally, we discover that despite its impressive abilities, GPT-4 consistently fails to understand the execution behavior of some surprisingly simple Python programs. 
+
+
+%
+% \if 0
+% * We are interested in testing the extent to which success in existing benchmarks correlates with the ability of the models to execute simple programs. 
+
+% * Our first contribution is a new benchmark suite designed to test execution ability. Focus on short programs that don't require extensive computation or arithmetic with large numbers. Our benchmark actually tests both the ability to execute forward and backward.
+
+% * Using this benchmark, we show that there is a correlation between a models performance on HumanEval and its ability to model the execution of these short programs, but the correlation breaks down in some cases, particularly for small distilled models. 
+
+% * Our experiments also show that both CoT and fine tuning can help improve the performance over the baseline, but the task remains hard even after using both of these techniques. 
+
+% Overall, our benchmarks reveals that the gap which has been documented before between the highest performing models and the rest is not just limited to the existing benchmarks, but actually reflects a significantly stronger ability to reason about the behavior of code. Yet, despite their impressive abilities, even the best models still fail to predict the behavior of even surprisingly trivial programs. 
+
+% \fi
+
+
+% In Sec. \ref{sec:benchmark-construction}, we introduce our new benchmark of 800 Python functions, inputs, and outputs called \benchmark split into two subtasks, \benchmarki (input prediction) and \benchmarko (output prediction). In \benchmarko, the model is asked to execute a function on a given input, whereas in \benchmarki, is asked to find an input such that executing the function on the input gives a desired output. Alongside the benchmark, we include our three-step procedure used to generate the benchmark: large-scale distillation, filtering, and careful data size selection.
+
+% In Sec. \ref{sec:evaluation}, \ref{sec:quantitative-analysis}, and Appendix \ref{sec:appendix-quantitative}, we evaluate a variety of models (Code Llama, StarCoder, WizardCoder, Phi, Phind, DeepSeek, Mistral, GPT). Pass@1 scores range from 14\% to 67\% on \benchmarki and 23\% to 63\% on \benchmarko. First, we discover that WizardCoder, Phind, and Phi have a HumanEval score disproportionately larger than their \benchmark score, suggesting that fine-tuning on GPT distilled data for code completion may not translate to general code reasoning and execution abilities. Second, we see a strong correlation between performance on the two tasks of our benchmark, even though they seem to be relatively different tasks.
+
+% In Sec. \ref{subsec:cot}, we analyze the impact of using CoT on \benchmark. First, we see that GPT-4, the best performing model, enjoys a modest boost from CoT (67\% to 75\% for \benchmarki, 63\% to 81\% for \benchmarko). Second, we discover that CoT is generally more effective for output prediction than input prediction. Third, we see that CoT increase the diversity of generations. Finally, for Code Llama 13B, 34B, and GPT-3.5 (but not GPT-4), we find a surprisingly large number of samples for which the pass@1 with CoT is worse than that without.
+
+% In Sec. \ref{subsec:finetuning}, we do a preliminary analysis of fine-tuning on input-output assertions on two different fine-tuning sets. In the first set, we decontaminate the fine-tuning set on problems in our benchmark and observe a modest improvement in accuracy: 41\% $\rightarrow$ 59\% on \benchmarko and 47\% $\rightarrow$ 63\% on \benchmarki. In the second set, we additionally include functions in the benchmark but with input-output pairs not in the benchmark. We see the accuracy further increase from 59\% $\rightarrow$ 63\% on \benchmarko and 63\% $\rightarrow$ 68\% on \benchmarki. Overall, while this simple fine-tuning scheme significantly helps benchmark performance, it is still far from acing the benchmark.
+
+% Finally, in Sec. \ref{sec:qualitative-analysis} and Appendix \ref{sec:appendix-qualitative}), we present a qualitative analysis of successes and failures of GPT-4 on both tasks of our benchmark, revealing insights about GPT-4's behaviour on code execution reasoning. 
+
+\section{Related Work} \label{sec:related-work}
+
+\noindent \textbf{LMs for Code Generation}: There have been many efforts training LMs to generate code. Base models include Codex \citep{chen2021evaluating}, CodeGeeX \citep{zheng2023codegeex}, SantaCoder \citep{allal2023santacoder}, PolyCoder \citep{xu2022systematic}, InCoder \citep{fried2022incoder}, CodeGen \citep{nijkamp2022codegen}, StarCoder \citep{li2023starcoder}, DeepSeek-Coder \citep{deepseek-coder}, and Code Llama \citep{roziere2023code}. Later, some of these models were fine-tuned on instruction-like data distilled from GPT-3.5 and GPT-4, resulting in models like Phind \citep{Phind}, WizardCoder \citep{luo2023wizardcoder}, and Phi-1/Phi-1.5 \citep{li2023textbooks, gunasekar2023textbooks}. We evaluate the performance of a selection of these models on our \benchmark.
+
+\noindent \textbf{Benchmarks for Evaluating Code LMs}: There are various benchmarks serving to evaluate different aspects of these code LMs. We survey a handful here and refer readers to the survey \citep{zhang2023survey} for more. HumanEval \citep{chen2021evaluating} and MBPP \citep{austin2021program} evaluate Python code generation on relatively simple functions. HumanEval+ \citep{liu2023your} augments HumanEval with better test cases after discovering many passing solutions are incorrect. ReCode \citep{wang2022recode} is a variant of HumanEval with perturbed function names and docstrings. HumanEval-X  \citep{zheng2023codegeex}, MultiPLe \citep{cassano2022multipl}, and MBXP \citep{athiwaratkun2022multi} are extensions of HumanEval and MBPP with a focus on including programming languages outside of Python. APPS \citep{hendrycks2021measuring}, CodeContests \citep{li2022competition}, and LeetCode-Hard \citep{shinn2023reflexion} evaluate code generation on more difficult, interview or competition style problems.
+
+There are also benchmarks to evaluate code generation in data science applications, such as DS-1000 \citep{lai2023ds}, ARCADE \citep{yin2022natural}, NumpyEval \citep{zhang2023toolcoder}, and PandasEval \citep{jain2022jigsaw}. Going one step further, some benchmarks also measure ability to use API's or perform more general software engineering tasks, such as JuICe \citep{agashe2019juice}, APIBench \citep{patil2023gorilla}, RepoBench \citep{liu2023repobench}, ODEX \citep{wang2022execution}, SWE-Bench \citep{jimenez2023swe}, GoogleCodeRepo \citep{shrivastava2023repository}, RepoEval \citep{zhang2023repocoder}, and Cocomic-Data \citep{ding2022cocomic}.
+
+Finally, there are a variety of benchmarks for other tasks, such as code translation \citep{roziere2020unsupervised, zhu2022xlcost, ahmad-etal-2021-avatar}, test case generation \citep{tufano2022methods2test, watson2020learning}, code search \citep{husain2019codesearchnet}, type prediction \citep{mir2022type4py, wei2023typet5, malik2019nl2type}, commit message generation \citep{liu2020atom}, code summarization \citep{leclair2019neural, iyer2016summarizing, barone2017parallel, hasan2021codesc, alon2018code2seq}, code security \citep{liguori2022can, pearce2022asleep, tony2023llmseceval}, program repair \citep{jiang2023impact, xia2022practical, tufano2019empirical, haque2022fixeval, jin2023inferfix, gupta2017deepfix, berabi2021tfix}, performance optimization \citep{garg2022deepperf, madaan2023learning}, and so on.
+
+To our knowledge, our \benchmark is the first publicly available benchmark to measure the execution ability of code LMs. While some prior work has measured the output prediction ability of code LMs, we leverage our \benchmarko to perform a more thorough investigation of these capabilities. Our \benchmarki is the first to measure the ability of code LMs to perform input prediction.
+
+\textbf{Leveraging Test Cases and Code Execution}: Another line of work uses test cases and code execution information to improve code generation. Some examples include Speculyzer \citep{key2022speak}, CodeT \citep{chen2022codet}, CodeGen-Test \citep{zhong2022codegen}, Coder-Reviewer reranking \citep{zhang2023coder}, MBR-EXEC \citep{shi2022natural}
+TCoT \citep{tian2023test},
+Algo \citep{zhang2023algo}, Pangu-Coder2 \citep{shen2023pangu}, LEVER \cite{ni2023lever}, and Self-Play \citep{haluptzok2022language}.
+The idea of these works is to generate many programs and many test cases and select which programs and test cases seem correct based on the execution results. 
+using execution info. Other works use RL-style execution feedback to improve code generation, including CodeRL \citep{le2022coderl}, Reflexion \citep{shinn2023reflexion}, and PG-TD \citep{zhang2023planning}. \citep{chen2023teaching, olausson2023demystifying, madaan2023self, peng2023check, zhang2023self} investigate self-repair, using error messages as feedback for models to improve.
+
+Most relevant to our work, a handful of works examine and improve the execution ability of code LMs. \cite{austin2021program}, 
+Scratchpad \citep{nye2021show}, and CodeExecutor \citep{liu2023code} train code LMs on execution information. Inspired by these works, we briefly touch on two primitive ways to improve performance on our benchmark, chain-of-thought and fine-tuning. Moving forward, we believe our \benchmark could serve as a useful reference point as more techniques are designed to improve code execution abilities.
+
+\textbf{Failure modes of LM Reasoning}: Another dream of the community is to better understand the failure modes of LMs on reasoning tasks. \cite{bubeck2023sparks, liu2023evaluating, arkoudas2023gpt, zhang2022paradox, dziri2023faith, olausson2023linc, lee2023teaching, zhang2023can} all investigate and point out various failure modes of LMs on a wide variety of reasoning tasks. Other examples of reasoning failures include 1) understanding negation \citep{hosseini2021understanding}, 2) ignoring irrelevant context \citep{shi2023large}, 3) operating under counterfactual situations such as 1-indexed Python or base-9 addition \citep{wu2023reasoning}, and 4) generating Python code after identifier swaps like \texttt{print, len = len, print} \citep{miceli2023larger}. Taking a more theoretical perspective, \cite{dziri2023faith, zhou2023algorithms, merrill2023expresssive, giannou2023looped} characterize the types of reasoning tasks transformers can and cannot be expected to carry out.
+\cite{merrill2021provable} argues that it is not possible to learn meaning from ungrounded form with context dependence and assuming that syntax is independent of semantics. 
+In this work, we use \benchmark to empirically examine failures in code execution / reasoning. 
+
+% CodeScore \citep{dong2023codescore} trains a model to learn. 
+
+\section{Benchmark Construction} \label{sec:benchmark-construction}
+
+\benchmark consists of 800 distinct functions, each with an input-output pair such that executing the function on the input deterministically produces the output. Using these functions and input-output pairs, we derive two benchmark tasks. In the \textit{output prediction} task, the goal is to predict the output of executing the function on its associated input. In the \textit{input prediction} task, the goal is to find any input such that executing the function on that input produces the output. For both tasks, we use an execution-based correctness metric. For input prediction, a generated input passes if \texttt{assert f(generated\_input) == output} passes, and for output prediction, a generated output passes if \texttt{assert f(input) == generated\_output} passes. A few statistics about the samples of \benchmark can be found in Appendix \ref{appendix:benchmark-dataset-statistics}.
+
+\subsection{Generating Candidates} \label{subsec:generating-candidates}
+We use \codellamalarge to generate all the candidate functions and inputs of \benchmark. To do so, we prompt it with the name of a function in the Python standard library such as \texttt{str.zfill} and ask it to generate a Python function that makes use of the library function in addition to 5 test inputs. We provide two varying few-shot examples in our prompt for improved diversity of generations (see Appendix \ref{appendix:benchmark-generation-fewshot} for more details). A sample prompt is shown in Listing \ref{lst:benchmark-generation-prompt}.
+
+We use a total of 69 different functions from the standard library: 47 from the \texttt{str}, 11 from \texttt{dict}, and 11 from \texttt{list} (see Appendix \ref{appendix:benchmark-generation-functions} for the full list of functions). Overall, we generate a total of 102000 functions (46\% \texttt{str}, 27\% \texttt{dict}, 27\% \texttt{list}) and 489306 input-output pairs.
+
+% String method count:  47 47000
+% Dict method coun  11 27500
+% List method count:  11 27500
+% 102000
+
+\subsection{Filtering Candidates} \label{subsec:filtering-candidates}
+Next, we filter the generated candidates to ensure that the samples in the dataset are reasonable and of high quality. In order to avoid forcing the model to perform tasks such as arithmetic calculation, we design filters so that the benchmark only consists of samples that are solveable by a human without extra memory.
+
+Concretely, we filter based on the following criteria. 
+\begin{itemize}
+    \item Compile time: all arguments of the function must be used in the function, length of code is between 75 and 300 characters, no syntax errors, proper assertion \texttt{assert f(input) == output}.
+
+    \item Runtime: no float point operations, true division, exp, other integer operations must have at least one argument $\leq 3$, string and list operations must have at least one argument with length $\leq 3$, finish running in 2 seconds, no uncaught exceptions.
+
+    \item Best effort to remove other undesirable code: function cannot have any imports (such as os, random), must be deterministic (random, set ordering), and cannot have side effects such as input, \texttt{\_\_builtins\_\_}.
+\end{itemize}
+
+\subsection{Data size and measuring noise} \label{subsec:data-size-noise}
+The success of HumanEval (164 examples) shows that evaluation benchmarks can be small where faster and cheaper evaluation is an overlooked advantage. Since additional examples are easy to generate, we first overgenerate and then measure if the noise is sufficiently small on a smaller dataset. 
+
+% When determining the final size of our benchmark, we balanced two factors: the benchmark should be small enough to easily run and iterate on but large enough so that signal overcomes noise. 
+
+Out of all the samples, \codellamalarge outperforms \codellamamed as expected and we would like to retain this property with high confidence in a smaller dataset. To do this, we took bootstrap samples of size $N$ out of $\sim$1700 samples to measure the probability that the performance would be reversed, shown in Fig. \ref{fig:benchmark-filtering-size-selection}. 800 examples are enough to test that \codellamalarge $>$ \codellamamed, \textsc{Code Llama cot} $>$ \textsc{Code Llama} and  as well as between \textsc{Deepseek 33B} $>$ \codellamalarge (output).
+
+
+We measure two sources of noise: 1) sampling which data points to include in the benchmark, and 2) sampling candidates from models for each data point (temperature $>0$). Of these, 1) dominates 2). For 1) since model $A$ does not always outperform model $B$ on all data points even if $A>B$ in aggregate, the measured performance depends on which data points are included. We can measure both noise on each model individually, and also measure type 1) noise on pairs of models using bootstrap. Fortunately, we do not see major differences between models and the most important factor is just the size of dataset. Type 1) noise is generally around 1.5\% for each model whereas type 2) is around 0.2\% at $N=800$. Type 1) noise usually becomes smaller on pairs of models due to correlation, yielding statistically significant results at the $\alpha=0.05$ level for many model pairs.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.49\textwidth] {figs/wrong_order/wrong_order_box_input_pass1.pdf}
+    \includegraphics[width=0.49\textwidth]{figs/wrong_order/wrong_order_box_output_pass1.pdf}
+    \caption{Difference between model pairs on bootstrap samples of various sizes. The whiskers show (2.5, 97.5) and boxes show (25, 75) percentiles. }
+    \label{fig:benchmark-filtering-size-selection}
+\end{figure}
+
+\section{Evaluation} \label{sec:evaluation}
+
+We evaluate a selection of models on \benchmark: StarCoder (Base 7B, 15.5B) \citep{li2023starcoder}, Mistral (7B) \citep{jiang2023mistral}, WizardCoder (13B, 34B) \citep{luo2023wizardcoder}, Phi-1 \cite{gunasekar2023textbooks} and Phi-1.5 \citep{li2023textbooks} (1.3B), Phind v2 \citep{Phind} (34B), Code Llama \citep{roziere2023code} (Base and Python 7B, 13B, 34B), DeepSeek Coder (Base and Instruct 6.7B, 33B), GPT-3.5 \citep{brown2020language, ouyang2022training}, and GPT-4 \citep{openai2023gpt}. To facilitate reproducibility, the HuggingFace checkpoints of non-GPT models are in Appendix \ref{sec:appendix-models} and all prompts are in Appendix \ref{sec:appendix-direct-prompts}. 
+
+We use $N=100$ samples for all non-GPT models and $N=10$ samples for GPT models. We report both pass@1 scores $(T=0.2)$ and pass@5 scores $(T=0.8)$. The results are shown in Fig.~\ref{fig:main-results}, and raw scores are provided in the Appendix in Table \ref{tab:benchmark-results}. In Fig. \ref{fig:main-results}, we show the intervals generated by 10000 bootstrap samples from the dataset, where non-overlapping whiskers would be significant at the 2.5\% level. To get more statistical power, we compare pairs of models on each bootstrapped sample. We show how each model compares to \codellamalarge in Fig.~\ref{fig:main-results-all-appendix}.
+The intervals generally decreases due to correlations. On all models vs. \codellamalarge, if the median bar clears the whisker in Fig.~\ref{fig:main-results}, then the difference actually holds with $>$97.5\% probability under paired bootstrap. For example, \codellamalarge is better than \textsc{wizard\_34B} on input and \codellamalarge is worse than \textsc{deepseek\_33B} on output prediction with $>$97.5\% probability.
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{figs/main_results/main_box_input.pdf}
+         \caption{\benchmarki Performance}
+         \label{fig:main-results-pass1-input}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{figs/main_results/main_box_output.pdf}
+         \caption{\benchmarko Performance}
+         \label{fig:main-results-pass1-output}
+     \end{subfigure}
+     \caption{Main Results. Boxes show (25, 75) percentiles, whiskers show (2.5, 97.5), and the middle bar shows the median ($\approx$ mean). }
+     \label{fig:main-results}
+\end{figure}
+
+
+\section{Quantitative Analysis} \label{sec:quantitative-analysis}
+
+\textbf{Correlation between scores on HumanEval and \benchmark}: After the release of Code Llama's model and GPT-3.5 and GPT-4's APIs, there have been many creative efforts to take data distilled from GPT models and use them to train more powerful code models such as WizardCoder \citep{luo2023wizardcoder}, Phi-1 \citep{gunasekar2023textbooks}, Phi-1.5 \citep{gunasekar2023textbooks}, and Phind \citep{Phind}. For example, WizardCoder 34B started with the Code Llama 34B base model and improved the HumanEval pass@1 score from 53.7\% to 73.2\%, a significant and impressive achievement. There remains curiosity about whether these models show more general improvements in other aspects of programming or code understanding \citep{gudibande2023false}. We measure this through \benchmark.
+
+In Fig. \ref{fig:quant-analysis-humaneval-correlation-1}, we plot reported HumanEval scores (we did not reproduce them ourselves) against scores on \benchmark. Indeed, we spot some interesting outliers: when comparing the distilled models WizardCoder 34B and Phind 34B to \codellamalarge, we see that the distilled models score over 20\% more than Code Llama on HumanEval but do not show this drastic improvement when evaluated on both input and output predictions. In addition, the Phi-1 model outperforms most of the bigger models on HumanEval, but performs among the worst of all our evaluated models on \benchmark. Overall, this suggests that models optimized for the HumanEval task by distilling data from GPT-3.5 and GPT-4 (WizardCoder, Phind, Phi) may not have learned other code reasoning capabilities along the way. On the other hand, for models such as StarCoder, Mistral, CodeLlama, and DeepSeek-Base, we still see a positive trend between HumanEval score and \benchmark score, suggesting that code generation and execution/understanding abilities are correlated.
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[scale=0.49]{figs/scatter/HumanEval_1_vs_input_pass1.pdf}
+         \caption{\benchmarki vs. HumanEval}
+         \label{fig:quant-analysis-humaneval-correlation-input}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[scale=0.49]{figs/scatter/HumanEval_1_vs_output_pass1.pdf}
+         \caption{\benchmarko vs. HumanEval}
+         \label{fig:quant-analysis-humaneval-correlation-output}
+     \end{subfigure}
+     \caption{Correlation between HumanEval pass@1 scores and \benchmarko pass@1 scores}
+     \label{fig:quant-analysis-humaneval-correlation-1}
+\end{figure}
+
+\begin{tcolorbox}[colback=lightgreen, boxrule=0pt, arc=10pt, outer arc=10pt]
+Base models show a weak correlation between HumanEval and \benchmark. For HumanEval, distilled models (WizardCoder, Phind, Phi) significantly beat their base models, but for \benchmark, no distilled model performs significantly better than \codellamalarge.
+\end{tcolorbox}
+
+\textbf{Relationship between input prediction and output prediction:}
+In Fig. \ref{fig:quant-analysis-input-output-direct}, we compare the input prediction and output prediction pass@1 scores with each other. Conceptually, the two tasks seem relatively different: output prediction is directly testing code execution ability, while input prediction requires a higher-level understanding of the code's functionality. However, we discover that there is a strong correlation between their performance. This suggests the hypothesis that performance on relatively distinct coding-related tasks may be closely correlated. In addition, we see a relatively clear impact of scaling the model size on our two tasks.
+
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[scale=0.49]{figs/scatter/output_1_vs_input_1.pdf}
+         \caption{Input vs. Output Prediction, Direct}
+         \label{fig:quant-analysis-input-output-direct}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[scale=0.5]{figs/scatter/cot_input_pass1_output_pass1.pdf}
+         \caption{Output vs. Input Prediction, CoT}
+         \label{fig:quant-analysis-input-output-cot}
+     \end{subfigure}
+     \caption{Correlation between Input and Output Prediction Scores, with and without CoT}
+     \label{fig:quant-analysis-input-output}
+\end{figure}
+
+\begin{tcolorbox}[colback=lightgreen, boxrule=0pt, arc=10pt, outer arc=10pt]
+With the potential exception of GPT models, performance on \benchmarki and \benchmarko seem to be very correlated. As the tasks seem relatively different, this suggests that the code reasoning capabilities of models may generalize from task to task.
+\end{tcolorbox}
+
+
+\textbf{Confusion matrix/error correlation for different models.}
+Fig.~\ref{fig:error_corr-input-output} shows the pairwise correlation of pass@1 scores for each pair of models. The correlation is chosen based on its highest signal among cosine distance, Spearman and Kendall. The middle section of ``open''-ish models (StarCoder, Code Llama, DeepSeek, etc.) are strongly correlated with each other. Strong correlations are seen between sizes of the same model, between models of the same size, and between instruct and base (\textsc{Phind 34B, Wizard 34B} vs. \codellamalarge). CoT results also tend to have strong correlations with other CoT results, even GPT-4 vs Llama 13B. For the output task, \textsc{Deepseek} forms a small sub-cluster of especially strong associations.
+
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[width=1\textwidth]{figs/error_correlation_input_heatmap.pdf}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[width=1\textwidth]{figs/error_correlation_output_heatmap.pdf}
+     \end{subfigure}
+     \caption{Correlation between predictions on input (left) and output (right)}
+     \label{fig:error_corr-input-output}
+\end{figure}
+
+
+\begin{tcolorbox}[colback=lightgreen, boxrule=0pt, arc=10pt, outer arc=10pt]
+Looking at model predictions, strong correlations are seen between sizes of the same model, between models of the same size, and between instruct and base models. Although what is hard for a better model tend to be hard for worse models on average, worse models succeeded on some examples where the better models fail completely.
+\end{tcolorbox}
+
+\subsection{Chain of Thought Prompting} \label{subsec:cot}
+Next, we evaluate how the popular chain-of-thought (CoT) prompting method \citep{wei2022chain} affects the performance of Code Llama, GPT-3.5, and GPT-4 models on \benchmark. The full prompts can be found in Appendix \ref{sec:appendix-cot-prompts}. All results are reported using $N=10$ samples other than CodeLlama 13B and 34B without CoT, which are reported with $N=100$ samples. As before, pass@1 is reported with $T=0.2$ and pass@5 with $T=0.8$. Additional results can be found in Appendix \ref{subsec:appendix-cot}.
+
+\textbf{Impact of CoT}: We begin by focusing our attention on the pass@1 scores of models with and without CoT. In Fig. \ref{fig:quant-analysis-input-output-cot}, we plot the input and output prediction scores of each model with and without CoT. First, GPT-4 benefits significantly more than other models. Second, output prediction boosts are generally larger than input prediction. In fact, CoT does not seem to improve Code Llama 13B and GPT-3.5 performance on input prediction. This is intuitive, as input prediction involves a more difficult reasoning task, while output prediction only requires executing the program step by step. We defer raw numbers to the Appendix in Table \ref{tab:benchmark-results-cot}.
+
+\begin{tcolorbox}[colback=lightgreen, boxrule=0pt, arc=10pt, outer arc=10pt]
+CoT helps Code Llama 34B and GPT-4 on both input and output prediction, GPT-3.5 on only output prediction, and Code Llama 13B on neither task. CoT also leads to larger boosts on output prediction than input prediction. GPT-4 benefits significantly more from CoT than other models, achieving the highest pass@1 of 74.8\% on input prediction and 81.9\% on output prediction but still far from acing the benchmark.
+\end{tcolorbox}
+
+\textbf{CoT widens the gap between pass@5 and pass@1 scores}: In Fig. \ref{fig:pass5-vs-pass1-cot}, we plot the pass@5 scores against the pass@1 scores for all models. For models without CoT (shown in blue), there is a positive correlation between pass@1 and pass@5 scores. For models with CoT (shown in orange), we see an increase in the gap between pass@5 and pass@1 scores. We believe this phenomenon may be due to the additional diversity induced by CoT, which we analyze in detail in Appendix \ref{sec:appendix-diversity}.
+
+\begin{tcolorbox}[colback=lightgreen, boxrule=0pt, arc=10pt, outer arc=10pt]
+Because CoT increases the diversity of generated inputs and outputs, models with CoT see a larger gap between pass@1 and pass@5 score compared to models without.
+\end{tcolorbox}
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[scale=0.45]{figs/scatter/input_pass_5v1.pdf}
+         \caption{Input prediction}
+         \label{fig:pass5-vs-pass1-cot-input}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[scale=0.45]{figs/scatter/output_pass_5v1.pdf}
+         \caption{Output prediction}
+         \label{fig:pass5-vs-pass1-cot-output}
+     \end{subfigure}
+     \caption{pass@5 score vs. pass@1 score with and without CoT}
+     \label{fig:pass5-vs-pass1-cot}
+\end{figure}
+
+\textbf{Predictions of CoT vs. Base Model}: In Fig. \ref{fig:confusion-cot-all}, we show a confusion matrix over samples to better understand the correlations between direct output predictions and CoT predictions. For CodeLlama 13B, 34B, and GPT-3.5, we observe a large number of samples where direct prediction succeeds but CoT fails. However, with GPT-4, we observe that there are relatively few samples where this is the case.
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[t]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{figs/confusion_cot/confusion_codellama_13B_codellama_cot13B.pdf}
+         \caption{Code Llama 13B}
+         \label{fig:confusion-cot-codellama-13b}
+     \end{subfigure}%
+     \hfill
+     \begin{subfigure}[t]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{figs/confusion_cot/confusion_codellama_30B_codellama_cot30B.pdf}
+         \caption{Code Llama 34B}
+         \label{fig:confusion-cot-codellama-34b}
+     \end{subfigure}
+     \newline
+     \newline
+     \newline
+     \begin{subfigure}[t]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{figs/confusion_cot/confusion_gpt35_gpt35_cot.pdf}
+         \caption{GPT-3.5}
+         \label{fig:confusion-cot-gpt35}
+     \end{subfigure}%
+     \hfill
+     \begin{subfigure}[t]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{figs/confusion_cot/confusion_gpt4_gpt4_cot.pdf}
+         \caption{GPT-4}
+         \label{fig:confusion-cot-gpt4}
+     \end{subfigure}
+     \caption{Confusion Matrix of Direct Prediction vs. CoT Prediction $(T=0.2)$}
+     \label{fig:confusion-cot-all}
+\end{figure}
+
+
+\begin{tcolorbox}[colback=lightgreen, boxrule=0pt, arc=10pt, outer arc=10pt]
+While CoT generally improves performance overall, there are many individual samples where CoT actually hurts the prediction accuracy for Code Llama 13B/34B and GPT-3.5 on both input and output prediction. For GPT-4, CoT generally improves individual sample accuracy, more so for output prediction than for input prediction.
+\end{tcolorbox}
+
+\subsection{Fine-tuning Experiments} \label{subsec:finetuning}
+Next, we do a preliminary analysis to understand the effect of simple fine-tuning schemes on \benchmark performance. We fine-tuned \codellamalarge on nearly 140K samples of Python functions distilled with the procedure outlined in Sec. \ref{sec:benchmark-construction}, without filtering. We perform weak decontamination, only removing samples where both the function and input-output pairs match samples in the benchmark. 
+
+In particular, we finetune on a mixture of 50\% samples where the function is not in the benchmark and 50\% samples where the function is in the benchmark but input-output pairs are not, a very liberal setup. The training and testing accuracy over time is shown in Fig. \ref{fig:finetuning-accuracy-samples-plot-main}. Despite finetuning on programs very similar to the benchmark, we still observe a plateauing effect in the test accuracy, suggesting that our execution tasks may be too difficult to learn from this simple fine-tuning scheme. We defer a few other insights from fine-tuning to Appendix \ref{subsec:appendix-finetuning} and suggest a few fine-tuning ideas for improving our benchmark in Sec. \ref{sec:limitations-future-work}.
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[scale=0.4]{figs/finetuning/finetuning_input_moredata_accuracy.pdf}
+         \caption{Input prediction}
+         \label{fig:finetuning-accuracy-samples-plot-input-main}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[scale=0.4]{figs/finetuning/finetuning_output_moredata_accuracy.pdf}
+         \caption{Output prediction}
+         \label{fig:finetuning-accuracy-samples-plot-output-main}
+     \end{subfigure}
+     \caption{Improvements and Limits of \benchmark Performance after Fine-Tuning}
+     \label{fig:finetuning-accuracy-samples-plot-main}
+\end{figure}
+
+\begin{tcolorbox}[colback=lightgreen, boxrule=0pt, arc=10pt, outer arc=10pt]
+After fine-tuning on samples very similar to those in our benchmark, Code Llama 34B can match the performance of GPT-4 on both input and output prediction. However, accuracy plateaus at under 70\% for both tasks, so simple finetuning is far from solving the benchmark.
+\end{tcolorbox}
+
+\section{Qualitative Analysis} \label{sec:qualitative-analysis}
+All models except GPT4 has over 50\% failure rate, showing they cannot do simple executions. 
+In this section, we focus on GPT4 with CoT and verify that the remaining 20\% failures are due to the model, are consistent and are indeed on \emph{simple} programs. We refer the reader to Appendix \ref{sec:appendix-qualitative} for further examples of the failures highlighted in this section and impressive successes.
+
+\paragraph{Failures of GPT-4 CoT.}
+GPT-4 Cot scored 0/10 on 54 output prediction tasks and 65 input prediction tasks. On 22 problem, it scored 0/10 on both input and output prediction tasks. 
+We manually check the 22 problems if they pass our criteria of being simple problems. Most are indeed simple (Listings~\ref{lst:gpt-4-simple1}, ~\ref{lst:gpt-4-simple2}). There are 2 problems that require counting to around 30 (Listing~\ref{lst:gpt-4-hard1}) and 2 problems (Listing~\ref{lst:gpt-4-hard2}) that require simulating a few actual steps, which might be difficult for direct generation but within scope for CoT. 
+
+
+\begin{minipage}{.48\textwidth} % sample_218 steps: 37
+\begin{lstlisting}[caption=GPT-4 has the right idea but cannot do the string concatenation correctly,label={lst:gpt-4-simple1}, breaklines=true, language=python]
+def f(string, sep):
+    cnt = string.count(sep)
+    return((string+sep) * cnt)[::-1]
+assert f('caabcfcabfc', 'ab') == 'bacfbacfcbaacbacfbacfcbaac'
+# GPT4+CoT preds:
+# f('baa', 'c')
+# f('cba', 'f')
+# 'bacfcabcfcaabcabfcabcfcaac'
+# 'bacfbacfcbaabcabfbacfcbaabc'
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.48\textwidth} % sample_209	steps: 26	
+\begin{lstlisting}[caption=GPT-4 might have been misled by the variable name prefix,label={lst:gpt-4-simple2}, breaklines=true, language=python]
+def f(prefix, s):
+    return str.removeprefix(prefix, s)
+assert f('hymi', 'hymifulhxhzpnyihyf') == 'hymi'
+# GPT4+CoT preds:
+# input
+# f('p', 'phymi')
+# f('', 'hymi')
+# output
+# 'fulhxhzpnyihyf'
+# 'fulhxhzpnyihyf'
+\end{lstlisting}
+\end{minipage}
+
+
+\begin{minipage}{.48\textwidth} % sample_129	steps: 132	
+\begin{lstlisting}[caption={GPT-4 CoT failures where solutions requires counting to 30}, label={lst:gpt-4-hard1}, breaklines=true, language=python]
+def f(text, search_string):
+    indexes = []
+    while search_string in text:
+        indexes.append(text.rindex(search_string))
+        text = text[:text.rindex(search_string)]
+    return indexes
+assert f('ONBPICJOHRHDJOSNCPNJ9ONTHBQCJ', 'J') == [28, 19, 12, 6]
+
+# GPT4+CoT preds:
+# input
+# f("0000123000012300001230000123", "123")
+# f('bbbbbbabbbbbbabbbbbbbabbbbbbab', 'a')
+# f("abcxxxxxxabcxxxxxxabcxxxxxxabc","abc")
+# output
+# [23, 13, 8, 5]
+# [25, 18, 15, 11, 6]
+# [7, 10, 14, 18]
+\end{lstlisting}
+\end{minipage}\hfill %sample_185	steps: 275	
+\begin{minipage}{.48\textwidth}
+\begin{lstlisting}[caption={GPT-4 CoT failure, cannot easily tell the answer without running the loops}, label={lst:gpt-4-hard2}, breaklines=true, language=python]
+def f(L):
+    N = len(L)
+    for k in range(1, N//2 + 1):
+        i = k - 1
+        j = N - k
+        while i < j:
+            # swap elements:
+            L[i], L[j] = L[j], L[i]
+            # update i, j:
+            i += 1
+            j -= 1
+    return L
+assert f([16, 14, 12, 7, 9, 11]) == [11, 14, 7, 12, 9, 16]
+# GPT4+CoT preds:
+# f([16, 9, 12, 7, 14, 11])
+# f([16, 9, 7, 12, 14, 11])
+# [11, 9, 7, 12, 14, 16]
+# [11, 9, 7, 12, 14, 16]
+\end{lstlisting}
+\end{minipage}
+
+
+Listings \ref{lst:gpt-4-output-fail1} and \ref{lst:gpt-4-output-fail2} show GPT-4 CoT failures for output prediction only. In Listing \ref{lst:gpt-4-output-fail2}, the model fails because it concludes that 6173 is not less than 1000. Small perturbations like changing to \texttt{0 < num and num < 1000} or changing the strings also failed. Both problems only have 2 possible answers and other models sometimes get them correctly whereas GPT4 CoT is consistently wrong. We manually tested scratchpad \cite{nye2021show} style prompts, which failed in the same way as regular CoT (Appendix~\ref{sub:output_cot}). 
+
+\begin{minipage}{.48\textwidth}
+\begin{lstlisting}[caption=GPT-4 CoT output,label={lst:gpt-4-output-fail1}, breaklines=true, language=python]
+def f(text, suffix):
+    if suffix == '':
+        suffix = None
+    return text.endswith(suffix)
+assert f('uMeGndkGh', 'kG') == ??
+# GPT-4 CoT: True
+# should be False
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.48\textwidth}
+\begin{lstlisting}[caption=GPT-4 CoT output,label={lst:gpt-4-output-fail2}, breaklines=true, language=python]
+def f(num):
+    if 0 < num < 1000 and num != 6174:
+        return 'Half Life'
+    return 'Not found'
+assert f(6173) == ??
+# GPT-4 CoT: 'Half Life'
+# should be 'Not found'
+\end{lstlisting}
+\end{minipage}
+
+\textbf{Failures of GPT-4, Input Prediction}: Here are two simple failures on input prediction. Listings \ref{lst:gpt-4-input-fail1} and \ref{lst:gpt-4-input-fail2} show input prediction failures for concise and simple Python programs with and without CoT, respectively.
+
+\begin{minipage}{.48\textwidth}
+\begin{lstlisting}[caption=GPT-4 CoT input,label={lst:gpt-4-input-fail1}, breaklines=true, language=python]
+def f(text, repl):
+    trans = str.maketrans(text.lower(), repl.lower())
+    return text.translate(trans)
+assert f(??) == 'lwwer case'
+
+# GPT4 CoT: 'lower case', 'ow'
+# could be 'lower case', 'lwwer case'
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.48\textwidth}
+\begin{lstlisting}[caption=GPT-4 CoT input,label={lst:gpt-4-input-fail2}, breaklines=true, language=python]
+def f(text):
+    string = ''
+    for char in text:
+        string += char + char.lower()
+    return string
+assert f(??) == 'llaallaakk'
+# GPT-4 CoT: 'LAK'
+# should be 'lalak'
+\end{lstlisting}
+\end{minipage}
+
+
+\textbf{Other GPT-4 Failures}: Finally, we conclude with a set of six relatively simple string manipulation tasks that we discovered that GPT-4 fails on. We suspect the errors could be partially due to tokenization.
+The full GPT-4 outputs of these tasks can be found in Appendix \ref{appendix:simple-isolated-failures}.
+
+\begin{lstlisting}
+- What is a string containing 'a' three times, 'b' three times, 'c' twice, 'd' three times, and 'z' twice?
+- In Python, what is " BaB ".rfind(" B ")?
+- In Python, if I have a string s = 'iabnm~~~~~~~~~~', what is s[1::2]?
+- In Python, what is "+".join(['*', '+', 'n', 'z', 'o', 'h'])?
+- In Python, if text = "!123Leap and the net will appear" and res = 123, what is text[len(str(res)):]?
+- What is "pomodoro".replace("or", "pomodoro")?
+\end{lstlisting}
+
+
+
+
+\section{Limitations and Future Work} \label{sec:limitations-future-work}
+
+\textbf{Correlations between various code tasks}: While our benchmark serves as an interesting lens to analyze code LMs, one might object that output prediction can simply be done with a Python interpreter and that input prediction abilities can be greatly enhanced by equipping a LM with an interpreter, like in GPT-4 Code Interpreter mode. While this is true, we believe that a good code LM still ought to have good code understanding and execution capabilities, similar to that of a strong programmer. We see that base models have a reasonably strong correlation between HumanEval, input prediction, and output prediction score. An interesting future direction is to more deeply investigate the correlations between performance on various code-related tasks such as code completion, execution, bug-finding, and code summarization.
+
+\textbf{Distilling future execution benchmarks}: Our benchmark only measures the input and output prediction accuracy of relatively simple and self-contained Python functions distilled from a single model (Code Llama 34B). It would also be interesting to measure these capabilities on longer and more difficult code snippets, open-domain code samples, or code in other programming languages. As our distillation technique is relatively general, we welcome others to create their own benchmarks measuring the execution of code snippets from other distributions.
+
+\textbf{Variation due to prompt and temperature}: The accuracy of a model on our benchmark may be very sensitive to the prompt and task format \citep{mizrahi2023state}. We try our best to address this by using prompts that are similar as possible across models (see Appendix \ref{sec:appendix-direct-prompts} and \ref{sec:appendix-cot-prompts}) but understand that some prompts may improve the performance of certain models while decrease the performance on others. There are also countless prompting techniques (see \citep{liu2023pre} for a comprehensive survey) that can be tried to improve the performance. We also run all our experiments with $T=0.2$ and $T=0.8$ due to budget constraints, but different temperatures will lead to different performance for all models. One must always be cautious and critical when using benchmarks to compare models. For example, for input prediction, while Phind v2's 47.9\% pass@1 may seem to beat CodeLlama's 46.5\%, the standard deviations of both models with respect to the $800$ samples selected turns out to be around 1.5\%, so this conclusion cannot be made.
+
+\textbf{Information loss due to pass@1}: While the average pass@k metric is common in the code generation literature, it compresses a large amount of information into one number. While we suggest reporting pass@1 and pass@5 for our benchmark, we comment that pass@k is only one perspective of measuring execution ability. We try to shed more light on behaviour by including a bit more analysis throughout this work, but encourage the development of different evaluation and analysis techniques.
+
+\textbf{Fine-tuning}: In our first fine-tuning experiment, we only check for exact string match when decontaminating the fine-tuning set, so there may still be semantic duplication or similar programs with small modifications, which may lead to a higher performance than if those examples were removed. In this work, we only consider the most direct and straightforward fine-tuning scheme. We believe there is room for improvement via more sophisticated techniques, such as using process supervision \citep{uesato2022solving}, fine-tuning on correct CoT generations, or fine-tuning on snippets of code while including the program state after each step. Seeing that models like Phi, WizardCoder, and Phind outperformed Code Llama on HumanEval but not \benchmark inspires the need for a deeper investigation of the utility of finetuning on distilled data from a more powerful model. Lastly, it remains a curiosity whether fine-tuning on execution information can help code generation abilities.
+
+\textbf{Jointly improving code generation and code execution}: As we discovered, distilled models like Phi, Phind, and WizardCoder that are fine-tuned on code generation do not improve significantly on \benchmark compared to their base models. It is unknown whether the opposite is true: does improved fine-tuning on code execution lead to better code generation abilities? It would also be interesting to explore techniques that can lead to improved performance on both code generation and code execution simultaneously.
+
+\textbf{Understanding reasoning from the lens of code}: As future work, we believe that our benchmark serves as a good starting point towards understanding the code reasoning abilities of LM. Many further execution evaluations may be possible, such as testing execution of recursive functions, execution from a natural language description and an input, or execution of a composition of two functions. We find that output prediction serves as a good testbed for understanding CoT failures, because each step clearly corresponds to an operation with a ground truth, so reasoning failures can be pinpointed. We observed many examples of CoT failures due to simple mistakes that the model seems to have knowledge about (see Appendix \ref{sec:appendix-gpt4-cot-output} for examples), and it should be possible to analyze and characterize this behaviour more systematically. 
+
+\textbf{Self-repair}: Lately, self-repair has been used to improve the reasoning and programming abilities of LLMs \citep{chen2023teaching, olausson2023demystifying, madaan2023self, peng2023check, zhang2023self, tyen2023llms}. From our qualitative analysis, we find that when using CoT, many output prediction failures are recitation errors of information the model may already understand. Therefore, we believe that these mistakes may be easier to repair than when the correct reasoning path is not found in the first place, and that \benchmark may be a simpler task to better understand model repair capabilities.
+
+\section{Conclusion}
+
+We propose \benchmark, a new benchmark consisting of simple Python functions to evaluate the input and output prediction abilities of code LMs. First, we propose a three-part recipe to distill our benchmark consisting of large-scale distillation, filtering, and data size selection via a statistical noise analysis (Sec. \ref{sec:benchmark-construction}). Second, we conduct a qualitative analysis by evaluating 20 models on our benchmark (Sec. \ref{sec:evaluation}). Our analysis leads to insights regarding the correlation between HumanEval and our benchmark, the correlation between input and output prediction, differences between various code LMs, and the diversity of different models. Third, we explore the potential of CoT (Sec. \ref{subsec:cot}) and fine-tuning (Sec. \ref{subsec:finetuning}) for improving performance. Fourth, we provide a qualitative analysis showcasing successes and failures of GPT-4 on our benchmark (Sec. \ref{sec:qualitative-analysis} and Appendix \ref{sec:appendix-qualitative}). Overall, we believe that \benchmark provides a complimentary perspective to classical code LM evaluation such as HumanEval and MBPP and encourage creators of future code LMs to try out our benchmark!
+
+\section{Acknowledgements}
+In alphabetical order by first name, we thank Chris Cummings, Dylan Zhang, Jonas Gehring, Kunhao Zheng, Luyu Gao, Naman Jain, Nicolas Usunier, Ofir Press, Robin Jia, Scott Yih, Theo Olausson, and Wen-Ding Li for very helpful suggestions and support that influenced the trajectory of this work.
+
+A. Gu is supported by the National Science Foundation (NSF) Graduate Research Fellowship under Grant No. 2141064. A. Solar-Lezama is supported by the National Science Foundation (NSF) and Intel Corporation through NSF Grant CCF:2217064.
+
+\bibliography{bibliography}
+\bibliographystyle{icml2021} 
+
+\begin{appendices}
+\include{paper-appendix-benchmark}
+\include{paper-appendix-models}
+\include{paper-appendix-results}
+\include{paper-appendix-evaluation-prompts}
+\include{paper-appendix-qualitative}
+\end{appendices}
+
+\end{document}
+

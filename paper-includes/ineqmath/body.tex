@@ -1,0 +1,291 @@
+\vspace{-2mm}
+\section{Introduction}
+\label{sec:intro}
+\vspace{-1mm}
+
+Mathematical inequalities are fundamental to diverse fields such as analysis, optimization, and probability theory, with applications spanning scientific modeling, economics, and competitive mathematics. Proving an inequality is a complex endeavor, demanding not just calculation but a sophisticated blend of intuition for discovering tight bounds, strategic insight for selecting and applying classical theorems (e.g., AM-GM, Cauchy-Schwarz), and precise symbolic transformations. These skills are hallmarks of advanced mathematical reasoning, distinguishing inequality proving from general math problem-solving. Automating this process would therefore have broad impact: it could supply automated theorem provers (ATPs) with missing lemmas, accelerate formal verification processes, and serve as a demanding testbed for general-purpose reasoners. However, despite impressive advancements in LLMs like DeepSeek-R1~\cite{deepseekai2025} and OpenAI o3~\cite{openai2025o4mini}, as well as in ATPs themselves~\cite{dong2024formal, gloeckle2024abel, hu2025minictx, lin2025leanstar, poesia2024learning, ye2024reasoning}, automating inequality proving remains a challenging frontier.
+
+A major bottleneck in advancing LLM capabilities for inequality proving is the scarcity of suitable benchmarks. Existing resources fall short in several ways: general ATP collections like MiniF2F \cite{zheng2022miniff} and ProofNet \cite{azerbayev2024proofnet} contain few inequalities; synthetic datasets such as INT~\cite{wu2021int} and AIPS~\cite{wei2024proving} offer scale but may lack structural diversity due to template-based generation; and curated collections like ChenNEQ~\cite{chen2014olympiad} are often too small for extensive training. 
+More fundamentally, most existing datasets adopt a \textit{fully formal} representation, where problems and proofs are encoded in systems like Lean~\cite{Moura2015TheLT} or Isabelle~\cite{nipkow2002isabelle}. 
+While formal mathematical reasoning offers correctness guarantees and is a vital research direction, LLMs, trained on vast corpora of natural language, often exhibit strong informal reasoning capabilities. This suggests LLMs might solve problems informally even when struggling with the exacting syntax of formal provers. Our work, therefore, aims to explore and benchmark these informal abilities, complementing formal mathematical AI by focusing on a mode of reasoning closer to human intuition and the preliminary, often less structured, stages of mathematical discovery.
+
+To bridge this gap between formal rigor and intuitive problem-solving, we propose an \textit{informal yet verifiable} formulation (\S\ref{sec:task_formalization}). Rather than requiring fully machine-checkable proofs within formal systems, we reformulate inequality problems into two concrete, automatically verifiable subtasks: (i) \textit{Bound estimation}—determine the largest (or smallest) constant $C$ that preserves the inequality; and (ii) \textit{Relation prediction}—identify which relation ($>$, $\ge$, $=$, $\le$, or $<$) holds between two expressions. Both tasks can be presented in natural language and \LaTeX, solved step‑by‑step by an LLM, and their final answers (a constant or a relation symbol) can be automatically checked. This preserves the creative essence of inequality proving while avoiding the heavy overhead of formal proof assistants.
+
+Building on this formulation, we present \dataset (\S\ref{sec:dataset}), the first large-scale dataset of Olympiad-level inequalities written entirely in informal language. The \textit{test set} comprises 200 original problems, each crafted and reviewed by IMO-level medalists to ensure both originality and difficulty. The \textit{training corpus} includes 1,252 problems sourced from advanced textbooks, automatically rephrased by LLMs into our subtasks and then meticulously reviewed by human experts. A key feature is that each training problem is accompanied by up to four \textit{step-wise solution paths}, providing rich data for training LLMs on fine-grained reasoning. Additionally, 76.8\% of the training problems are annotated with 83 \textit{named theorems} across 29 categories relevant to their solutions. As shown in Table~\ref{tab:dataset_comparison}, \dataset surpasses prior resources in scale, diversity, and alignment with human-like, informal problem-solving approaches.
+
+However, producing the correct final answer is insufficient; the reasoning process itself must be sound. To rigorously assess this, we introduce an \textit{LLM-as-judge} evaluation framework (\S\ref{sec:eval_methods}). This framework comprises a high-precision \emph{final-answer judge} to verify the answer equivalence, complemented by four specialized \emph{step-wise judges} for step soundness. These step-wise judges are designed to detect the frequent reasoning flaws identified in our pilot studies: inappropriate reliance on \textit{toy case} examples, unaddressed \textit{logical gaps}, unjustified \textit{numeric approximations}, and \textit{numeric calculation} errors. Validated on manually labeled development set solutions, these judges demonstrate high reliability (F1 $> 0.9$ on average) and offer a scalable method to scrutinize the deductive integrity of LLM-generated proofs.
+
+We evaluate 29 leading LLMs ranging from chat models to advanced reasoning LLMs, both open-source and proprietary  (\S\ref{sec:experiments}). As key results highlighted in Figure \ref{fig:key_results_accuracy}, several key findings emerge. While specialized reasoning LLMs (e.g., o1~\cite{openai2024o1}) achieve higher \emph{final-answer} accuracy than general-purpose chat models (e.g., GPT-4o~\cite{openai2024gpt4o}), this advantage often collapses under step‑wise scrutiny. Once our judges inspect every reasoning step, \textit{overall} accuracy plummets by up to 65.5\%. Indeed, even top-performing models like o1 achieve less than 10\% overall accuracy (Table~\ref{tab:main_results}), exposing fragile deductive chains and a significant gap between finding an answer and constructing a rigorous proof.
+
+Our in-depth study (\S\ref{sec:in_depth_study}) reveals that while larger model sizes correlate with improved \emph{final-answer accuracy}, their impact on \emph{overall accuracy} is limited (e.g., o1 achieves only 8.0\% overall accuracy). Similarly, extending test-time computation through longer reasoning chains offers diminishing returns in overall correctness (e.g., o1's 8.0\% overall accuracy remains unchanged when scaling maximum completion tokens from 5K to 40K, while o3~\citep{openai2025o4mini} saturates around 31\%). These findings suggest that current scaling approaches are insufficient for robust deductive reasoning in \dataset. Instead, we explore promising improvement strategies, demonstrating potential gains from methods such as theorem-guided reasoning—by providing golden theorems (improving overall accuracy by up to 11\% for o3-mini~\citep{OpenAI2025o3mini} ) and critic-guided self-refinement (e.g., a 5\% absolute increase in overall accuracy for Gemini 2.5 Pro~\citep{google2025gemini2.5pro}).
+
+In summary, our work makes four key contributions:
+1) We introduce an \textit{informal} reformulation of inequality proving, decomposing the task into two verifiable subtasks (\S\ref{sec:task_formalization}).
+2) We release \dataset, an expert-curated benchmark of Olympiad-level inequalities and a training corpus enriched with step-wise solutions and theorem annotations (\S\ref{sec:dataset}).
+3) We develop a modular \textit{LLM-as-judge} framework that rigorously evaluates both final answers and proof step soundness (\S\ref{sec:eval_methods}).
+4) We conduct a systematic empirical study (\S\ref{sec:experiments}) that exposes a pronounced gap between LLM performance and mathematical rigor, highlighting avenues for future research.
+
+\vspace{-2mm}
+\section{Task Formalization: An Informal Perspective}
+\label{sec:task_formalization}
+\vspace{-2mm}
+
+Inequality proof problems require demonstrating that a specified inequality holds under given conditions, such as proving $a + b \geq 2\sqrt{ab}$ for all positive real numbers $a$ and $b$. Traditionally, these problems are formalized in proof assistants like Lean or Isabelle, represented as a tuple $(S_0, I, P)$, where $S_0$ is the initial state, $I$ is the inequality, and $P$ is a set of premises. The proof process, often modeled as a Markov Decision Process, constructs a step-by-step solution verified by the system. However, this formal approach demands expertise in specialized tools, while informal proofs in natural language, though more intuitive, are difficult to verify automatically due to their unstructured nature.
+
+
+To address these challenges, we propose an \textit{informal} perspective that reformulates inequality proof problems into two \textit{verifiable} subtasks: \textbf{bound estimation} and \textbf{relation prediction}. 
+\vspace{-2mm}
+% Figure: training data example
+\input{src/figure_training_data_example_bound}
+\vspace{-1mm}
+
+This \textbf{bound estimation} task involves finding an optimal constant for a given inequality. For example, in $a + b \geq C \sqrt{ab}$ for $\forall a, b > 0$, the objective is to find the largest $C$. Formally, a bound estimation problem instance is a triple:
+$$ \Pi_{\text{bound}}=\bigl(f(\mathbf{x}),\; g(\mathbf{x}),\; \mathcal D\bigr), \quad \text{where } \mathcal D \subseteq \mathbb R^n. $$
+Here, $f,g:\mathcal D\to\mathbb R$ are two expressions involving variables $\mathbf x=(x_1,\dots,x_n)$ within a specified domain $\mathcal D$ (e.g., $x_i>0$, $\sum x_i = 1$), and $g(\mathbf{x}) > 0, \forall \mathbf{x}\in \mathcal D$. The goal is to determine the extremal:
+$$ 
+C^\star \;=\;\sup  \{C\in\mathbb{R}: f(\mathbf x) \geq C g(\mathbf x), \forall \mathbf x\in\mathcal D\}\;\; \text{or}\;\; C^\star \;=\;\inf  \{C\in\mathbb{R}: f(\mathbf x) \leq C g(\mathbf x), \forall \mathbf x\in\mathcal D\}.
+$$
+
+
+The \textbf{relation prediction} task requires determining the correct relationship between two expressions. For instance, given expressions $f(\mathbf{x}) = a+b$ and $g(\mathbf{x}) = 2\sqrt{ab}$, the goal is to identify the relation (in this case, $\ge$) that holds for $\forall a,b > 0$. Formally, a relation prediction problem instance is a triple:
+$$ \Pi_{\text{rel}}=\bigl(f(\mathbf x),\,g(\mathbf x),\,\mathcal D\bigr),$$
+where $f(\mathbf{x})$ and $g(\mathbf{x})$ are expressions over variables $\mathbf{x}$ in domain $\mathcal D \subseteq \mathbb R^n$. The goal is to find the relation between $f(\mathbf{x})$ and $g(\mathbf{x})$ (i.e. $>$, $\ge$, $=$, $\le$, $<$, or none of the above).
+
+\vspace{-1mm}
+ % Figure: training data example
+\input{src/figure_training_data_example_relation}
+\vspace{-1mm}
+
+These subtasks are chosen because they frequently appear in mathematical problem-solving, simplify the evaluation process, and crucially, retain the core reasoning challenges inherent in original inequality proof problems. An ideal LLM solution should not only produce the correct final answer but also present a clear, logically sound, and complete derivation. This includes strategic application of theorems, accurate symbolic manipulations and calculations, and justification of all critical steps.
+
+\vspace{-2mm}
+\section{\dataset: The Inequality Problem Dataset}
+\label{sec:dataset}
+\vspace{-2mm}
+
+This section describes the data curation process and key statistics of \dataset, a novel collection of inequality problems designed to support the informal perspective on solving and proving inequalities. 
+
+\vspace{-3mm}
+\paragraph{Test data curation.} 
+To mitigate contamination from common sources (textbooks, contests and online resources) that may be present in LLM training corpora, we commissioned IMO-level medalists to design novel inequality problems. These underwent rigorous review by a separate expert group and were validated only upon unanimous confirmation of solvability, soundness, and ground truth correctness. Problems identified as easier by experts were excluded from the test set (repurposed for development) to ensure a high level of challenge. To further illustrate the modest contamination, we also conduct a memorization probe on the test set in \S\ref{app:memorization_probe}. See the developed curation tool in \S\ref{app:data_annotation_tool}. We host an online evaluation website\footnote{\url{https://huggingface.co/spaces/AI4Math/IneqMath-Leaderboard}}, providing a fair evaluation platform for the community.
+
+\vspace{-3mm}
+\paragraph{Key statistics.} As shown in Table \ref{tab:data_statistics}, the \dataset dataset comprises 200 test problems for benchmarking, 100 development problems with public ground truth, and 1,252 training problems split evenly between bound estimation and relation prediction tasks. Each training problem includes step-wise solutions, with up to four solutions per problem, and 76.8\% (962 problems) are annotated with relevant theorems. The dataset features 83 named theorems across 29 categories, with their distribution illustrated in Figure \ref{fig:theorem_category_pie}. Test problem examples are provided in \S\ref{app:dataset_examples}.
+
+% Table: Dataset Statistics
+\input{src/table_data_statistics}
+
+\paragraph{Comparison to existing datasets.} 
+As summarized in Table \ref{tab:dataset_comparison}, \dataset stands out for: (1) providing expert-curated training and test sets, (2) offering rich annotations with step-wise solutions and 83 grounded theorems, and (3) adopting an informal, accessible format for inequality proving through bound estimation and relation prediction, evaluated via \textit{LLM-as-judge}. This design bridges the gap between formal proof systems and intuitive mathematical reasoning, making \dataset a unique resource for advancing LLM capabilities in problem solving and theorem proving.
+
+% Table: Benchmark Comparison
+\input{src/table_benchmark_comparison}
+
+\vspace{-2mm}
+\paragraph{Potential contamination statement.}
+To ensure rigorous evaluation, the \dataset test set was commissioned from IMO-level medalists to feature novel problems, minimizing prior LLM pre-training exposure. The poor performance across models (\S\ref{sec:evaluation_results}), particularly in overall accuracy (which demands step-wise correctness), strongly suggests that the benchmark poses a significant reasoning challenge, regardless of any potential familiarity with the underlying mathematical concepts. We therefore believe the \dataset test set effectively probes novel problem-solving capabilities, and our conclusions on current LLM limitations in rigorous inequality proving remain robust.
+
+\vspace{-2mm}
+\section{Fine-grained Informal Judges for Inequality Solving}
+\label{sec:eval_methods}
+\vspace{-3mm}
+
+The test split of the \dataset dataset serves as our benchmark, comprising 200 Olympiad-level inequality problems that challenge both humans and current LLMs. Traditional evaluation methods fall short in this setting: expert annotation is accurate but prohibitively labor-intensive, while automated techniques such as string matching or value equivalence fail to capture step-by-step correctness—an essential aspect of inequality problem solving. To address this, we propose a fine-grained \textit{LLM-as-judge} framework as illustrated in Figure~\ref{fig:judge_illustration}, consisting of a \textit{final-answer judge} for verifying the predicted answer (\S\ref{sec:final_answer_judge}) and four specialized \textit{step-wise judges} targeting common reasoning flaws (\S\ref{sec:step_wise_judges}). A solution is considered correct \textit{overall} only if it passes all five judges. As shown in Table~\ref{tab:judge_performance}, these judges achieve strong alignment with human annotations (F1 = 0.93), providing a scalable yet reliable alternative to manual evaluation.
+
+\begin{figure}[tbp]
+    \centering
+    \vspace{-5mm}
+    \includegraphics[width=1.0\linewidth]{figs/figure_judge_illustration.pdf}
+    \vspace{-6mm}
+    \caption{Illustration of the fine-grained \textit{LLM-as-judge} framework. The framework combines a \textit{Final Answer Judge} with four step-wise judges: \textit{Toy Case Judge}, \textit{Logical Gap Judge}, \textit{Numerical Approximation Judge} (shown as \textit{Approximation Judge}), and \textit{Numerical Computation Judge} (shown as \textit{Computation Judge}). A solution is considered correct only if it passes all five judges.}
+    \label{fig:judge_illustration}
+    \vspace{-2mm}
+\end{figure}
+
+% Table
+\input{src/table_llm_as_judge}
+
+\vspace{-2mm}
+\subsection{Final Answer Judge}
+\label{sec:final_answer_judge}
+\vspace{-3mm}
+
+LLM-generated solutions to \dataset problems typically involve multiple reasoning steps followed by a concluding answer statement. However, the final answer may vary in phrasing, structure, or numeric format, especially for bound estimation problems. For example, $C = \frac{1}{\sqrt{2}}$ and $C = \frac{\sqrt{2}}{2}$ are mathematically equivalent but differ in form. Recent work~\cite{lu2024mathvista} evaluates LLM outputs via format normalization and exact string matching, without accounting for mathematical equivalence. To address this, we propose a two-stage \textit{Final Answer Judge}: it first identifies the concluding sentence containing the predicted answer, and then performs robust equivalence checking to assess mathematical correctness, even when the form differs from the reference. Prompt details and examples are in \S\ref{app:answer_judge_appendix}. 
+
+\vspace{-3mm}
+\subsection{Four Step-wised Judges}
+\label{sec:step_wise_judges}
+\vspace{-2mm}
+
+
+
+\paragraph{Toy Case Judge.} Inequality problems in \dataset often require reasoning over continuous domains (e.g., all $a, b, c > 0$), where specific numerical examples alone are insufficient for a valid proof. LLM frequently generalizes incorrectly from such examples—e.g., claiming an inequality holds universally because it holds for $a = 1, b = 2, c = 3$. Prior work~\cite{gao2025omnimath} flags these under a broad ``logical flaw'' category, lacking granularity for targeted analysis. Our  \textit{Toy Case Judge} addresses this by detecting unjustified generalization from toy examples. It prompts an LLM to flag conclusions based solely on specific instances without broader justification. See \S\ref{app:toy_case_appendix} for prompts and examples.
+
+\vspace{-3mm}
+\paragraph{Logical Gap Judge.} \dataset inequality problems often involve multi-step derivations (e.g., algebraic manipulation, constrained optimization, functional transformations) needing explicit justification. LLMs, however, often skip key reasoning steps or assert conclusions without support (e.g., stating an optimal bound without derivation). Existing step-level evaluations~\cite{DBLP:reasoneval} assess validity and redundancy but lack granularity for such logical omissions. Our \textit{Logical Gap Judge} addresses this by flagging missing transitions, unjustified claims, and vague derivations, especially in steps involving inequality transformations or bound estimation (see \S\ref{app:logical_gap_appendix} for details). 
+
+\vspace{-3mm}
+\paragraph{Numerical Approximation Judge.} Inequality problems in \dataset often demand exact symbolic reasoning, where the use of numeric approximations—e.g., replacing $\sqrt{2}$ with $1.414$—can compromise mathematical rigor. However, many LLM-generated solutions resort to such approximations in intermediate steps, leading to inaccurate or non-generalizable conclusions. To address this, we introduce a \textit{Numerical Approximation Judge} that flags inappropriate use of numeric approximations—specifically when they affect derivations or final answers. Approximations used solely for intuition or side remarks are permitted. See \S\ref{app:approximation_judge_appendix} for prompt details and examples. 
+
+\vspace{-3mm}
+\paragraph{Numerical Computation Judge.} Many \dataset problems require explicit numerical computations after variable assignment (e.g., evaluating $\frac{27}{2}$ or summing rational terms). While symbolic reasoning is vital, arithmetic accuracy is equally crucial for overall correctness. 
+Prior work (e.g., EIC-Math~\cite{li2024evaluating}) categorizes broad error types but often overlooks subtle miscalculations in multi-step derivations.
+Our \textit{Numerical Computation Judge} addresses this by verifying arithmetic steps once variables are instantiated. It prompts an LLM to extract numerical expressions, convert them into Python code, and evaluate using floating-point arithmetic within a small tolerance. This enables high-precision checking of both intermediate and final results. To further improve precision and mitigate floating-point issues, we encourage the use of symbolic mathematics packages such as \texttt{SymPy}, particularly for handling fractions and decimal numbers. Additional details are provided in \S\ref{app:computation_judge_appendix}.
+
+\vspace{-3mm}
+\subsection{Effectiveness Verification of Judges}
+\label{sec:judge_verification}
+
+\begin{wrapfigure}{r}{0.24\textwidth}
+    \centering
+    \vspace{-3.5mm}
+    \includegraphics[width=0.8\linewidth]{figs/figure_llm_judge_baseline.pdf}
+    \vspace{-1.5mm}
+    \caption{\small Confusion matrix for the judge baseline.}
+    \vspace{-5mm}
+    \label{fig:figure_llm_judge_baseline}
+\end{wrapfigure}
+
+\vspace{-2mm}
+
+\paragraph{A holistic LLM judge baseline.} 
+To motivate our specialized judging system, we first evaluate a heuristic \textit{LLM-as-judge} baseline. This prompts a single, general-purpose LLM to holistically assess \dataset solution correctness, based on both final answer accuracy and step-wise soundness across the four reasoning categories in \S\ref{sec:step_wise_judges}. As shown in the confusion matrix (Figure~\ref{fig:figure_llm_judge_baseline}) using 80 human-annotated development examples, this naive approach exhibits poor agreement with human labels, underscoring its unreliability for rigorous evaluation in this domain.
+
+\vspace{-2mm}
+\paragraph{Performance of our fine-grained judges.} 
+In contrast, our proposed suite of five specialized judges exhibits strong alignment with human evaluations. Figure~\ref{fig:judge_confusion_matrix} presents the confusion matrices for each judge on the same development set. The final answer judge (using GPT-4o-mini) achieves near-perfect agreement, while the four step-wise judges (chosen for a balance of performance and cost as detailed in \S\ref{app:judge_dev_performance}) also demonstrate high fidelity. This confirms that decomposing the complex evaluation task into targeted sub-problems allows LLMs to serve as reliable evaluators.
+
+% Figure: Confusion Matrices
+\input{src/figure_confusion_matrices_judges}
+
+\vspace{-2mm}
+\paragraph{Qualitative analysis of judge disagreements.} Despite the strong aggregate performance (overall F1 = 0.93, Table~\ref{tab:judge_performance}), \textit{LLM-as-judge} evaluations are not perfect. Acknowledging the skepticism surrounding LLM-based evaluation, we conducted a qualitative analysis of failure cases where our judges' assessments diverged from human annotations. Detailed examples are provided in \S\ref{app:judge_failure_examples}. These instances underscore that while highly effective, our LLM judges can still struggle with the deep, nuanced understanding that characterizes expert-level mathematical reasoning.
+
+\vspace{-2mm}
+\section{Experiments in \dataset}
+\label{sec:experiments}
+\vspace{-3mm}
+
+\subsection{Experimental Setups}
+\label{sec:exp_setups}
+\vspace{-2mm}
+
+We conduct a systematic evaluation of 29 leading LLMs on the inequality problems in the \dataset test set. The evaluated models span two categories: general-purpose chat models (both open-source and proprietary) and specialized reasoning LLMs designed for complex, multi-step problem-solving. All models are prompted in a zero-shot setting with the problem statement and the instruction: ``\textit{Please solve the problem with clear, rigorous, and logically sound steps}'' to encourage detailed reasoning.
+Model responses are assessed using our \textit{LLM-as-judge} framework (\S\ref{sec:eval_methods}). We report three key metrics:
+\vspace{-2mm}
+\begin{itemize}        % space above/below the list
+\item \textit{Answer Acc}: Measures the predicted answer correctness, verified by the final-answer judge (\S\ref{sec:final_answer_judge}).
+\item \textit{Step Acc}: Aggregates the correctness of individual reasoning steps as determined by our four specialized step-wise judges (\S\ref{sec:step_wise_judges}), which target common flaws.
+\item \textit{Overall Acc}: The primary metric, which deems a solution correct only if it achieves both a correct final answer and flawless step-wise reasoning (i.e., passes all five judges).
+\end{itemize}
+\vspace{-2mm}
+A response is thus considered fully correct (\textit{Overall Acc}) only if it produces a correct final answer through logically valid steps, passing scrutiny from all judges. Additional setup details are in \S\ref{app:exp_setups}.
+
+\vspace{-2mm}
+\subsection{Main Evaluation Results}
+\label{sec:evaluation_results}
+\vspace{-3mm}
+
+% Table: Main Results
+\input{src/table_main_results}
+
+Table~\ref{tab:main_results} presents the performance of the evaluated LLMs on \dataset. Our analysis reveals several critical insights into current LLM capabilities for inequality proving:
+\vspace{-0.5mm}
+
+\textbf{1) Reasoning LLMs achieve higher final-answer accuracy.} Models like o1 (62.5\% \textit{Answer Acc}) and Grok 3 mini (71.5\% \textit{Answer Acc}) significantly outperform their general-purpose chat counterparts (e.g., GPT-4o at 37.5\%, Grok 3 at 54.5\%) in identifying the correct final answer. This suggests that specialized architectures or training techniques improve their search ability to find final answers.
+
+\vspace{-0.5mm}
+\textbf{2) Step-wise scrutiny reveals a dramatic performance drop.} 
+The advantage in \textit{Answer Acc} often masks underlying reasoning flaws. \textit{Overall Acc} plummets when steps are evaluated. For instance, Grok 3 mini's accuracy drops by 65.5\% (from 71.5\% \textit{Answer Acc} to 6.0\% \textit{Overall Acc}), and o3-mini by 53.0\%. This stark discrepancy underscores the fragility of LLM-generated deductive chains. 
+
+\vspace{-0.5mm}
+\textbf{3) Robust proof construction remains a major challenge.} Even top models like o1 achieve low \textit{Overall Acc} (8.0\%). Many large models, despite moderate Answer Acc, also score poorly (e.g., Grok 3 at 3.5\% \textit{Overall Acc}). This indicates a fundamental gap between finding a plausible answer and constructing a mathematically rigorous, step-by-step derivation.
+
+\vspace{-3mm}
+\subsection{In-depth Study}
+\label{sec:in_depth_study}
+\vspace{-2mm}
+
+\vspace{-1mm}
+\paragraph{Failure solution analysis.}
+As shown in Table~\ref{tab:main_results}, where we report average error rates for overall accuracy, final-answer accuracy, and step-wise accuracy across four categories, the most common step-wise errors in LLM-generated solutions are logical gaps (85.0\% average failure rate across models) and unjustified generalization from toy cases (59.7\%). Less frequent, but still significant, are errors from numerical approximations (26.9\%) and miscalculations (6.8\%). A detailed inspection of incorrect solutions (see examples in \S\ref{app:failure_solution_example_1}-\S\ref{app:failure_solution_example_4}) highlights these prevalent error patterns, which often undermine proofs even when LLMs produce the correct final answer. Beyond these step-wise errors, LLMs also struggle to derive correct final answers on complex problems (\S\ref{app:failure_solution_example_5}), indicating deeper challenges in theorem application and symbolic manipulation.
+
+
+% Figure: Model Size
+\input{src/figure_model_size_scaling_law_main_text}
+
+\paragraph{Scaling law in model size.}
+Figure~\ref{fig:model_size_scaling_answer_acc} shows how \textit{final-answer} accuracy (which evaluates only the correctness of the final predicted answer) scales with model size for LLMs. As model size increases, we observe a steady improvement in answer accuracy, reflecting an empirical scaling law that larger models are better at inferring correct bounds and inequality relationships. However, this trend does not hold well when considering \textit{overall accuracy}—which requires both a correct answer and valid intermediate reasoning steps—as shown in Figure~\ref{fig:test_time_scaling_law_overall_acc}. In this latter case, the scaling curve flattens, indicating that increased model size alone is insufficient to eliminate step-by-step reasoning errors.
+
+
+\begin{wrapfigure}{r}{0.34\textwidth}
+    \centering
+    \vspace{-3mm}
+    \includegraphics[width=0.95\linewidth]{figs/scaling_law_max_token.pdf}
+    \vspace{-1mm}
+    \caption{Scaling law in test-time computation for reasoning LLMs.}
+    \vspace{-5mm}
+    \label{fig:test_time_scaling_law}
+\end{wrapfigure}
+
+\vspace{-2mm}
+\paragraph{Scaling law in test-time computation.} 
+Extended test-time computation, allowing longer reasoning chains, is a common strategy for complex problem-solving~\cite{deepseekai2025}. We investigated its impact on \textit{overall accuracy} in \dataset by varying the maximum completion tokens for reasoning LLMs. Figure~\ref{fig:test_time_scaling_law} shows that while models like Gemini 2.5 Pro and o3 initially improve with more tokens, performance gains saturate (e.g., beyond 20K tokens). This indicates that merely increasing computational budget offers diminishing returns for achieving rigorous, step-wise correct proofs, highlighting the need for more than just longer thought processes.
+
+\vspace{-2mm}
+\subsection{Exploring Improvement Strategies}
+\label{sec:improvement_strategies}
+\vspace{-2mm}
+
+\begin{wrapfigure}{r}{0.38\textwidth}
+\centering
+\vspace{-5mm}
+\includegraphics[width=1.0\linewidth]{figs/explore_frequent_theorem_as_hints_overall_acc.pdf}
+\vspace{-6mm}
+\caption{Model performance with retrieved theorems as hints.}
+\vspace{-3mm}
+\label{fig:explore_frequent_theorem_as_hints_overall_acc}
+\end{wrapfigure}
+\paragraph{Retrieving relevant theorems as hints.} To assess theorem-based hints, we provide models with the top-$k$ most frequent theorems from our \dataset training corpus when solving a 40-problem test subset. As shown in Figure~\ref{fig:explore_frequent_theorem_as_hints_overall_acc}, providing one or two such theorems decreases \textit{overall accuracy} for weaker models (e.g., Grok 3 mini, o3-mini, o4-mini), likely due to misapplication or distraction by potentially irrelevant information. Conversely, stronger models like Gemini 2.5 Pro benefit from these hints, suggesting advanced reasoning is crucial to effectively use such guidance. These results underscore the potential of theorem-guided reasoning but also highlight the critical need for more sophisticated theorem-retrieval mechanisms (e.g., RAG~\cite{NEURIPS2020_6b493230_RAG, gupta2024comprehensive_rag}) to reliably enhance LLM performance in inequality proving. Detailed experiments are available in \S\ref{app:explore_retrieve_relevant_theorem_as_hints}.
+
+
+\begin{wrapfigure}{r}{0.33\textwidth}
+\centering
+\vspace{-5mm}
+\includegraphics[width=1.0\linewidth]{figs/explore_self_critic_as_hint_overall_acc.pdf}
+\vspace{-6mm}
+\caption{Model performance via self-critic as feedback.}
+\vspace{-5mm}
+\label{fig:explore_self_critic_as_hint_overall_acc}
+\end{wrapfigure}
+\vspace{-2mm}
+\paragraph{Self-improvement via critic as feedback.}
+Allowing an LLM to critique and revise its own reasoning has been shown to improve performance on complex tasks~\cite{yuksekgonul2025textgrad,tian2024toward}. To explore whether this holds for inequality proving, we randomly sampled 40 test problems from \dataset and ran one round of self‑critique. As Figure~\ref{fig:explore_self_critic_as_hint_overall_acc} shows, self-critique consistently improves performance—e.g., Gemini 2.5 Pro's overall accuracy rises from 43\% to 48\%. This upward trend underscores self-critique as a promising, supervision-free method to enhance logical rigor and solution quality of LLMs in inequality reasoning. More details are in \S\ref{app:self_improvement}.
+
+\vspace{-3mm}
+\section{Related Work}
+\vspace{-3mm}
+
+\paragraph{Datasets for inequality and theorem proving.}
+One of the major bottlenecks in advancing LLM capabilities for inequality proving is the scarcity of suitable datasets. Existing resources fall short in several ways: general ATP collections like MiniF2F \cite{zheng2022miniff} and ProofNet \cite{azerbayev2024proofnet} contain few inequalities; synthetic datasets such as INT~\cite{wu2021int} and AIPS~\cite{wei2024proving} offer scale but often lack structural diversity due to their template-based generation; and curated collections like ChenNEQ~\cite{chen2014olympiad} are often too small for extensive training. More fundamentally, most existing datasets~\cite{zhao2025ineq, tung2012inequality, yang2019learning, li2021isarstep, tsoukalas2024putnambench, hu2025minictx} adopt a \textit{fully formal} representation, where problems and proofs are encoded in systems such as Lean~\cite{Moura2015TheLT} or Isabelle~\cite{nipkow2002isabelle}. While formal mathematical reasoning offers correctness guarantees and is a vital research direction, LLMs, trained on vast corpora of natural language, often exhibit strong informal reasoning capabilities. Therefore, our \dataset adopts an \textit{informal} perspective, reformulating inequality proof problems into two verifiable subtasks—bound estimation and relation prediction. These problems within \dataset were crafted and reviewed by IMO-level medalist experts. Other informal reasoning datasets~\cite{petrov2025prooforbluff, mao-etal-2024-champ, gulati2024putnamaxiom, liu2024livemathbench} typically lack annotated solutions, theorem references, or corresponding training data. To address these gaps, \dataset introduces 1,252 inequality problems for training, each annotated with theorems relevant to its solution, which comprises up to four steps.
+
+\vspace{-3mm}
+\paragraph{Methods for inequality and theorem proving.} 
+
+Proving inequalities is complex, requiring intuition to identify tight bounds, strategic use of theorems, and precise symbolic manipulation. Traditional automated theorem provers (ATPs) primarily operate within formal systems like Lean~\cite{Moura2015TheLT} or Isabelle~\cite{nipkow2002isabelle}, requiring problems and proofs to be encoded in specialized languages. Inspired by the mathematical reasoning capabilities of LLMs~\cite{zhao2025enhancing}, a significant body of recent work has focused on integrating LLMs with these formal ATPs. These approaches often model theorem proving as a Markov Decision Process (MDP), training LLMs to select appropriate tactics and premises to construct proofs within the formal system~\cite{achim2025aristotle,  chen2025seed, wang2025malot, dong2024formal, gloeckle2024abel, hu2025minictx, lin2025leanstar, wang2024legoprover, xuejun2025mathesis}. For instance, systems like Goedel-Prover~\cite{lin2025goedel} leverage large Lean corpora to train models for tactic prediction, enabling end-to-end formal proof generation. Other methods incorporate tree-search techniques to navigate the search space of premises within formal frameworks~\cite{wu2024internlm25stepprover, li2024hunyuanprover, xin2025bfs, xin2025scaling}. 
+
+\vspace{-1mm}
+LLMs are trained on vast natural language corpora, giving them strengths in informal reasoning—closer to how humans solve problems. This reveals an opportunity for methods that harness these informal abilities. Our work departs from formal paradigms by introducing an \textit{informal yet verifiable} framework for inequality proving, designed to benchmark and enhance LLM performance in human-like problem solving, while exploring improvements such as theorem-guided reasoning and self-refinement.
+
+\vspace{-3mm}
+\paragraph{LLM-as-judge for math problem solving.}
+Reliable evaluation of mathematical problem-solving necessitates assessing not only the correctness of the final answer but also the logical soundness of each reasoning step, a significant challenge for automated systems. Traditional methods are often inadequate: expert annotation is labor-intensive and unscalable for large-scale evaluation~\cite{petrov2025prooforbluff, mao-etal-2024-champ}, while automated techniques such as string matching or value equivalence overlook crucial step-by-step proof correctness~\cite{hendrycks2021measuring,gulati2024putnamaxiom, liu2024livemathbench,lu2024mathvista}. While LLMs have shown promise as evaluators (\textit{LLM-as-judge}), their capacity for detailed, step-wise mathematical judgment is still developing. For instance, existing step-level LLM judges~\cite{DBLP:reasoneval, gao2025omnimath} may assess general step validity but often lack the granularity to identify nuanced reasoning flaws. Similarly, frameworks like EIC-Math~\cite{li2024evaluating} provide broad error categories but can miss subtle yet critical issues in multi-step derivations. To address these limitations and assess informal mathematical proofs like inequality solving, our \textit{LLM-as-judge} framework combines a \textit{final-answer} judge with four \textit{step-wise} judges targeting common errors: toy case overgeneralization, logical gaps, unjustified numeric approximations, and numeric calculation mistakes.
+
+\vspace{-3mm}
+\section{Conclusion}
+\label{sec:conclusion}
+\vspace{-3mm}
+
+In summary, we introduce an informal yet verifiable task formulation for inequality proving, decomposing it into bound estimation and relation prediction. Building on this, we release \dataset, an expert-curated benchmark of Olympiad-level inequalities with a training corpus featuring step-wise solutions and theorem annotations. Our novel \textit{LLM-as-judge} evaluation framework, comprising a final-answer judge and four step-wise judges, enables a rigorous assessment. Our comprehensive evaluation of diverse leading LLMs reveals a critical gap: while LLMs may achieve high final-answer accuracy, this often plummets by up to 65.5\% under step-wise scrutiny, with top models like o1 achieving less than 10\% overall accuracy. This discrepancy exposes fragile deductive chains for current LLMs in constructing rigorous proofs. We further find that scaling model size or increasing test-time computation yields limited gains in overall proof correctness. Instead, our findings highlight promising research directions such as theorem-guided reasoning and self-refinement.
+
+

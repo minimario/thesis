@@ -1,0 +1,10 @@
+{
+  "latex-workshop.view.pdf.viewer": "tab",
+  "latex-workshop.view.pdf.tab.editorGroup": "right",
+  "latex-workshop.latex.autoBuild.run": "onSave",
+  "latex-workshop.synctex.afterBuild.enabled": true,
+  "latex-workshop.linting.chktex.enabled": false,
+  "latex-workshop.linting.chktex.exec.path": "/usr/bin/true",
+  "latex-workshop.latex.external.build.command": "make",
+  "latex-workshop.latex.external.build.args": []
+}

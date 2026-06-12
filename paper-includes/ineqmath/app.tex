@@ -1,0 +1,417 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\hrule height 4pt
+\vskip 0.25in
+\vskip -\parskip
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vbox{
+    \centering
+    \LARGE 
+    \textbf{Supplementary Materials for \\  
+    \hspace{-0.5mm}Solving Inequality Proofs with Large Language Models}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vskip 0.29in
+\vskip -\parskip
+\hrule height 1pt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand*\footnoterule{} % remove the separator line
+
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Create a new ToC for appendix only
+\section*{Appendix Contents}
+\setcounter{tocdepth}{2}
+\renewcommand{\contentsname}{Appendix Contents}
+\startcontents[appendix]  % Requires the 'titletoc' package
+\printcontents[appendix]{}{1}{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\clearpage
+\section{Dataset Curation Details}
+\label{app:dataset_curation_details}
+
+\subsection{Training data curation.}
+\label{app:training_curation}
+Training problems were sourced from two advanced textbooks featuring graduate-level and Olympiad-style inequality proof problems. We parsed these textbooks to extract proof problems, their step-wise solutions, and relevant theorems.
+We developed two LLM-based rephrasers to transform each source problem into two sub-tasks defined in  \S\ref{sec:task_formalization}: bound estimation and relation prediction. For instance, a source problem like ``Prove $a + b \geq 2\sqrt{ab}$ for $\forall a, b \in \mathbb{R}^{+}$'' would be rephrased into a bound estimation task (e.g., ``Determine the maximal constant $C$ such that $a + b \geq C\sqrt{ab}$ holds for $\forall a, b \in \mathbb{R}^{+}$'') and a relation prediction task (e.g., ``Determine the inequality relation in the expression $a + b ~ (~) ~ 2\sqrt{ab}$ that holds for $\forall a, b \in \mathbb{R}^{+}$'').
+
+Crucially, while rephrased problems are altered from the source proof problem in the format, they preserve the core mathematical reasoning and solution steps—such as applying relevant theorems, determining boundary conditions, and verifying inequalities. An annotation tool (see \S\ref{app:data_annotation_tool}) was developed to facilitate human expert review and correction of the LLM-rephrased problems.
+Extracted theorems were curated, each including its name, a natural language definition, and a list of training problems where it is applicable.
+
+
+% \clearpage
+\subsection{Data Annotation Tool}
+\label{app:data_annotation_tool}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/data_annot_tool_bound.png}
+    \caption{The interface of our developed tool for checking and editing the bound problems.}
+    \label{fig:data_annot_tool_bound}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/data_annot_tool_relation.png}
+    \caption{The interface of our developed tool for checking and editing the relation problems.}
+    \label{fig:data_annot_tool_relation}
+\end{figure}
+
+
+\newpage
+\subsection{Prompts for Rephrasing Problems}
+\label{app:prompt_rephrasing_problem}
+
+% Prompt for Rephrasing Problems
+\input{prompts/proof_rewritten_bound}
+\input{prompts/proof_rewritten_relation}
+
+
+% \clearpage
+\subsection{Benchmark Examples}
+\label{app:dataset_examples}
+
+\input{src/testing_bound_examples_1}
+
+\input{src/testing_bound_examples_2}
+
+\input{src/testing_bound_examples_3}
+
+\clearpage
+\input{src/testing_relation_examples_1}
+
+\input{src/testing_relation_examples_2}
+
+\input{src/testing_relation_examples_3}
+
+
+\clearpage
+\section{Fine-grained Informal Judge Details}
+\label{app:evaluation_details}
+
+\subsection{Final Answer Judge}
+\label{app:answer_judge_appendix}
+
+\input{prompts/answer_judge_answer_extraction}
+
+\input{prompts/answer_judge_answer_equivalence}
+
+% \clearpage
+\subsection{Toy Case Judge}
+\label{app:toy_case_appendix}
+
+\input{prompts/toy_case_judge}
+
+\input{src/toy_case_judge_examples}
+
+
+% \newpage
+\subsection{Logical Gap Judge}
+\label{app:logical_gap_appendix}
+
+\input{prompts/logical_gap_judge}
+
+\input{src/logical_gap_judge_example}
+
+% \clearpage
+\subsection{Numerical Approximation Judge}
+\label{app:approximation_judge_appendix}
+
+\input{prompts/approx_judge}
+\input{src/numerical_approximation_judge_example}
+
+% \newpage
+\subsection{Numerical Computation Judge}
+\label{app:computation_judge_appendix}
+
+\input{prompts/computation_judge}
+
+\input{src/computation_judge_example}
+
+% \clearpage
+\subsection{Development Performance of Judges}
+\label{app:judge_dev_performance}
+
+
+\input{src/table_models_performance_as_toy_cases_judge}
+
+During development, we experimented with different LLMs as backends for the judges, with detailed results presented in Table~\ref{tab:judge_performance_llms}. By balancing F1 score, inference cost, and latency, we select GPT-4o mini for the final-answer judge due to its perfect F1 score (1.0) and the lowest cost among candidates. For the four step-wise judges, we use o4-mini for the \textit{Toy Case Judge} and \textit{Logical Gap Judge}, o1 for the \textit{Numerical Approximation Judge}, and GPT-4.1 mini for the \textit{Numerical Calculation Judge}, which attains F1 scores above 0.9 on average.
+
+% \clearpage
+\subsection{Judge Failure Examples}
+\label{app:judge_failure_examples}
+
+\input{src/failure_judge_example_1}
+
+\input{src/failure_judge_example_2}
+
+\input{src/failure_judge_example_3}
+
+\input{src/failure_judge_example_4}
+
+\clearpage
+\section{Experimental Details for Inequality Solving}
+\label{app:exp_details}
+
+\subsection{Experimental Setups}
+\label{app:exp_setups}
+
+We design task-specific prompts for the two problem types in \dataset: \textit{bound} problems and \textit{relation} problems. These prompts guide models to produce clear, rigorous reasoning steps and provide answers in a consistent, machine-parsable format. The query formats are shown below.
+
+\input{prompts/task_description}
+
+\input{src/table_app_model_and_params}
+
+We evaluate a diverse set of 29 leading LLMs, as listed in Table \ref{app:table_model_and_params}. Each model is accessed via its official API using standardized decoding parameters. By default, we set the maximum token output to 10,000 (via \texttt{max\_tokens=10K}), \texttt{temperature} to 0.0, and \texttt{top\_p} to 0.99, for all models where these settings are applicable. For reasoning models, the default reasoning effort is chosen as \texttt{medium}. Model-specific parameters are specified in the table.
+
+
+
+
+\clearpage
+\subsection{Model Failure Solution Examples}
+\label{app:incorrect_solution_examples}
+
+
+\subsubsection{Model Failure Solution Example 1}
+\label{app:failure_solution_example_1}
+\input{src/failure_solution_example_1}
+
+\clearpage
+\subsubsection{Model Failure Solution Example 2}
+\label{app:failure_solution_example_2}
+\input{src/failure_solution_example_2}
+
+\clearpage
+\subsubsection{Model Failure Solution Example 3}
+\label{app:failure_solution_example_3}
+\input{src/failure_solution_example_3}
+
+\clearpage
+\subsubsection{Model Failure Solution Example 4}
+\label{app:failure_solution_example_4}
+\input{src/failure_solution_example_4}
+
+\clearpage
+\subsubsection{Model Failure Solution Example 5}
+\label{app:failure_solution_example_5}
+\input{src/failure_solution_example_5}
+
+
+\clearpage
+\subsection{Taking Annotated Theorems as Hints}
+\label{app:explore_theorem_as_hints_appendix}
+
+Prior studies, such as TheoremQA~\cite{chen-etal-2023-theoremqa} and LeanDojo~\cite{yang2023leandojo}, show that explicitly providing relevant theorems aids LLMs in mathematical reasoning. To quantify this benefit on \dataset, we evaluated models on 200 training problems where the annotated ``golden'' theorems were provided as hints. The results (Figure~\ref{fig:explore_theorem_as_hint_overall_acc}) reveal a consistent uplift in overall accuracy across models, with gains reaching up to 11\% (e.g., for o3-mini), alongside moderate improvements in answer accuracy (Figure~\ref{fig:explore_theorem_as_hint_answer_acc}). 
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=1.0\linewidth]{figs/explore_theorem_as_hint_overall_acc.pdf}
+        \caption{Model performance with annotated theorems as hints (\textit{Overall Accuracy}).}
+        \label{fig:explore_theorem_as_hint_overall_acc}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=1.0\linewidth]{figs/explore_theorem_as_hint_answer_acc.pdf}
+        \caption{Model performance when taking annotated theorems as hints (\textit{Answer Accuracy}).}
+        \label{fig:explore_theorem_as_hint_answer_acc}
+    \end{minipage}
+    \vspace{-3mm}
+\end{figure}
+
+
+The following example illustrates how providing LLMs with access to correct theorems significantly improves their capacity to generate proofs with robust logical structures and step-wise soundness. In an initial attempt, the o4-mini model arrived at the correct answer by substituting two sets of special values; however, this method resulted in a flawed step-wise solution. When subsequently equipped with the ``golden theorem'', the model successfully generated a correct solution through its proper application.
+
+\input{src/explore_theorem_as_hints_no_theorem_example}
+
+% \clearpage
+\subsection{Retrieval as Augmentation}
+\label{app:explore_retrieve_relevant_theorem_as_hints}
+
+\paragraph{Retrieving relevant theorems as hints.} 
+We also evaluate the impact of theorem-based hints on answer accuracy. This evaluation was conducted on the same 40-problem subset used in the main experiments, with models receiving the top-$k$ most frequent theorems from the \dataset training set as hints. As shown in Figure~\ref{fig:explore_frequent_theorem_as_hints_answer_acc}, providing one or two retrieved theorems tends to reduce \textit{final-answer} accuracy for weaker models, such as Grok 3 mini and o3-mini. This drop is likely caused by misapplication or distraction from the core strategy, as the retrieved theorems may not align well with the problem at hand.
+
+\begin{figure}[th!]
+    \centering
+    \includegraphics[width=0.55\linewidth]{figs/explore_frequent_theorem_as_hints_answer_acc.pdf}
+    \caption{Model performance when taking most frequent theorems as hints (\textit{Answer Accuracy}).}
+    \label{fig:explore_frequent_theorem_as_hints_answer_acc}
+\end{figure}
+
+The following example demonstrates how supplying irrelevant theorems can mislead LLMs and degrade their reasoning quality. Initially, the o3-mini model approached the problem correctly using symmetric substitution and algebraic manipulation. However, after being provided with the Mean Inequality theorem—unrelated to the actual solution—it abandoned its structured strategy and instead attempted to apply the AM–GM in Mean inequalities directly, without proper justification. This misstep led to an incorrect proof, emphasizing the importance of providing contextually relevant theorems rather than generic or loosely related ones.
+
+\input{src/explore_retrieved_theorem_as_hints_example_no_theorem}
+
+\paragraph{Retrieving training problems as demonstrations.} 
+Building on our observation that providing relevant theorems can enhance performance in inequality reasoning (\S\ref{sec:improvement_strategies}, \S\ref{app:explore_theorem_as_hints_appendix}, \S\ref{app:explore_retrieve_relevant_theorem_as_hints}), we now investigate whether using training problems with step-wise solutions as demonstrations is similarly beneficial. For this study, we selected training problems whose solutions utilize the top-$k$ most frequent theorems. As shown by the overall accuracy in Figure~\ref{fig:explore_frequent_solutions_as_hints_overall_acc}, Grok 3 mini's performance improves from a baseline of 10\% (with no demonstration problem) to 13\% when provided with one such problem. However, its accuracy drops sharply to 3\% when two problems are used as demonstrations. Similarly, Gemini 2.5 Pro peaks at 53\% accuracy with one demonstration problem, declining to 45\% with two. o4-mini reaches 23\% accuracy with one demonstration problem, a 3\% increase from its 20\% baseline (without demonstrations). 
+
+The answer accuracy, presented in Figure~\ref{fig:explore_frequent_solutions_as_hints_answer_acc}, exhibits similar instability. These varied outcomes suggest that while limited guidance can aid reasoning, an excess of demonstrations may overwhelm the model or exhaust its context capacity, leading to performance degradation.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.485\textwidth}
+        \centering
+        \includegraphics[width=1.0\linewidth]{figs/explore_frequent_solutions_as_hints_overall_acc.pdf}
+        \caption{Model performance when taking example solutions associated with the top-$k$ frequent theorems as hints (\textit{Overall Accuracy}).}
+        \label{fig:explore_frequent_solutions_as_hints_overall_acc}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.485\textwidth}
+        \centering
+        \includegraphics[width=1.0\linewidth]{figs/explore_frequent_solutions_as_hints_answer_acc.pdf}
+        \caption{Model performance when taking example solutions associated with the top-$k$ frequent theorems as hints (\textit{Answer Accuracy}).}
+        \label{fig:explore_frequent_solutions_as_hints_answer_acc}
+    \end{minipage}
+    \vspace{-3mm}
+\end{figure}
+
+
+The following example showcases how a well-matched question–solution pair can help LLMs overcome initial reasoning flaws and adopt more rigorous proof techniques. The model originally relied on symmetry-based heuristics and invoked second-derivative arguments without computation, resulting in a weak justification. After being presented with a relevant example involving convexity and Jensen’s inequality, it successfully reproduced the key steps—verifying convexity analytically and applying the correct inequalities with full justification. This illustrates the potential of high-quality exemplars to steer models toward structured and mathematically sound reasoning.
+
+
+\input{src/explore_retrieved_solution_as_hints}
+
+% \clearpage
+\subsection{Self-improvement via Critic as Feedback}
+\label{app:self_improvement}
+In addition to overall accuracy, we also evaluate answer accuracy within the same self-critique setup. Using 40 randomly selected problems from the \dataset benchmark, we assess whether one round of self-revision improves the correctness of final answers. As shown in Figure~\ref{fig:explore_self_critic_as_hint_answer_acc}, models like o3-mini and o4-mini gain 2–5\% in answer accuracy after revision. This result further supports self-critique as a lightweight and supervision-free approach to improving solution reliability in inequality problems.
+\begin{figure}[H]
+    \centering
+    \vspace{-2mm}
+    \includegraphics[width=0.45\linewidth]{figs/explore_self_critic_as_hint_answer_acc.pdf}
+    \caption{Model performance when taking one round of critic as feedback (\textit{Answer Accuracy}).}
+    \vspace{-4mm}
+\label{fig:explore_self_critic_as_hint_answer_acc}
+\end{figure}
+
+The following example illustrates how self-critique can help LLMs identify and correct subtle reasoning flaws. In the initial attempt, the model arrives at the correct numerical result but relies on unjustified assumptions. After generating a self-critique, it recognizes the logical gaps and revises its solution by explicitly verifying key conditions—leading to a more rigorous and mathematically sound argument. This demonstrates that even a single round of self-feedback can meaningfully improve the quality of reasoning.
+
+\input{src/explore_self_improvement_example_no_critic}
+
+% \clearpage
+\subsection{Few-shot Evaluation} % Few-shot evaluation
+\label{app:few_shot_evaluation}
+
+We also investigated the effect of few-shot prompting on the \dataset test set. Specifically, we compared zero-shot, one-shot, and three-shot configurations across different models. 
+
+As shown in Figure~\ref{fig:few_shot_overall_acc}, the gains in overall accuracy from few-shot prompting were small, typically below 2\% compared to zero-shot performance. For instance, Grok 3 achieved 3.5\% accuracy in the zero-shot setting but dropped slightly in the one-shot and three-shot settings (2.5\% and 1.5\%, respectively). Similarly, o1 peaked at 8.0\% in both the one-shot and three-shot settings, with minimal difference across shots.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.485\textwidth}
+        \centering
+        \includegraphics[width=1.0\linewidth]{figs/few_shot_overall_acc_figure.pdf}
+        \caption{Model performance under zero-shot, one-shot, and three-shot settings (\textit{Overall Accuracy}).}
+        \label{fig:few_shot_overall_acc}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.485\textwidth}
+        \centering
+        \includegraphics[width=1.0\linewidth]{figs/few_shot_answer_acc_figure.pdf}
+        \caption{Model performance under zero-shot, one-shot, and three-shot settings (\textit{Answer Accuracy}).}
+        \label{fig:few_shot_answer_acc}
+    \end{minipage}
+    \vspace{-3mm}
+\end{figure}
+
+Moreover, Figure~\ref{fig:few_shot_answer_acc} shows that few-shot prompting typically reduces answer accuracy. For o1, accuracy drops from 62.5\% in the zero-shot setting to 55.5\% with one-shot and 53.0\% with three-shot. QwQ-32B displays the same trend: both one-shot and three-shot underperform the zero-shot baseline (41.5\% and 43.5\% vs.\ 49.5\%). These declines suggest overfitting to exemplars, indicating that few-shot prompting does not reliably improve the answer accuracy on the \dataset test set.
+
+
+% \clearpage
+\subsection{Evaluation on the Formalized \dataset}
+\label{app:formal_evaluation}
+
+To expand the impact of \dataset, we conduct a formal evaluation on state-of-the-art automated theorem proving (ATP) models. The key step in this evaluation is the \textbf{formalization process}, which converts the natural language inequality problems in \dataset into machine-verifiable Lean4 code. 
+
+As illustrated in Figures~\ref{fig:formal_illustration_bound} and Figures~\ref{fig:formal_illustration_relation}, this process proceeds in two stages in our experiment. First, we reformulate the inequality problems into proof-style problems using GPT-4.1~\cite{openai2025gpt41}, ensuring they are structured for formalization. Second, we employ the Goedel-Formalizer-V2-32B~\cite{lin2025goedelv2} to automatically translate these reformulated proof problems into valid Lean4 representations.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\linewidth]{figs/figure_formal_illustration_bound.pdf}
+    \caption{Illustration of the formalization process for bound problems.}
+    \label{fig:formal_illustration_bound}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\linewidth]{figs/figure_formal_illustration_relation.pdf}
+    \caption{Illustration of the formalization process for relation problems.}
+    \label{fig:formal_illustration_relation}
+\end{figure}
+
+Once formalized, we evaluate SOTA ATP models on the Lean4 problems to measure their ability to solve inequality tasks. The results are as follows.
+
+\input{src/table_formal_evaluation}
+
+The results in Table~\ref{tab:table_formal_evaluation} show that state-of-the-art (SOTA) formal automated theorem proving models still suffer from the difficult inequality problems in \dataset. Even the best-performing model, Goedel-Prover-SFT, achieves only a 14.0\% pass rate, while others remain far lower. This demonstrates that current approaches are inadequate for reliably solving the inequality-focused tasks presented in \dataset, and further methods are needed to achieve significant improvements in handling these challenging problems. 
+
+% \clearpage
+\subsection{Memorization Probe}
+\label{app:memorization_probe}
+
+To further demonstrate the modest degree of contamination in \dataset, we conducted a memorization probe experiment. In this probe, we systematically rephrased all test problems by swapping the terms on either side of each inequality and then re-evaluated models on the reformulated version. The rephrased problem is mathematically equivalent to the original one, differing only in presentation. This allows us to test whether models had merely memorized the original problems or could generalize to equivalent but rephrased tasks. Examples of the rephrased problems are as follows.
+
+\input{src/memorization_probe_bound_example}
+\input{src/memorization_probe_relation_example}
+
+We evaluate Claude Sonnet 4, GPT-4.1 mini, and o4-mini on both the original and reformulated versions of the \dataset test set, with their performance results summarized below.
+
+As shown in Figures~\ref{fig:memorization_probe_overall_acc} and \ref{fig:memorization_probe_answer_acc}, model performance remains largely consistent across the original and reformulated versions of the \dataset test set. For example, GPT-4.1 mini maintains an overall accuracy of 8.5\% in both conditions, while o4-mini shows only a slight drop from 15.5\% to 15.0\%. In terms of answer accuracy, Claude Sonnet 4 decreases modestly from 44.0\% to 40.0\%, whereas o4-mini remains steady at 65.0\%. These small shifts—generally under 5 percentage points—indicate that the models adapt well to rephrased tasks rather than relying on memorized solutions. This provides strong evidence that contamination is unlikely, as performance is not driven by rote recall.
+
+\clearpage
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.485\textwidth}
+        \centering
+        \includegraphics[width=0.9\linewidth]{figs/memorization_probe_overall_acc_figure.pdf}
+        \caption{Model performance on the original and reformulated version of the \dataset test set (\textit{Overall Accuracy}).}
+        \label{fig:memorization_probe_overall_acc}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.485\textwidth}
+        \centering
+        \includegraphics[width=0.9\linewidth]{figs/memorization_probe_answer_acc_figure.pdf}
+        \caption{Model performance on the original and reformulated version of the \dataset test set (\textit{Answer Accuracy}).}
+        \label{fig:memorization_probe_answer_acc}
+    \end{minipage}
+    \vspace{-3mm}
+\end{figure}
+
+
+
+
+
+% \clearpage
+\section{Limitations} 
+\label{app:limitations}
+
+While our work introduces a novel dataset and evaluation judges for LLM-based inequality proving, we acknowledge several limitations that warrant discussion and offer avenues for future research.
+
+\paragraph{Potential for data contamination.} Although we took significant measures to mitigate data leakage by commissioning novel test problems curated by experts, keeping ground truth answers private, and utilizing an online leaderboard for evaluation, a residual risk of contamination remains. LLMs possess vast training corpora, and it is possible they have encountered problems with similar structures or underlying principles during pre-training, potentially inflating performance beyond true generalization capabilities. Our expert curation and review process aimed to minimize this, but perfect isolation from prior knowledge is challenging to guarantee.
+
+\paragraph{Training dataset scale and scope.} The \dataset training set, while meticulously curated with 1,252 problems featuring step-wise solutions, multiple solution paths, and theorem annotations, is modest in size compared to the massive datasets often used for pre-training or fine-tuning large models. We prioritized quality and depth (step-wise solutions, theorems) to the challenging Olympiad-level domain over sheer quantity. While sufficient for benchmarking current models, post-training, and exploring test-time techniques, this scale might be insufficient for training highly specialized models from scratch or for capturing the full diversity of inequality types. Future work could focus on scaling up the dataset while maintaining quality, potentially through community contributions.
+
+\paragraph{Inherent inaccuracies in LLM-as-judge evaluation.} Our \textit{LLM-as-judge} framework demonstrates high reliability on our development set (F1$=1.0$ for the \textit{final-answer judge}, $>0.9$ average for step-wise judges). However, while significantly more scalable than human expert evaluation, these judges are still imperfect. As illustrated by examples in \S\ref{app:judge_failure_examples}, they can occasionally misinterpret complex reasoning, overlook subtle logical flaws, or fail to correctly assess nuanced mathematical arguments. The current set of step-wise judges targets common failure modes but does not cover all possible error types, such as the correctness of complex symbolic transformations or the optimal choice of strategy. Potential improvements include using more powerful (but potentially more expensive) LLMs as judge backends (e.g., o3), developing specialized judges trained on annotated errors, or adding judges for specific mathematical operations like symbolic manipulation verification.
+
+\paragraph{Mitigation, not elimination, of answer guessability.} 
+The inclusion of step-wise judges significantly mitigates the issue of models guessing the correct final answer without sound reasoning. However, it does not eliminate this possibility entirely. A model might still arrive at the correct bound or relation through chance or heuristics and support it with plausible-sounding, yet flawed, intermediate steps capable of misleading one or more judges. The requirement to pass all judges reduces this risk, but the fundamental challenge of distinguishing genuine mathematical insight from convincing yet spurious reasoning remains.
+
+\paragraph{Computational cost of evaluation.} While more efficient than manual expert grading, our multi-judge evaluation protocol is computationally more intensive than simple final-answer checking (e.g., string matching). Evaluating each solution requires multiple LLM inferences (one for the final answer, four for step-wise checks). This cost scales linearly with the number of models and problems being evaluated and could become a factor in very large-scale benchmarking efforts.
+
+
+\section{Broader Impacts}
+\label{app:impacts}
+
+This research focuses on advancing the mathematical reasoning capabilities of LLMs, specifically in the domain of inequality proving. While the work is primarily foundational and unlikely to lead directly to malicious applications such as disinformation or surveillance, potential negative societal impacts could arise from the misuse or misinterpretation of the technology. The most significant risk stems from over-reliance on LLM-generated proofs that may appear correct superficially (achieving high answer accuracy) but contain critical logical flaws, as demonstrated by the sharp drop in performance under our step-wise evaluation. If such flawed proofs were uncritically accepted in fields requiring mathematical rigor, such as scientific modeling, engineering design, or financial analysis, they could lead to incorrect conclusions, faulty systems, or economic miscalculations. Our contribution of a rigorous, step-wise evaluation methodology serves as a potential mitigation strategy by promoting transparency and enabling the identification of fragile reasoning chains, thereby encouraging cautious deployment and emphasizing the need for verification, especially in high-stakes applications. The public release of the \dataset benchmark further supports community efforts in understanding and improving the reliability of LLM reasoning.

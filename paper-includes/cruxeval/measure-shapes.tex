@@ -1,0 +1,10 @@
+\subsection{Execution Information as an Optimization Target}
+
+\textbf{Leveraging Test Cases and Code Execution}: Another line of work uses test cases and code execution information to improve code generation. Some examples include Speculyzer \citep{key2022speak}, CodeT \citep{chen2022codet}, CodeGen-Test \citep{zhong2022codegen}, Coder-Reviewer reranking \citep{zhang2023coder}, MBR-EXEC \citep{shi2022natural}
+TCoT \citep{tian2023test},
+Algo \citep{zhang2023algo}, Pangu-Coder2 \citep{shen2023pangu}, LEVER \cite{ni2023lever}, and Self-Play \citep{haluptzok2022language}.
+The idea of these works is to generate many programs and many test cases and select which programs and test cases seem correct based on the execution results.
+using execution info. Other works use RL-style execution feedback to improve code generation, including CodeRL \citep{le2022coderl}, Reflexion \citep{shinn2023reflexion}, and PG-TD \citep{zhang2023planning}. \citep{chen2023teaching, olausson2023demystifying, madaan2023self, peng2023check, zhang2023self} investigate self-repair, using error messages as feedback for models to improve.
+
+Most relevant to our work, a handful of works examine and improve the execution ability of code LMs. \cite{austin2021program},
+Scratchpad \citep{nye2021show}, and CodeExecutor \citep{liu2023code} train code LMs on execution information. Inspired by these works, we briefly touch on two primitive ways to improve performance on our benchmark, chain-of-thought and fine-tuning. Moving forward, we believe our \benchmark could serve as a useful reference point as more techniques are designed to improve code execution abilities.

@@ -1,0 +1,37 @@
+\begin{examplebox}[Judge Failure Example 1: Toy Case]
+\textbf{Problem}: Let $a, b, c$ be three non-negative real numbers. Find the largest constant $C$ such that the following inequality holds for all $a, b, c \geq 0$:
+$$
+\left(a^2+1\right)\left(b^2+1\right)\left(c^2+1\right) \geq (ab+bc+ca-abc)^2 + C \cdot abc
+$$
+\\
+\textbf{Response Snippet}: \\
+Let \( a = b = c = t \), the inequality becomes:
+\[
+(t^2+1)^3 \geq (3t^2-t^3)^2 + C t^3
+\]
+
+After expanding the both sides and dividing both sides by \( t^3 \) (for \( t > 0 \)):
+\[
+6t^2 - 6t + \frac{3}{t} + \frac{1}{t^3} \geq C
+\]
+
+Now, let's minimize \( f(t) = 6t^2 - 6t + \frac{3}{t} + \frac{1}{t^3} \) for \( t > 0 \).\\
+
+... (Checking the minimum)\\
+
+So, at \( t = 1 \), \( f(1) = 4 \) is indeed the minimum.
+
+From the above, for all other values of \( t \), \( f(t) > 4 \), so the final answer is \boxed{C=4}.
+\\\\
+\textbf{Expected Evaluation for the Judge}:
+\\
+The solution applies a toy-case simplification by assuming $a = b = c = t$, and analyzes $f(t)$ to draw conclusions about the general case. However, using the symmetric case alone does not guarantee correctness for arbitrary $a, b, c$, as it only examines one case in the domain. This reasoning lacks general validity. Therefore, the answer is \boxed{\text{False}}.
+\\\\
+\textbf{Wrong Evaluation from the Judge}: \\
+\wrong{The solution applies a general calculus-based method by reducing to the symmetric case \(a = b = c = t\).} It computes \(f'(t)\) to find the global minimum of $f(t)$. This is logical solid. The response didn't use any special case to draw the final conclution. Therefore, the answer is \boxed{\text{True}}.
+\\
+
+\textbf{Expert Comment}: \\
+The model incorrectly treats a rigorous analysis within a symmetric toy case (i.e., $a = b = c$) as a general proof for all $a, b, c \geq 0$ \wronghl. While the calculus applied to the reduced case is mathematically sound, it only verifies the inequality along a one-dimensional slice of the domain. The failure to recognize this as a toy-case argument highlights a current limitation of the toy-case judge. Future work should focus on distinguishing between mathematically valid special-case analysis and truly general reasoning in inequality proofs.
+
+\end{examplebox}

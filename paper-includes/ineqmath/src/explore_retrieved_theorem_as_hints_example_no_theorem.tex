@@ -1,0 +1,69 @@
+\begin{examplebox}[Retrieving Relevant Theorems as Hints: Example]
+\small
+\textbf{Problem:} Let $a, b, c$ be positive real numbers. Consider the following inequality:
+$$
+\sum_{cyc} \frac{b+c}{\sqrt{(a+b)(a+c)}} \quad () \quad 2 \sum_{cyc} \frac{2a}{2b+c}.
+$$
+Determine the correct inequality relation to fill in the blank.\\
+\textbf{Options:} (A) $\leq$ \quad(B) $\geq$ \quad (C) $=$  \quad (D) $<$ \quad  (E) $>$  \quad (F) None of the above
+\\\\
+\textbf{Response by o4-mini without Theorems (Correct Response \cmark):}
+
+First note the elementary two‐term bound, valid for all positive \(u,v\):
+\[
+\frac{2u}{2v+w}+\frac{2u}{2w+v}
+\;-\;\frac{v+w}{\sqrt{(u+v)(u+w)}}
+\;=\;\frac{\bigl(\sqrt{(u+v)(u+w)}-u\bigr)^2}{\sqrt{(u+v)(u+w)}\,(2v+w)(2w+v)}
+\;>\;0.
+\]
+If expanding and simplifying that difference you arrive precisely at
+\[
+\frac{v+w}{\sqrt{(u+v)(u+w)}}\;<\;
+\frac{2u}{2v+w}+\frac{2u}{2w+v}.
+\]
+Now set \((u,v,w)=(a,b,c)\), and sum the resulting three inequalities cyclically.  
+
+On the right you get $\sum_{\rm cyc}\!\Bigl[\frac{2a}{2b+c}+\frac{2a}{2c+b}\Bigr]
+=\;2\sum_{\rm cyc}\frac{2a}{2b+c}$. 
+While on the left you recover \(\sum_{\rm cyc}\tfrac{b+c}{\sqrt{(a+b)(a+c)}}\).  Thus in full generality
+\[
+\sum_{\rm cyc}\frac{b+c}{\sqrt{(a+b)(a+c)}}\;<\;
+2\sum_{\rm cyc}\frac{2a}{2b+c},
+\]
+Therefore, the answer is \boxed{(D) <}
+\\\\
+\textbf{Irrelevant Theorem Provided:} \textbf{Theorem Zdravko (Mean Inequalities)}: Let $a_{1}, a_{2}, \ldots, a_{n}$ be positive real numbers. The numbers
+$$
+\begin{aligned}
+& Q M=\sqrt{\frac{a_{1}^{2}+a_{2}^{2}+\cdots+a_{n}^{2}}{n}}, \quad A M=\frac{a_{1}+a_{2}+\cdots+a_{n}}{n} \\
+& G M=\sqrt[n]{a_{1} a_{2} \cdots a_{n}} \quad \text { and } \quad H M=\frac{n}{\frac{1}{a_{1}}+\frac{1}{a_{2}}+\cdots+\frac{1}{a_{n}}}
+\end{aligned}
+$$
+are called the quadratic, arithmetic, geometric and harmonic mean for the numbers $a_{1}, a_{2}, \ldots, a_{n}$, respectively, and we have
+$$
+Q M \geq A M \geq G M \geq H M
+$$
+
+Equalities occur if and only if $a_{1}=a_{2}=\cdots=a_{n}$.
+\\\\
+\textbf{Response by o4-mini with Theorem Provided (Incorrect Response \xmark):}
+
+First, when \(a=b=c=1\), we have
+\[LHS 
+= \sum_{\rm cyc}\frac{b+c}{\sqrt{(a+b)(a+c)}}
+=3,\quad
+RHS 
+= 2\sum_{\rm cyc}\frac{2a}{2b+c} =4.
+\]
+
+Hence at \(a=b=c\), 
+\[
+LHS = 3 < RHS = 4.
+\]
+\wrong{A more detailed inequality‐chasing via AM–GM in Mean inequalities theorem shows the strict “<” persists for all positive \(a,b,c\).}
+
+Therefore, the answer is \boxed{(D) <} 
+\\\\
+\textbf{Expert Comment:}
+Without theorems, the model solves the problem accurately by constructing a detailed inequality using symmetric substitution and algebraic manipulation. However, when given the Mean Inequality theorem—which is unrelated to the problem—it becomes confused. Instead of following the previous structured reasoning, it resorts to a surface-level AM–GM (Mean inequalities) without general proof or justification \wronghl. This highlights the importance of supplying relevant theorems.
+\end{examplebox}

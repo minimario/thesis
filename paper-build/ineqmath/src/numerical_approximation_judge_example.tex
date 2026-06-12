@@ -1,0 +1,41 @@
+\begin{examplebox}[Judge Example 3: Numerical Approximation]
+\textbf{Response:}\\
+...\\
+When \(A = 89^\circ\), \(B = C = 45.5^\circ\):\\
+\[
+\cos 89^\circ \approx 0.01745
+\]
+\[
+\cos 45.5^\circ \approx 0.7009
+\]
+
+Compute:
+\[
+\frac{\cos A}{\cos B \cos C} = \frac{0.01745}{0.7009^2} \approx \frac{0.01745}{0.4913} \approx 0.0355
+\]
+\[
+\frac{\cos B}{\cos C \cos A} = \frac{0.7009}{0.7009 \cdot 0.01745} = \frac{0.7009}{0.01223} \approx 57.33
+\]
+\[
+\frac{\cos C}{\cos A \cos B} = \frac{0.7009}{0.01745 \cdot 0.7009} = \frac{0.7009}{0.01223} \approx 57.33
+\]
+
+\wrong{So the sum:}
+\wrong{
+\[
+S \approx 0.0355 + 57.33 + 57.33 \approx 114.7 > 114
+\]}
+
+\wrong{which concludes that $S>114$.}
+
+...\\
+
+\textbf{Judge Output:}
+
+\texttt{<Analysis>:} The above computation relies on approximate decimal values for trigonometric functions. Using such coarse approximations—especially in the denominator—can lead to significant magnification of numerical error. So comparing the approximation of S with 114 to conclude the relationship with S and 114 is not mathematically rigorous. \\
+
+\texttt{<Flagged Reasoning Step (if applicable)>:} \flagged{So the sum $S \approx 0.0355 + 57.33 + 57.33 \approx 114.7 > 114$, which concludes that $S>114$.}\\
+
+\texttt{<Answer>:} \textbf{\boxed{False}}
+
+\end{examplebox}

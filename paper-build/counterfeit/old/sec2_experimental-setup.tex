@@ -1,0 +1,16 @@
+\section{Experimental Setup}
+\subsection{Tasks}
+All three tasks are given to the language model (LM) in a few-shot setting. Prompts can be found in Appendix \ref{appendix:prompts}. The tasks are as follows, and common sets of model-generated programs are used across the tasks.
+
+\textit{Correctness Checking}: From a natural language (NL) specification (frequently including input-output examples) and a model-generated Python program to verify, check whether the program correctly implements the specification.
+
+\textit{Execution Prediction}: Given a program and an input, predict the execution output of the program.
+
+\textit{Repair}: From a NL specification and an incorrect model-generated program for that specification, fix the program.
+% A key difference from \citep{olausson2024repair} is that in our setup, the model is \textit{not given any information about which test failed}; it is only inform that the program is incorrect.
+% Thus, the model has to localize and repair the issue without any external signal from the program interpreter.
+
+\subsection{Dataset Creation}
+We use three datasets: HumanEval, LeetCode, and ODEX \citep{wang2022execution}. HumanEval evaluates code generation of simple natural language problems, LeetCode is a harder dataset of the same flavour using programming interview practice problems, and ODEX tests knowledge of diverse Python libraries. We generate programs by sampling from multiple language models and select 5 correct and 5 incorrect programs for each problem. We use various Code Llama (CL), DeepSeek-Coder Instruct (DS-I), and StarCoder (SC) models to generate the programs, for a total of $12$ different sets of programs consisting of $360$ to $1190$ samples across the three datasets. We ensure these samples are high-quality by filtering out solutions that are too trivial, too difficult, or ill-formed. For execution prediction, we randomly selected input-output examples, removing pairs that require complex arithmetic or execution. We also remove the problem statement and example input-output pairs are also removed so the model focuses on executing the code. For the repair task, we filter the previous dataset to only keep incorrect programs. More details and examples can be found in Appendix \ref{appendix:detailed-experimental-setup}.
+
+% For evaluation, we also use these models, as well as GPT-3.5 and GPT-4\footnote{gpt-3.5-turbo-0125, gpt-4-0125-preview}.

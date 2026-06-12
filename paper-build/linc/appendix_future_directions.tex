@@ -1,0 +1,20 @@
+\section{Future Directions}
+\label{appendix:fw}
+
+Of the error types we catalog in our analysis of \texttt{LINC}, the key opportunity for improvement is more elegant handling of naturalistic language use.
+While the errors observed with \texttt{CoT} result from faulty deductive inferences, in the case of \texttt{LINC}, all errors have been localized to the semantic parsing procedure.
+This process flows primarily unimpeded in the evaluation of the synthetic ProofWriter dataset, yet leaves room for improvement with the naturalistic FOLIO. 
+In follow-up work, we hope to deeply explore naturalistic evaluation settings, as when data get the most messy is also where improvements become the most valuable. 
+Here, we propose three strategies for further improvement on naturalistic settings.
+
+First, in naturalistic communication, ``obvious'' information is often left out of explicit productions, left to be inferred in the ``common ground'' of the communicative act \citep{grice1975logic,stalnaker2002common}. 
+Implicit premise rediscovery through controlled exploration on the logical neighborhood of the existing explicit premises promises to be a powerful strategy for improving performance in underspecified settings.
+
+Second, while a number of samples are lost to syntax errors, recent work has proposed restricting the sampling space of an LLM to that which is consistent with term expansions in a context-free-grammar (CFG) \citep{poesia2022synchromesh}.
+Doing so in this setting would eliminate all syntax errors.
+
+Third, sometimes, the translation process to FOL is lossy, throwing away valuable information present in the original sentence.
+We propose improving the faithfulness of FOL translations by asking the LLM to translate the FOL back to natural language and comparing with the original.
+Forward translations that rank highly when back-translated would be those which have effectively captured the intricacies of a particular sentence's semantics.
+
+Overall, we believe that shifting to evaluations on more naturalistic datasets, and incorporating strategies such as those presented here, will help pave the path forward for neurosymbolic approaches to formal reasoning.

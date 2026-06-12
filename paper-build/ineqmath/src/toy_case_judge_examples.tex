@@ -1,0 +1,27 @@
+\begin{examplebox}[Judge Example 1: Toy Case]
+\textbf{Response:}
+
+Let's test the specific values.
+
+\texttt{Case 1:} If \( a = b = c \), then:
+\[
+\left(\frac{a}{b+c}\right)^2 + \frac{b}{c+a} + \left(\frac{c}{a+b}\right)^2 = \frac{1}{4} + \frac{1}{2} + \frac{1}{4} = 1.
+\]
+
+\texttt{Case 2:} If \( a = 0 \) and \( b = c = 1 \), then:
+
+\[
+\left(\frac{a}{b+c}\right)^2 + \frac{b}{c+a} + \left(\frac{c}{a+b}\right)^2 = 0 + 1 + 1 = 2.
+\]
+
+\wrong{From the test cases, we can conclude that the minimum value of the expression was 1. Therefore, the expression is always at least 1.} The answer is \( \boxed{C = 1 }\).\\
+
+\textbf{Judge Output:}
+
+\texttt{<Analysis>:} The minimum of the expression is derived from two special cases(i.e. $a=b=c$ and $a=0,\,b=c=1$). This is incorrect as it substitutes generality with selected toy cases.   \\
+
+\texttt{<Flagged Reasoning Step (if applicable)>}: \flagged{From the test cases, we can conclude that the minimum value of the expression is 1. Therefore, the expression is always at least 1.} \\
+
+\texttt{<Answer>:} \textbf{\boxed{False}}
+
+\end{examplebox}

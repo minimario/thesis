@@ -1,0 +1,176 @@
+\section{Qualitative Analysis} \label{sec:qual-analysis}
+In general, most counterfeit programs fall into one of three broad categories: (1) error in algorithmic design or implementation, (2) incorrectly understanding or completely ignoring details in the specification, (3) failing to address corner cases in the input space. Examples of each are provided in Appendix~\ref{appendix:qual-sample-categories}.
+
+\subsection{Failure Modes on Correctness Checking}
+In Sec. \ref{sec:understanding-counterfeit}, we saw that GPT-4 is significantly more performant than other models at both correctness checking and execution prediction. Yet, we still find a significant fraction of failures. In this section, we take a closer look at the performance of GPT-3.5 and GPT-4 to understand where today's cutting-edge models still fall short. Through a manual inspection of examples, we uncover three main failure modes for verifying the correctness of counterfeit samples. Here, we present one example of each, deferring more to Appendix~\ref{appendix:qual-sample-mistakes}. For conciseness and readability, some of the problem statements have been altered from their original form.
+
+%40 manually inspected random samples, 20 per GPT model%, evenly split between the LCB and HumanEval dataset (if yall are concerned that i didnt look at Odex, lmk. I didn't think it was a big deal, and those are much harder to validate manually tbh
+% , are classified according to these categories and summarized in Table~\ref{tab:qual_classify}. 
+% Specific annotated examples are shown in Appendix~\ref{appendix:qual_samples}.
+
+\textbf{1) The model does not catch misunderstood or ignored details in the specification}: Sometimes, the verification model doesn't catch important specification details that are misunderstood or ignored by the counterfeit sample. 
+
+% For example, GPT-4 fails to realize that the code below does not actually check that all elements in the subarray are equal, which is explicitly requested in the specification.
+
+% \begin{lstlisting}[language=python]
+% """You are given a 0-indexed integer array nums and an integer k. A subarray is called equal if all of its elements are equal. Note that the empty subarray is an equal subarray. Return the length of the longest possible equal subarray after deleting at most k elements from nums. A subarray is a contiguous, possibly empty sequence of elements within an array.
+% """
+
+% def longestEqualSubarray(nums: List[int], k: int) -> int:
+%     count = defaultdict(int)
+%     max_freq = max_length = left = 0
+%     for right in range(len(nums)):
+%         count[nums[right]] += 1
+%         max_freq = max(max_freq, count[nums[right]])
+%         if right - left + 1 - max_freq > k:
+%             count[nums[left]] -= 1
+%             left += 1
+%         max_length = max(max_length, right - left + 1)
+%     return max_length
+% \end{lstlisting}
+
+For example, GPT-3.5 fails to find the reasoning error in the below counterfeit sample because it appears to have misunderstood the definition of ``corresponding closing bracket''. However, when asked to implement a function for the specification, it correctly understands that the corresponding closing bracket must come after the opening bracket, highlighting an inconsistency between generation and correctness checking.
+
+\begin{lstlisting}[language=python, frame=single, ]
+def correct_bracketing(brackets: str):
+    """ brackets is a string of "<" and ">". return True if every opening bracket has a corresponding closing bracket.
+    >>> correct_bracketing("<<><>>")
+    True
+    >>> correct_bracketing("><<>")
+    False
+    """
+    opening = brackets.count("<")
+    closing = brackets.count(">")
+    return opening == closing
+\end{lstlisting}
+
+\begin{lstlisting}[style=reasoning, frame=single]
+GPT-3.5: The code appears to be correct. It counts the number of opening brackets ("<") and closing brackets (">") in the input string and returns True if the counts are equal, indicating that every opening bracket has a corresponding closing bracket.
+\end{lstlisting}
+
+\textbf{2) The model fails to catch subtle implementation mistakes}: Often, counterfeit samples follow a generally correct algorithm design but contain a subtle implementation mistake that models do not catch. Below, \verb|if num = target| check should consider whether the remaining digits in \verb|square[index:]| sum to 0 for this implementation to be correct, but GPT-4 misses this subtle detail.
+
+\begin{lstlisting}[language=python, frame=single]
+"""Given a positive integer n, return the punishment number of n, defined as the sum of the squares of all integers i such that 1) 1 <= i <= n and 2) The decimal representation of i * i can be partitioned into contiguous substrings such that the sum of the integer values of these substrings equals i."""
+
+def punishmentNumber(n: int) -> int:
+    def check(num, target, index, square):
+        if num == target:
+            return True
+        if index == len(square):
+            return False
+        cur = 0
+        for i in range(index, len(square)):
+            cur = cur * 10 + int(square[i])
+            if cur > target:
+                break
+            if check(num + cur, target, i + 1, square):
+                return True
+        return False
+
+    res = 0
+    for i in range(1, n + 1):
+        square = str(i * i)
+        if check(0, i, 0, square):
+            res += i * i
+    return res
+
+# GPT-4 CoT verdict: Correct
+\end{lstlisting}
+
+\textbf{3) The model forgives an identified error}: A third failure mode occurs when the model correctly reasons that the code is incorrect, but then makes up a justification for the error and judges the code as correct. In the counterfeit sample below, the code fails to consider capital consonants. While GPT-4 correctly identifies this issue, it proceeds to state that assuming that concern is not a real issue, the code is correct. However, the implementation fails one of the examples.
+
+\begin{lstlisting}[language=python, frame=single]
+def select_words(s, n):
+    """Given a string s and a natural number n, return a list of all words from string s that contain exactly n consonants, in the order these words appear in the string s.
+    Examples:
+    select_words("Mary had a little lamb", 4) ==> ["little"]
+    select_words("Mary had a little lamb", 3) ==> ["Mary", "lamb"] 
+    """
+    # convert string to list
+    word_list = s.split()
+    consonants = "bcdfghjklmnpqrstvwxyz"
+    # filter out all words that contain n consonants
+    return [word for word in word_list if sum(c in consonants for c in word) == n]
+\end{lstlisting}
+
+\begin{lstlisting}[style=reasoning, frame=single]
+GPT-4: ... However, there is a potential issue with case sensitivity. The `consonants` string only contains lowercase consonants, and the program does not explicitly convert the input string `s` or the words to lowercase before checking if a character is a consonant. This means that if the input string contains uppercase letters, the program might not count them as consonants, leading to incorrect results. [...] the!* program correctly implements the functionality described in the docstring under the assumption that the input string contains only lowercase letters or that case sensitivity is not a concern*!...
+\end{lstlisting}
+
+
+% \begin{lstlisting}[language=python]
+% def pairs_sum_to_zero(l):
+%     """ pairs_sum_to_zero takes a list of integers as an input. it returns True if there are two distinct elements in the list that sum to zero, and False otherwise.
+%     >>> pairs_sum_to_zero([2, 4, -5, 3, 5, 7])
+%     True
+%     """
+%     result = False
+%     for i in l:
+%         for j in l:
+%             if i != j and (i + j == 0):
+%                 return True
+%     return result
+% \end{lstlisting}
+
+% \begin{lstlisting}[style=reasoning]
+% Reasoning: ... However, the condition `i != j` checks if the values of `i` and `j` are not equal, not if they are distinct elements (i.e., not checking if they are at different positions in the list). This could lead to a false negative in cases where there are two elements with the same value that could sum to zero with other elements. [...] the program correctly implements the logic as per the docstring for the provided examples and the general case where two distinct elements (by value and position) sum to zero. The misunderstanding comes from interpreting "distinct elements" as distinct by value only, not by position. Since the docstring does not explicitly clarify this point, and based on the examples provided, the program behaves as expected for the specified task.
+% \end{lstlisting}
+
+
+% In order of bottleneck error, t
+% The major error classes are as follows. \textbf{Underspecification} happens if the natural language specification does not explicitly state how to handle input corner cases or otherwise does not explicitly state some detail that is important for correctness. \textbf{Misunderstanding the specification}, including fully ignoring some explicitly stated detail, can also result in erroneous verification. In other counterfeit samples, the implementation approach seems to understand the specification just fine but makes an error in either the high-level \textbf{algorithm design} or an \textbf{implementation detail}, and the correctness check verification model does not identify the error. 
+% In other cases, the \textbf{reasoning and final classification do not align}-- that is, model correctly reasons about the error in an implementation but then ultimately classifies the counterfeit sample as correct. 
+% Another case is samples that are \textbf{false counterfeit samples}, that is, they are classified as correct by the gold correctness checks, i.e. pass all hidden input-output cases, but they are actually algorithmically incorrect, and the verification model correctly identifies this. % <-- another case of not really a counterfeit sample, but auto methods would have classified it as such so i think we should include it
+% also observe that GPT4 reasoning is always longer lol
+
+
+% \begin{table*}[t]
+% \small \centering
+% \begin{tabular}{lccccc}
+% \toprule
+%  & Underspecified & Misunderstood spec. & Algo. error & Impl. error  & Concludes adversely \\
+% \midrule
+% GPT 3.5 & 5 & 8 & 2 & 5 & 0 \\
+% GPT 4 & 8 & 3 & 2 & 4 & 3  \\
+% \bottomrule
+% \end{tabular}
+% \caption{40 total counterfeit samples classified according to code correctness verification error. A given counterfeit sample is classified according to its one bottleneck error (left to right).}
+% \label{tab:qual_classify}
+% \end{table*}
+
+
+% leave everything below this line to future work
+% Most errors in correctness classification for counterfeit samples are in misunderstanding the specification and implementation errors. One method to help with underspecification and misunderstanding the specification is to include a correct implementation in the prompt, to provide additional correctness specification signal to the model. 
+% Overlooking implementation details may be remedied by including the provided counterfeit sample's input/output execution examples in the prompt. If the verification model sees that the output of the code does not align with what would be correct according to the specification, then this may help the model correctly classify the counterfeit sample as ``Incorrect." % We run additional experiments on these hypotheses and show the results in __. We find that indeed both approaches do help improve verification scores, though there is much future work to make that improvement substantial.
+
+
+
+% \paragraph{Do the models perform better if given input-output execution of the code?} -- YES slightly
+
+
+
+% \paragraph{Do the models perform better if given a ground truth solution of the code?} -- YES
+
+\textbf{Execution Prediction}: To conclude this section, we highlight an error in execution prediction. In the example below, even though the statement \texttt{if ")" in brackets} is clearly true, GPT-4 is biased by the intended functionality of the program and does not follow its actual execution semantics. More examples can be found in Appendix \ref{appendix:gpt4-execution-errors}.
+
+\begin{lstlisting}[language=Python, frame=single]
+def correct_bracketing(brackets: str):
+    if ")" in brackets:
+        return False
+    open_brackets = 0
+    for bracket in brackets:
+        if bracket == "(":
+            open_brackets += 1
+        else:
+            open_brackets -= 1
+            if open_brackets < 0:
+                return False
+    return open_brackets == 0
+assert correct_bracketing('()') == ??
+# Correct Answer: False
+\end{lstlisting}
+\begin{lstlisting}[style=reasoning, frame=single]
+GPT-4 Execution: [...] 2. The function is called with the argument "()".
+!* 3. The first if condition checks if ")" is in brackets. Since it is, but only after "(", this condition does not lead to a return of False at this point [...]
+\end{lstlisting}

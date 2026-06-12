@@ -1,0 +1,77 @@
+\section{Correctness Checking}
+In this section, we address the question: \textit{to what extent can code language models understand counterfeit samples}?
+
+\begin{figure*}[t]To what extent can code LMs assess the correctness of code they generate?
+
+    \centering
+    \begin{subfigure}[b]{0.35\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/accuracy_barplots/humaneval_correctness.pdf}
+        \caption{HumanEval}
+    \end{subfigure}
+    \hfill % This command adds space between the subfigures if needed
+    \begin{subfigure}[b]{0.25\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/accuracy_barplots/lcb_correctness.pdf}
+        \caption{LeetCode-Easy}
+    \end{subfigure}
+    \hfill % This command adds space between the subfigures if needed
+    \begin{subfigure}[b]{0.35\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/accuracy_barplots/odex_correctness.pdf}
+        \caption{ODEX}
+    \end{subfigure}
+    \caption{Accuracy of checking the correctness of model-generated programs on HumanEval, LeetCode, and ODEX. Models often cannot determine whether solutions they generate are correct or incorrect.}
+    \label{fig:correctness-checking-accuracy}
+\end{figure*}
+
+\textbf{How well can models assess the correctness of model-generated code?} First, we measure the accuracy of six open models on the correctness verification task using chain-of-thought (CoT) prompting: asking the model to reason about the program before giving a verdict. We compared CoT to direct prompting and saw that overall, CoT helps slightly but not significantly ($\sim1$\% average, see Appendix \ref{sec:correctness-checking-cot-impact}). The results are shown in Fig. \ref{fig:correctness-checking-accuracy}. We see that models generally struggle on this task: on HumanEval/ODEX, the best model (DS-I-33b) only scores about 65\% and for LeetCode, only DS-I-33b performs slightly better than random guessing. Models like StarCoder, CL-7b, and DS-6.7b, which achieve accuracies of 30-60\% on the corresponding generation tasks (Table \ref{tab:dataset-sizes-correctness-checking}) barely perform better than random guessing at correctness checking, suggesting that they may only have a shallow understanding of what they generate.
+
+\textbf{Are models better or worse at correcting their own code?} We observe that across the different samples in each dataset, the relative performance ordering across each dataset is relatively consistent and does not depend on which model generated the samples. Therefore, models do not seem to perform differently when checking the correctness of its own generated programs compared to those of other models. 
+
+\textbf{Are models biased towards predicting a particular outcome?} Next, we examine the distribution of model predictions to better understand model behaviour on the correctness checking task. Fig. \ref{fig:prediction-distribution} shows how often models predict a positive label (relative to a baseline of 50\% since the dataset is balanced). In (a), we observe that without using CoT, models almost always predict that programs are correct. In (b), (c), and (d), we see that even with CoT, there is a bias towards thinking programs are correct. Interestingly, for HumanEval, while DS-33b predicts ``correct'' more often without CoT, the resulting accuracies are similar in both settings, suggesting a precision/recall tradeoff. In addition, in (d), we see that CL models almost never predict incorrect for LeetCode. As this is the hardest dataset, this suggests that models may default to predicting correct unless they observe errors or inconsistencies in the program.
+\begin{figure}[ht!]
+    \centering
+    \begin{subfigure}[b]{0.49\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/prediction_distribution/percentage_correct_humaneval_codellama-34b_sample.pdf}
+        \subcaption{HumanEval (- CoT)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/prediction_distribution/percentage_correct_humaneval_codellama-34b_cot_sample.pdf}
+        \subcaption{HumanEval (+ CoT)}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/prediction_distribution/percentage_correct_odex_codellama-34b_cot_sample.pdf}
+        \subcaption{ODEX (+ CoT)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/prediction_distribution/percentage_correct_livecodebench_deepseek-instruct-33b_cot_sample.pdf}
+        \subcaption{LeetCode (+ CoT)}
+    \end{subfigure}
+    \caption{Percentage of positive predictions on HumanEval (CL-34 data), ODEX (CL-34 data), and LeetCode (DS-33 data).}
+    \label{fig:prediction-distribution}
+\end{figure}
+
+\textbf{Are predicted probabilities well calibrated?} To gain a deeper understanding, we next examine the no-CoT scenario to understand if the model's log-likelihood scores for programs are well-calibrated relative to other programs. In Fig. \ref{fig:probabilities-impact}(a), we plot the distribution of probabilities that each model assigns to the ``Correct'' label for programs that are actually correct (green) and incorrect (red). Most of the mass is above $p=0.5$, reflecting the result in Fig. \ref{fig:prediction-distribution}(a) that probabilities are poorly calibrated with respect to the true probability of predicting the correct label. On the other hand, we find that the probabilities are much better calibrated with respect to other programs. In Fig. \ref{fig:probabilities-impact}, we plot the area under curve (AUC) for various settings, which intuitively corresponds to the likelihood that the model assigns a higher probability to a random correct program compared to a random incorrect program. We find that a majority of settings have a calibration above random chance (50\%) but still far from perfect. Surprisingly, we find that the AUC is higher without CoT than with CoT!
+
+\begin{figure}[ht!]
+    \begin{subfigure}[b]{0.49\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/prediction_distribution/violin_humaneval_sample.pdf}
+        % \subcaption{HumanEval (CL-34b data)}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\columnwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/misc/correctness_checking_auc.pdf}
+        % \subcaption{Impact of CoT on AUC}
+    \end{subfigure}
+    \caption{(a) Violin plot for HumanEval (CL-34b) data showing the probability the model assigns to ``Correct''. The green and red violins show model probabilities on programs that are correct and incorrect, respectively. (b) AUC of various models with and without CoT, showing the probabilities are actually better calibrated relative to each other without CoT than with}
+    \label{fig:probabilities-impact}
+\end{figure}
+

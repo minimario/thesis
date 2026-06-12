@@ -1,0 +1,6 @@
+\section{Conclusion}
+In this work, we bring attention to the \textit{counterfeit samples} of a code language model: incorrect programs that a model thinks are correct and can pass surface-level correctness checks. We observe that in a sense, these counterfeit samples are adversarial to the model: models often cannot assess their correctness, reason about their execution, and struggle to repair them. Compared to other models, GPT-4 may be different from other evaluated models in this regard, in that they are much less susceptible to the traps we observe on counterfeit samples from other models.
+
+While we operate in the domain of code, where it is simple to precisely check a model's understanding, we suspect that the same phenomena occur more generally in language models, which is consistent with the findings from \citet{west2023generative}. Because models being able to understand their own counterfeit samples is a prerequisite to strong self-repair and self-verification schemes, we recommend that others be critical and careful in light of our findings.
+
+

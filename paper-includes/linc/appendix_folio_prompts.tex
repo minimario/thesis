@@ -1,0 +1,179 @@
+\subsection{FOLIO Few-Shot Prompts}
+\label{sec:appendix_folio_prompts}
+The methodologies we investigate do not require any finetuning on domain-specific data.
+Instead, we use in-context learning (ICL) with pretrained models.
+We prompt the model with a set of instructions and 1-8 ICL examples, which adhere to a structured text format designed to scaffold generations and ease post-processing.
+In particular, we begin each ICL example with each of the NL premises wrapped in an HTML-style tag \texttt{<PREMISES>\dots</PREMISES>} followed by the NL conclusion wrapped in \texttt{<CONCLUSION>\dots</CONCLUSION>}.
+The requisite evaluation steps for each evaluation paradigm are then outlined in a subsequent section wrapped \texttt{<EVALUATE>\dots</EVALUATE>}.
+Following the inclusion of ICL examples, a test example is added, with the \texttt{<PREMISES>} and \texttt{<CONCLUSION>} sections.
+Then, the \texttt{<EVALUATE>} tag is opened, and the LM is allowed to proceed with causal generation until the \texttt{</EVALUATE>} tag is generated.
+Upon generation of this stop token, the \texttt{<EVALUATE>} block is segmented for post-processing according to the method being evaluated (\texttt{\{na\"ive, scratchpad, chain-of-thought, neuro-symbolic\}}).
+
+For the few-shot examples, we use samples from the publicly available FOLIO training set.
+We select a set of diverse samples that are balanced across labels.
+Since the FOLIO training set does not come with FOL expressions for the conclusions or chain of thought prompts, we manually add both for each sample.
+For the $k$-shot setting ($k$<8), we use the first $k$ samples from the following list of sample indices: 126, 24, 61, 276, 149, 262, 264, 684.
+Here, sample $i$ refers to the $i$th line in \url{https://github.com/Yale-LILY/FOLIO/blob/main/data/v0.0/folio-train.jsonl}.
+We do not optimize for the choice of few-shot examples, and this is the only set of examples we evaluated with, so it is likely that there exist better choices for few-shot examples that would lead to improved performance across the board.
+\subsubsection{FOLIO, 1-shot (baseline)}
+\begin{lstlisting}[caption={todo},captionpos=b, breaklines=true]
+The following is a first-order logic (FOL) problem.
+The problem is to determine whether the conclusion follows from the premises.
+The premises are given in the form of a set of first-order logic sentences.
+The conclusion is given in the form of a single first-order logic sentence.
+The task is to evaluate the conclusion as 'True', 'False', or 'Uncertain' given the premises.
+
+
+<PREMISES>
+All dispensable things are environment-friendly.
+All woodware is dispensable.
+All paper is woodware.
+No good things are bad.
+All environment-friendly things are good.
+A worksheet is either paper or is environment-friendly.
+</PREMISES>
+<CONCLUSION>
+A worksheet is not dispensable.
+</CONCLUSION>
+<EVALUATE>
+Uncertain
+</EVALUATE>
+
+<PREMISES>
+...premises for sample here, one premise per line
+</PREMISES>
+<CONCLUSION>
+...conclusion for sample here
+</CONCLUSION>
+<EVALUATE>
+\end{lstlisting}
+
+\subsubsection{FOLIO, 1-shot (scratchpad)}
+
+\begin{lstlisting}[breaklines=true]
+The following is a first-order logic (FOL) problem.
+The problem is to determine whether the conclusion follows from the premises.
+The premises are given in the form of a set of first-order logic sentences.
+The conclusion is given in the form of a single first-order logic sentence.
+The task is to translate each of the premises and conclusions into FOL expressions, and then to evaluate the conclusion as 'True', 'False', or 'Uncertain' given the premises.
+
+
+<PREMISES>
+All dispensable things are environment-friendly.
+All woodware is dispensable.
+All paper is woodware.
+No good things are bad.
+All environment-friendly things are good.
+A worksheet is either paper or is environment-friendly.
+</PREMISES>
+<CONCLUSION>
+A worksheet is not dispensable.
+</CONCLUSION>
+<EVALUATE>
+TEXT:	All dispensable things are environment-friendly.
+FOL:	all x. (Dispensable(x) -> EnvironmentFriendly(x))
+TEXT:	All woodware is dispensable.
+FOL:	all x. (Woodware(x) -> Dispensable(x))
+TEXT:	All paper is woodware.
+FOL:	all x. (Paper(x) -> Woodware(x))
+TEXT:	No good things are bad.
+FOL:	all x. (Good(x) -> -Bad(x))
+TEXT:	All environment-friendly things are good.
+FOL:	all x. (EnvironmentFriendly(x) -> Good(x))
+TEXT:	A worksheet is either paper or is environment-friendly.
+FOL:	((Paper(Worksheet) & -EnvironmentFriendly(Worksheet)) | (-Paper(Worksheet) & EnvironmentFriendly(Worksheet)))
+TEXT:	A worksheet is not dispensable.
+FOL:	-Dispensable(Worksheet)
+ANSWER:	Uncertain
+</EVALUATE>
+
+<PREMISES>
+...premises for sample here, one premise per line
+</PREMISES>
+<CONCLUSION>
+...conclusion for sample here
+</CONCLUSION>
+<EVALUATE>
+\end{lstlisting}
+
+\subsubsection{FOLIO, 1-shot (chain of thought)}
+
+\begin{lstlisting}[breaklines=true]
+The following is a first-order logic (FOL) problem.
+The problem is to determine whether the conclusion follows from the premises.
+The premises are given in the form of a set of first-order logic sentences.
+The conclusion is given in the form of a single first-order logic sentence.
+The task is to translate each of the premises and conclusions into FOL expressions, 
+
+
+<PREMISES>
+All dispensable things are environment-friendly.
+All woodware is dispensable.
+All paper is woodware.
+No good things are bad.
+All environment-friendly things are good.
+A worksheet is either paper or is environment-friendly.
+</PREMISES>
+<CONCLUSION>
+A worksheet is not dispensable.
+</CONCLUSION>
+<EVALUATE>
+Let's think step by step. We want to evaluate if a worksheet is not dispensable. From premise 6, we know that a worksheet is either paper or is environment-friendly. If it is paper, then from premise 3, a worksheet is woodware, and from premise 2, a worksheet is dispensable. If it is environment-friendly, we know it is good from premise 5, but we know nothing about whether it is dispensable. Therefore, we don't know if a worksheet is dispensible or not, so the statement is uncertain.
+ANSWER:	Uncertain
+</EVALUATE>
+
+<PREMISES>
+...premises for sample here, one premise per line
+</PREMISES>
+<CONCLUSION>
+...conclusion for sample here
+</CONCLUSION>
+<EVALUATE>
+\end{lstlisting}
+
+\subsubsection{FOLIO, 1-shot (neurosymbolic)} \label{sec:folio1shotexample}
+\begin{lstlisting}[breaklines=true]
+The following is a first-order logic (FOL) problem.
+The problem is to determine whether the conclusion follows from the premises.
+The premises are given in the form of a set of first-order logic sentences.
+The conclusion is given in the form of a single first-order logic sentence.
+The task is to translate each of the premises and conclusions into FOL expressions, so that the expressions can be evaluated by a theorem solver to determine whether the conclusion follows from the premises.
+Expressions should be adhere to the format of the Python NLTK package logic module.
+
+
+<PREMISES>
+All dispensable things are environment-friendly.
+All woodware is dispensable.
+All paper is woodware.
+No good things are bad.
+All environment-friendly things are good.
+A worksheet is either paper or is environment-friendly.
+</PREMISES>
+<CONCLUSION>
+A worksheet is not dispensable.
+</CONCLUSION>
+<EVALUATE>
+TEXT:	All dispensable things are environment-friendly.
+FOL:	all x. (Dispensable(x) -> EnvironmentFriendly(x))
+TEXT:	All woodware is dispensable.
+FOL:	all x. (Woodware(x) -> Dispensable(x))
+TEXT:	All paper is woodware.
+FOL:	all x. (Paper(x) -> Woodware(x))
+TEXT:	No good things are bad.
+FOL:	all x. (Good(x) -> -Bad(x))
+TEXT:	All environment-friendly things are good.
+FOL:	all x. (EnvironmentFriendly(x) -> Good(x))
+TEXT:	A worksheet is either paper or is environment-friendly.
+FOL:	((Paper(Worksheet) & -EnvironmentFriendly(Worksheet)) | (-Paper(Worksheet) & EnvironmentFriendly(Worksheet)))
+TEXT:	A worksheet is not dispensable.
+FOL:	-Dispensable(Worksheet)
+</EVALUATE>
+
+<PREMISES>
+...premises for sample here, one premise per line
+</PREMISES>
+<CONCLUSION>
+...conclusion for sample here
+</CONCLUSION>
+<EVALUATE>
+\end{lstlisting}

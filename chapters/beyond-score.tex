@@ -1,0 +1,61 @@
+\chapter{Looking Beyond the Score Reveals Hidden Nuances}
+\label{chap:beyond-score}
+
+In Chapter~\ref{chap:right-metrics}, we saw the importance of defining new innovative metrics 
+and designing evaluations in a way that removes confounding biases. In this chapter, we focus 
+on the importance of looking beyond the score and analyzing the underlying success and failure 
+modes of models. We present four examples showing how deeper analysis can reveal hidden nuances 
+in the behavior of language models and advance our scientific understanding.
+
+This chapter first discusses insights and analyses derived from three of the benchmarks 
+introduced in the previous chapter. In Section~\ref{sec:cruxeval-beyond-score}, we dive deeper into 
+the results from CRUXEval. For example, by comparing scores on CRUXEval with code generation benchmarks like HumanEval,
+we discover that a cluster of distilled models (e.g. WizardCoder) perform much better on HumanEval compared
+to CRUXEval when compared to their base models, suggesting distillation may not fully transfer general programming abilities. 
+In Section~\ref{sec:counterfeit-beyond-score}, we analyze whether counterfeit samples have different 
+properties depending on the difficulty of the problem or the strength of the model generating the samples. 
+In Section~\ref{sec:livecodebench-beyond-score}, we return to the LiveCodeBench paper to analyze
+overfitting to HumanEval, the role of post-training, and the gap between open and closed models.
+Finally, in Section~\ref{sec:linc-beyond-score}, we introduce LINC, a neuro-symbolic approach to performing
+logical reasoning. By thoroughly analyzing the behavior of LINC compared to traditional chain-of-thought,
+we discover that LINC and chain-of-thought have distinct failure modes, suggesting opportunities to
+synthesize the two approaches. 
+
+
+\section{CRUXEval: Generalization, Chain of Thought, Fine-Tuning, and Qualitative Failures}
+\label{sec:cruxeval-beyond-score}
+\input{paper-includes/cruxeval/beyond-score}
+
+\section{Counterfeit Conundrum: The Nature of Counterfeit Samples}
+\label{sec:counterfeit-beyond-score}
+\sourcepaper{\path{resources/Counterfeit_Conundrum.zip}. Local source lists Alex Gu as first author, with an equal-contribution author-order note.}{Final thesis prose should be rewritten in dissertation style. If importing close paper phrasing during drafting, wrap it in \texttt{\string\needsrewrite\{...\}} until Alex rewrites it.}
+\input{paper-includes/counterfeit/beyond-score}
+
+\section{LiveCodeBench: Overfitting, Post-Training, and Open vs. Closed Models}
+\label{sec:livecodebench-beyond-score}
+\input{paper-includes/livecodebench/beyond-score}
+
+\section{LINC: A Neurosymbolic Approach for Logical Reasoning by Combining Language Models with First-Order Logic Provers}
+\label{sec:linc-beyond-score}
+\sourcepaper{\path{resources/_EMNLP_2023__LINC_Logical_Reasoning.zip}. Local source lists equal contribution with randomized author order; Alex Gu can be treated as first author for thesis framing.}{Because parts of the LINC paper prose were written by coauthors, any source-derived LINC text should still be wrapped in \texttt{\string\needsrewrite\{...\}} until Alex rewrites it in his own words.}
+
+\input{paper-includes/linc/beyond-score}
+
+\section{Discussion}
+The four examples in this chapter highlight how evaluations can go beyond ranking models and 
+reveal deeper insights about model behavior. 
+In each of these examples, we saw how going beyond just scores and analyzing the underlying
+behavior of models can reveal hidden nuances and insights.
+Through CRUXEval, we learned that distillation may not fully lead to transfer between
+different programming abilities and saw the potential and limitations of chain-of-thought
+prompting and fine-tuning.
+In the counterfeit conundrum, we saw several counter-intuitive trends about the
+properties of counterfeit samples and observed counterfeits are a relatively general phenomenon and
+not just a failure mode of weaker models or harder problems. 
+In LiveCodeBench, we saw how post-trained models seemed to be overfit to HumanEval, suggesting 
+insufficiencies in the diversity of post-training data distributions.
+Finally, through LINC, simply looking at scores would reveal that LINC generally outperformed chain-of-thought 
+prompting but miss the nuance that the two approaches were actually complementary and failed
+in distinct ways. 
+By analyzing the underlying successes and failures in each example, we gained a better high-level understanding
+of where methodologies shine and fall short, identifying opportunities for future scientific inquiry.

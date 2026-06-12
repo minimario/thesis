@@ -1,0 +1,286 @@
+\documentclass{article}
+
+%------------------------------------------------
+% Basic setup
+%------------------------------------------------
+\usepackage[utf8]{inputenc}      % UTF-8 encoding
+\usepackage{ssArxiv}             % Custom Arxiv style
+\usepackage[title]{appendix}     % Appendices
+\usepackage[dvipsnames]{xcolor}  % Color names
+\usepackage{microtype}           % Better typography
+\setlength{\parindent}{0em}
+\setlength{\parskip}{0.75em}
+
+%------------------------------------------------
+% Math and symbols
+%------------------------------------------------
+\usepackage{amsmath,amssymb,amsthm,amsfonts,amsbsy,amsgen,amscd,mathtools,bm}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+%------------------------------------------------
+% Figures and tables
+%------------------------------------------------
+\usepackage{graphicx}     % Figures
+\usepackage{subcaption}   % Subfigures
+\usepackage{caption}      % Caption spacing
+\captionsetup[table]{skip=5pt}
+
+\usepackage{booktabs}     % Nice tables
+\usepackage{multirow}     % Multi-row cells
+\usepackage{multicol}
+\usepackage{makecell}     % Custom cell formatting
+\usepackage{arydshln}     % Dashed lines in tables
+\usepackage{fancyvrb}
+
+%------------------------------------------------
+% Lists, enumeration
+%------------------------------------------------
+\usepackage{enumitem}     % Customizable lists
+
+%------------------------------------------------
+% Hyperlinks and references
+%------------------------------------------------
+\usepackage[
+  pagebackref=true,
+  colorlinks=true,
+  citecolor=MidnightBlue,
+  linkcolor=Fuchsia,
+]{hyperref}
+\usepackage[nameinlink]{cleveref}
+\usepackage{url} 
+\usepackage[round]{natbib} % References
+\renewcommand*\backref[1]{\ifx#1\relax \else (Cited on pg.~#1)\fi}
+
+%------------------------------------------------
+% Algorithms
+%------------------------------------------------
+\usepackage{algorithm,algorithmic}
+
+%------------------------------------------------
+% Code listings
+%------------------------------------------------
+\usepackage{listings}
+
+% Colors for code
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{keywordcolor}{rgb}{0.7,0.1,0.1}   % red
+\definecolor{tacticcolor}{rgb}{0.0,0.1,0.6}    % blue
+\definecolor{commentcolor}{rgb}{0.4,0.4,0.4}   % grey
+\definecolor{symbolcolor}{rgb}{0.0,0.1,0.6}    % blue
+\definecolor{sortcolor}{rgb}{0.1,0.5,0.1}      % green
+\definecolor{attributecolor}{rgb}{0.7,0.1,0.1} % red
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  columns=fullflexible,
+  frame=single,
+  breaklines=true,
+  postbreak=\mbox{$\hookrightarrow$\space},
+  rulecolor=\color{black},
+  moredelim=[is][\color{red}]{!*}{*!}
+}
+
+\def\lstlanguagefiles{lstlean.tex}
+
+% Example style definitions
+\lstdefinestyle{mystyle}{
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+}
+
+\lstdefinestyle{mystylesmaller}{
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstdefinestyle{mystyletiny}{
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    basicstyle=\ttfamily\tiny,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstdefinestyle{leancompact}{
+    language=Lean,
+    % commentstyle=\color{codegreen},
+    % keywordstyle=\color{blue},
+    basicstyle=\fontsize{3}{3.5}\ttfamily,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=none,
+}
+
+
+% \lstdefinestyle{leancompact}{
+%   language=Lean,
+%   basicstyle=\fontsize{3}{3.5}\ttfamily,
+%   % columns=fullflexible,
+%   breaklines=true,
+%   keepspaces=true,
+%   numbers=none,
+%   frame=none,
+%   % aboveskip=0pt,
+%   % belowskip=0pt,
+%   % xleftmargin=0pt,
+%   % xrightmargin=0pt,
+%   % lineskip=-1pt,
+%   % escapeinside={},  % no escaping
+% }
+
+
+\lstdefinestyle{boxed}{
+    frame=single,
+    breaklines=true,
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    basicstyle=\ttfamily\footnotesize,
+    captionpos=t,
+    tabsize=2
+}
+
+% Language definitions (Python, CUDA, Triton etc.)
+\lstdefinelanguage{Python}{
+  morekeywords={and,as,assert,break,class,continue,def,del,elif,else,except,
+  False,finally,for,from,global,if,import,in,is,lambda,None,nonlocal,not,or,
+  pass,raise,return,True,try,while,with,yield},
+  sensitive=true,
+  morecomment=[l]{\#},
+  morestring=[b]'
+}
+
+%------------------------------------------------
+% Boxes and colors
+%------------------------------------------------
+\usepackage[most]{tcolorbox}
+\definecolor{lightgreen}{HTML}{C8E6C9}
+\definecolor{lightblue}{HTML}{E3F2FD}
+\definecolor{lightorange}{HTML}{FFF3E0}
+\definecolor{bg}{HTML}{F5FFE6}
+
+%------------------------------------------------
+% Theorems
+%------------------------------------------------
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{remark}{Remark}
+\newtheorem{theorem}{Theorem}
+\newtheorem{assumption}{Assumption}
+\crefname{assumption}{assumption}{assumptions}
+\newtheorem{definition}{Definition}
+
+%------------------------------------------------
+% Custom commands
+%------------------------------------------------
+\usepackage{pifont} % for ding symbols
+\newcommand{\red}[1]{\textbf{\textcolor{red}{#1}}}
+\newcommand{\green}[1]{\textbf{\textcolor{ForestGreen}{#1}}}
+\newcommand{\cmark}{\green{\ding{51}}}
+\newcommand{\xmark}{\red{\ding{55}}}
+
+% Benchmarks
+\newcommand{\benchmark}{\textsc{CRUXEval}\xspace}
+\newcommand{\benchmarki}{\textsc{CRUXEval-I}\xspace}
+\newcommand{\benchmarko}{\textsc{CRUXEval-O}\xspace}
+
+% Models
+\newcommand{\codellamamed}{\textsc{Code Llama 13B}\xspace}
+\newcommand{\codellamalarge}{\textsc{Code Llama 34B}\xspace}
+
+% Sections
+\newcommand{\smallsec}[1]{\textbf{#1\,\,}}
+
+% Footnote without mark
+\makeatletter
+\newcommand\nnfootnote[1]{%
+  \begin{NoHyper}
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \end{NoHyper}
+}
+\makeatother
+
+%------------------------------------------------
+% Title and author info
+%------------------------------------------------
+\title{ProofOptimizer: Training Language Models to \\Simplify Proofs without Human Demonstrations}
+\author{\name Alex Gu \email{gua@mit.edu} \\ \addr{Meta FAIR \& MIT CSAIL} \\[0.07in] \name Bartosz Piotrowski \email{bpio@meta.com} \\ \addr{Meta FAIR} \\[0.07in] \name Fabian Gloeckle \email{fgloeckle@meta.com} \\ \addr{Meta FAIR \& École des Ponts Paris} \\[0.07in] \name Kaiyu Yang \email{kaiyuy@meta.com} \\ \addr{Meta FAIR} \\[0.07in] \name Aram H. Markosyan 
+\email{aram.math@gmail.com} \\ 
+\addr{Meta FAIR} \\
+}
+
+%------------------------------------------------
+\begin{document}
+
+\maketitle
+\raggedbottom
+
+% \nnfootnote{$^{\star}$ Equal contribution, ordered alphabetically by last name}
+
+\begin{abstract}
+\input{arxiv/main-secs/sec0-abstract}
+\end{abstract}
+
+\clearpage
+\tableofcontents
+\clearpage
+
+\input{arxiv/main-secs/sec1-introduction}
+\input{arxiv/main-secs/sec2-task-setup}
+\input{arxiv/main-secs/sec3-methods}
+\input{arxiv/main-secs/sec4-experiments}
+\input{arxiv/main-secs/sec5-additional-benefits}
+\input{arxiv/main-secs/sec6-related-work}
+\input{arxiv/main-secs/sec7-conclusion}
+\input{arxiv/main-secs/sec8-acknowledgements}
+
+\newpage
+\bibliography{custom}
+\bibliographystyle{plainnat}
+
+\appendix
+\newpage
+\input{arxiv/appendix.tex}
+
+% \pagestyle{empty}
+
+% \begin{multicols}{3}
+% \include{arxiv/proofs/appendix-results-all-1-1}
+% \include{arxiv/proofs/appendix-results-all-1-2}
+% \include{arxiv/proofs/appendix-results-all-2-1}
+% \include{arxiv/proofs/appendix-results-all-2-2}
+% \include{arxiv/proofs/appendix-results-all-2-2-5}
+% \include{arxiv/proofs/appendix-results-all-2-2-6}
+% \include{arxiv/proofs/appendix-results-all-2-2-7}
+% \include{arxiv/proofs/appendix-results-all-2-3}
+% \include{arxiv/proofs/appendix-results-all-3-1}
+% \include{arxiv/proofs/appendix-results-all-3-2}
+% \end{multicols}
+
+\end{document}

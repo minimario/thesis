@@ -1,0 +1,19 @@
+% \vspace{-2mm}
+\begin{examplebox}[\footnotesize \dataset Training Example 2: Relation Problem]
+    \footnotesize
+    % \fontsize{9}{11}\selectfont
+    \setstretch{0.8}  % Local line spacing adjustment
+    \textbf{Question:} Let $a, b, c$ be positive real numbers such that $a b c = 1$. Consider the following expressions:$$\frac{b+c}{\sqrt{a}}+\frac{c+a}{\sqrt{b}}+\frac{a+b}{\sqrt{c}} \quad (\quad) \quad \sqrt{a}+\sqrt{b}+\sqrt{c}+3$$Determine the correct inequality relation to fill in the blank.
+    
+    \vspace{1mm}
+    Options: (A) $\leq$ \quad (B) $\geq$ \quad (C) $=$ \quad (D) $<$ \quad (E) $>$ \quad (F) None of the above
+    
+    \vspace{1mm}
+    \textbf{Solution:} From the AM-GM Inequality, we have
+    $$\begin{aligned} 
+    & \frac{b+c}{\sqrt{a}}+\frac{c+a}{\sqrt{b}}+\frac{a+b}{\sqrt{c}} \geq 2\left(\sqrt{\frac{b c}{a}}+\sqrt{\frac{c a}{b}}+\sqrt{\frac{a b}{c}}\right) \\ 
+    & =\left(\sqrt{\frac{b c}{a}}+\sqrt{\frac{c a}{b}}\right)+\left(\sqrt{\frac{c a}{b}}+\sqrt{\frac{a b}{c}}\right)+\left(\sqrt{\frac{a b}{c}}+\sqrt{\frac{b c}{a}}\right)  \\& 
+    \geq 2(\sqrt{a}+\sqrt{b}+\sqrt{c}) ~ \boxed{\geq}  ~ \sqrt{a}+\sqrt{b}+\sqrt{c}+3 \sqrt[6]{a b c}=\sqrt{a}+\sqrt{b}+\sqrt{c}+3.
+    \end{aligned}$$
+    \textbf{AM-GM Inequality Theorem}\textbf{:} If $a_{1}, a_{2}, \ldots, a_{n}$ are nonnegative real numbers, then$$\frac{1}{n} \sum_{i=1}^{n} a_{i} \geq\left(a_{1} a_{2} \ldots a_{n}\right)^{\frac{1}{n}}$$with equality if and only if $a_{1}=a_{2}=\ldots=a_{n}$. This is a special case of the Power Mean Inequality.
+\end{examplebox}

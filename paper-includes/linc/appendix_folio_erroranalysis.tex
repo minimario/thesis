@@ -1,0 +1,321 @@
+\subsection{FOLIO Error Analysis}
+\label{appendix_folio_error}
+
+\subsubsection{Ambiguity of ``Either'' statements}
+Depending on the context, the phrase ``either x or y'' could mean \texttt{x XOR y}, \texttt{x OR y}, or be ambiguous. Throughout our experiments, we found that models had many creatively incorrect ways of translating these statements. One reoccurring error was that statements that clearly intended \texttt{x XOR y} (such as, ``an animal is either a rabbit or a squirrel'') were translated into \texttt{x OR y}. We tried to account for this into account by including multiple samples with this construct in the few shot examples (see Sec. \ref{sec:folio1shotexample}). However, the models still handle this construct inconsistently and incorrectly. 
+
+In addition, we find that throughout the FOLIO dataset, by matching the natural language premises to the FOL premises, we find no consistent or predictable pattern as to how ``either x or y'' statements are translated. For example, ``an animal is either a rabbi or a squirrel'' is translated as \texttt{all x. Rabbit(x) | Squirrel(x)}, while we believe this instance should clearly be \texttt{XOR}. Therefore, we believe that some of these samples are inherently ambiguous or malformed.
+
+To highlight model behavior on these examples, four representative examples from the FOLIO validation set are shown below; examples have multiple translations because we used temperature $T=0.8$. Here, \textit{Correct/Incorrect} indicate whether the translations match the ground truth (which doesn't necessarily match how we would translate it).
+
+\begin{lstlisting}[breaklines=true]
+Premise: an animal is either a rabbit or a squirrel
+(Ground Truth) Translation: all x. (Rabbit(x) | Squirrel(x))
+(Correct) Translation 1 (GPT-3.5): all x. (Animal(x) -> (Rabbit(x) | Squirrel(x)))
+(Incorrect) Translation 2 (StarCoderPlus): ((Rabbit(Animal) & -Squirrel(Animal)) | (-Rabbit(Animal) & Squirrel(Animal)))
+(Incorrect) Translation 3 (GPT-4): all x. ((Animal(x) & Rabbit(x)) | (Animal(x) & Squirrel(x)))
+
+Premise: a person either studys or teaches
+(Ground Truth) Translation: all x. (Study(x) | Teaches(x))
+(Incorrect) Translation 1 (StarCoderPlus): Studys(Person) | Teaches(Person)
+(Incorrect) Translation 2 (StarCoderPlus): ((Study(Person) & -Teach(Person)) | (-Study(Person) & Teach(Person)))
+(Correct) Translation 3 (GPT-4): all x. (Studies(x) | Teaches(x))
+
+Premise: A man is either kind or evil.
+(Ground Truth) Translation: all x. (Kind(x) & -Evil(x)) | (-Kind(x) & Evil(x))
+(Incorrect) Translation 1 (GPT-3.5): ((Man(x) & -Kind(x)) | (-Man(x) & Evil(x)))
+(Incorrect) Translation 2 (StarCoderPlus): Kind(AMan) | Evil(AMan)
+(Incorrect) Translation 3 (StarCoderPlus): (Kind(x) | Evil(x))
+
+Premise: Ben is either from The Simpsons or funny.
+(Ground Truth) Translation: (Simpsons(Ben) & -Funny(Ben)) | (-Simpsons(Ben) & Funny(Ben))
+(Correct) Translation 1 (StarCoderPlus): ((Simpsons(Ben) & -Funny(Ben)) | (-Simpsons(Ben) & Funny(Ben)))
+(Incorrect) Translation 2 (GPT-3.5): (FromTheSimpsons(Ben) | Funny(Ben))
+(Incorrect) Translation 3 (GPT-4): FromTheSimpsons(Ben) | Funny(Ben)
+\end{lstlisting}
+
+\subsubsection{GPT-4 LINC Failure Modes}
+\textbf{L1: FOL fails to capture implicit information not mentioned in the premises.}
+Three examples of errors from the FOLIO validation set are shown below. The first two occurring in both GPT-3.5 and GPT-4, and the latter only occurs in GPT-3.5 and interestingly, is correct in GPT-4. In Example 1, to make the correct conclusion, we must encode in FOL that Harry is a person (\texttt{Person(Harry)}) and that Walden is a book (\texttt{Book("Walden")}). Harry being a person is implicit, but ``Walden'' being a book is explicitly mentioned in premise 4 but fails to be explicitly encoded by the model. In Example 2, we must encode that KiKi is an animal to make the correct deduction. One can argue that this example is ambiguous, but from the context, most would make this inference. In Example 3, we need a clause that says LGA and LGA are the same airport (\texttt{SameAirport(LGA, LGA)}).
+
+\begin{lstlisting}[breaklines=true]
+Example 1 (GPT-4)
+Premises:
+Books contain tons of knowledge.
+When a person reads a book, that person gains knowledge.
+If a person gains knowledge, they become smarter.
+Harry read the book "Walden" by Henry Thoreau.
+
+Conclusion (Ground Truth: True)
+Harry is smarter than before.
+
+FOLs:
+all x. (Book(x) -> Contains(x, Knowledge))
+all x. all y. (Person(x) & Reads(x, y) & Book(y) -> Gains(x, Knowledge))
+all x. (Gains(x, Knowledge) -> Smarter(x))
+Reads(Harry, Walden)
+
+Conclusion (Prover9 Deduction: Uncertain)
+Smarter(Harry)
+
+Example 2 (GPT-4)
+Premises:
+If an animal barks, then Jane does not like it.
+All dogs are animals that bark.
+If an animal jumps, then Jane likes it.
+If an animal has legs, then it jumps.
+If an animal is terricolous, then it has legs.
+If KiKi neither jumps nor has legs, then KiKi is terricolous or has legs.
+
+Conclusion (Ground Truth: True)
+KiKi neither barks nor is a dog.
+
+FOLs:
+all x. (Animal(x) & Barks(x) -> NotLike(Jane, x))
+all x. (Dog(x) -> Animal(x) & Barks(x))
+all x. (Animal(x) & Jumps(x) -> Like(Jane, x))
+all x. (Animal(x) & HasLegs(x) -> Jumps(x))
+all x. (Animal(x) & Terricolous(x) -> HasLegs(x))
+(-Jumps(KiKi) & -HasLegs(KiKi)) -> (Terricolous(KiKi) | HasLegs(KiKi))
+
+Conclusion (Prover9 Deduction: Uncertain)
+-Barks(KiKi) & -Dog(KiKi)
+
+Example 3 (GPT-3.5):
+Premises:
+Susan flies to LGA airport.
+The departure and arrival can not be the same airport.
+John flies from LGA airport.
+
+Conclusion (Ground Truth: False)
+Susan flies from LGA airport.
+
+FOLs:
+Flies(Susan, LGA)
+all x. all y. (Departure(x) & Arrival(y) & -SameAirport(x, y))
+Flies(John, LGA)
+
+Conclusion (Prover9 Deduction: Uncertain):
+Flies(Susan, LGA)
+\end{lstlisting}
+
+\textbf{L2: FOL fails to capture information explicitly mentioned in the premises due to the choice of representation.}
+We show four illustrative examples: the first two examples occur in both GPT-3.5 and GPT-4, while the last two examples only occur in GPT-3.5 and are correct when using GPT-4. The first example is described in the main text. In example 2, we know that Barutin Cove is a cove, but this lost information is not encoded in the FOL, so we cannot conclude \texttt{Cove(BarutinCove)}, although this is crucial information for making the deduction. In Example 3, we must deduce that Tom's license plate is a license plate (\texttt{FromIstanbul(TomPlate)}), which is obvious but is not encoded by the model. In the final example, the idea that an object has four sides is expressed both as \texttt{FourSided(x)} and \texttt{FourSides(x)}, so the model is unable to make the correct deduction.
+
+\begin{lstlisting}[breaklines=true]
+Example 1 (GPT-4)
+Premises:
+Heinrich Scmidt was a Nazi German politician.
+Heeinrich Scmidt was also a member of the Prussian State Parliament and the Nazi Reichstag.
+
+Conclusion (Ground Truth: True):
+Heinrich Schmidt was either German or Russian.
+
+FOLs:
+GermanPolitician(HeinrichSchmidt) & Nazi(HeinrichSchmidt)
+MemberPrussianStateParliament(HeinrichSchmidt) & MemberNaziReichstag(HeinrichSchmidt)
+
+Conclusion (Prover9 Deduction: Uncertain):
+German(HeinrichSchmidt) | Russian(HeinrichSchmidt)
+
+Example 2 (GPT-4)
+Premises:
+Barutin Cove is named after the Bulgarian settlement of Barutin.
+Barutin Cove is on the southwest coast of Snow Island.
+The South Shetland Islands include Snow Island, Greenwich Island, and Deception Island.
+The South Shetland Islands are considered part of Antarctica.
+If A is located in B and B is located in C, then A is located in C.
+
+Conclusion (Ground Truth: True)
+There is at least one cove in Antarctica named after a place in Bulgaria.
+
+FOLs:
+NamedAfter(BarutinCove, Barutin) & In(Barutin, Bulgaria)
+On(BarutinCove, SnowIsland)
+In(SnowIsland, SouthShetlandIslands) & In(GreenwichIsland, SouthShetlandIslands) & In(DeceptionIsland, SouthShetlandIslands)
+In(SouthShetlandIslands, Antarctica)
+all x. all y. all z. ((In(x, y) & In(y, z)) -> In(x, z))
+
+Conclusion (Prover9 Deduction: Uncertain)
+exists x. (Cove(x) & In(x, Antarctica) & exists y. (In(y, Bulgaria) & NamedAfter(x, y)))
+
+Example 3 (GPT-3.5)
+Premises:
+All vehicle registration plates in Istanbul begin with the number 34.
+Plates that do not begin with the number 34 are not from Istanbul.
+Joe's vehicle registration plate is from Istanbul.
+Tom's license plate begins with the number 35.
+If a license plate begins with the number 35, then it does not begin with the number 34.
+
+Conclusion (Ground Truth: False):
+Tom's license plate is from Istanbul.
+
+FOLs:
+all x. (VehicleRegistrationPlate(x) -> BeginsWith(x, 34))
+all x. (-BeginsWith(x, 34) -> -FromIstanbul(x))
+FromIstanbul(JoePlate)
+BeginsWith(TomPlate, 35)
+all x. (LicensePlate(x) & BeginsWith(x, 35) -> -BeginsWith(x, 34))
+
+Conclusion (Prover9 Deduction: Uncertain):
+FromIstanbul(TomPlate)
+
+Example 4 (GPT-3.5)
+Premises:
+All squares have four sides.
+All four-sided things are shapes.
+
+Conclusion (Ground Truth: True):
+All squares are shapes.
+
+FOLs:
+all x. (Square(x) -> FourSides(x))
+all x. (FourSided(x) -> Shape(x))
+
+Conclusion (Prover9 Deduction: Uncertain)
+all x. (Square(x) -> Shape(x))
+\end{lstlisting}
+
+\textbf{L3: FOL contains syntax errors.} This is one reason that we observe majority voting helps significantly for neurosymbolic methods, as multiple generations increase the likelihood that at one least one FOL representation successfully compiles. As stated in the main text, the most common error is that the same symbol is used with multiple arities. Two examples of this are shown below: in the first example, the primitive \texttt{Summer} is both used as a function representing that a year has a summer (in the first premise) and as a constant representing that a student loves summer. A similar phenomenon occurs in the second example with the symbol \texttt{Badults}.
+
+\begin{lstlisting}[breaklines=true]
+Example 1
+Premises:
+There are four seasons in a year: Spring, Summer, Fall, and Winter.
+All students who want to have a long vacation love summer the most.
+
+FOLs:
+all x. (Year(x) -> (Spring(x) | Summer(x) | Fall(x) | Winter(x)))
+all x. (Student(x) & WantsLongVacation(x) -> Loves(x, Summer))
+
+Prover9 Error:
+The following symbols are used with multiple arities: Summer/1, Summer/0.
+
+Example 2
+Premises:
+Badults is a British Sitcom series, starring members of Pappy's.
+Badults piloted in July 2013 on BBC Three.
+
+FOLs:
+exists x. (Badults(x) & BritishSitcom(x) & StarringMembersOf(x, Pappys))
+Piloted(Badults, July2013, BBCThree)
+
+Prover9 Error:
+The following symbols are used with multiple arities: Badults/1, Badults/0.
+\end{lstlisting}
+
+While rarer, there are also syntax errors. For illustration, two examples from GPT-4 are shown below:
+\begin{lstlisting}[breaklines=true]
+Premise: Ailton Silva foes not play for a football club.
+FOL: -Exists x. (FootballClub(x) & PlaysFor(AiltonSilva, x))
+Error: Exists should not be capitalized
+
+Premise: The security deposit can be either equal to one month's rent or more.
+FOL: all x. all y. (Rent(x, y) -> (Deposit(x) = y | Deposit(x) > y))
+Error: > is not allowed in Prover9's FOL
+\end{lstlisting}
+
+\textbf{L4: There are mistakes in the FOL translation.} For GPT-4, there are very few translation mistakes, but we still find a couple instances where GPT-3.5 fails to capture the semantic meaning of the NL examples properly. Two examples are shown here:
+\begin{lstlisting}[breaklines=true]
+Premise: Platypus have no teeth
+Incorrect FOL: -NoTeeth(Platypus)
+
+Premise: Imperium doesn't have a feud with a professional wrestling stable that includes Ivy Nile.
+Incorrect FOL: -all x. (Includes(x, IvyNile) -> -HasFeud(Imperium, x))
+\end{lstlisting}
+
+\subsubsection{GPT-4 CoT Failure Modes}
+\textbf{C1: CoT concludes something different than it suggests.} We show two examples of this below (both of which \texttt{LINC} solves correctly).
+\begin{lstlisting}[breaklines=true]
+Example 1
+Premises:
+Plungers suck.
+Vacuums suck.
+Vampires suck.
+Space is a vacuum.
+A duster is a household appliance that doesn't suck.
+
+Conclusion:
+Space is a vampire.
+
+(GPT-4 Incorrect CoT): Let's think step by step. We want to evaluate if Space is a vampire. We know that Space is a vacuum and that vacuums suck. However, while it's true that vampires also suck, this doesn't mean that everything that sucks is a vampire. Therefore, there is no reason to believe that Space is a vampire based on these premises, so the statement is false.
+ANSWER: False
+
+Example 2
+Premises:
+Some mammals have teeth.
+Platypus have no teeth.
+Platypus are mammals.
+Humans have teeth.
+
+Conclusion:
+Platypus are reptiles.
+
+(GPT-4 Incorrect CoT): Let's think step by step. We want to evaluate if platypus are reptiles. We know from the premises that platypus are mammals and that they have no teeth. The fact that some mammals have teeth does not contradict the fact that platypus, although mammals, do not have teeth. Moreover, the statement about humans having teeth is unrelated to the classification of platypus. There's no evidence in the premises that would suggest platypus are reptiles. Therefore, the statement is false.
+\end{lstlisting}
+
+\textbf{C2: CoT makes incorrect logical deductions.}
+\begin{lstlisting}[breaklines=true]
+Example 1
+Premises:
+International students in US have either an F1 visa or a J1 visa.
+An international student in US with an F1 visa needs to apply for CPT or OPT if the student wants to work in the US.
+Mike is an international student.
+Mike needs to apply for CPT if he wants to work in the US.
+
+Conclusion (Ground Truth: Uncertain):
+Mike has an F1 visa.
+
+(GPT-4 Incorrect CoT): Let's think step by step. We want to evaluate if Mike has an F1 visa. From the premises, we know that Mike is an international student and needs to apply for CPT if he wants to work in the US. We also know that an international student in the US with an F1 visa needs to apply for CPT or OPT if the student wants to work in the US. So, it is clear that Mike has an F1 visa since he fits the criteria. Therefore, the conclusion is true.
+
+Example 2
+Premises:
+If people perform in school talent shows often, then they attend and are very engaged with school events.
+People either perform in school talent shows often or are inactive and disinterested members of their community.
+If people chaperone high school dances, then they are not students who attend the school.
+All people who are inactive and disinterested members of their community chaperone high school dances.
+All young children and teenagers who wish to further their academic careers and educational opportunities are students who attend the school.
+Bonnie either both attends and is very engaged with school events and is a student who attends the school, or she neither attends and is very engaged with school events nor is a student who attends the school.
+
+Conclusion (Ground Truth: Uncertain):
+Bonnie performs in school talent shows often.
+
+(GPT-4 Incorrect CoT): Let's think step by step. We want to evaluate if Bonnie performs in school talent shows often. Based on the last premise, if Bonnie is a student who attends the school and is very engaged with school events, this is only possible if she performs in school talent shows often, as per the first premise. If she doesn't attend and is not engaged with school events, she is an inactive and disinterested member of her community. But the fourth premise states that these individuals chaperone high school dances, meaning they cannot be students, which would contradict the last premise. Therefore, Bonnie performs in school talent shows often, so the statement is true.
+\end{lstlisting}
+
+\textbf{C3: CoT fails to find complex paths of reasoning.} We highlight two examples below: in the first example, the ground truth is false. To make this deduction, one must reason that if a Greyhound is a Boeing 707, then it is a plane, which means it is empty, which means it cannot transport multiple passengers, which means it is not an airline, which means there are no Greyhound planes, which is a contradiction. Looking at the CoT generations, the first CoT attempt gives up after failing to find any link between Greyhound and Boeing 707. The second generation attempts to make deductions from the premises. In this case, none of the 10 CoT reasoning chains begin with the correct step of starting from the negation of the conclusion and deducing it false.
+
+In the second example, to make the correct deduction, we need to start from the fact that Rose is young or a student. If Rose is young, then they do not teach, which means they study, which means they are a student, which means they are a human. If Rose is a student, then they are humans. Neither of the CoT generation is able to make progress on the deduction from the information that Rose is young. In addition, the first \textit{CoT} generation also has a logical error at the last step, where it asserts that ``A or False'' is False when the truthness of A is uncertain.
+\begin{lstlisting}[breaklines=true]
+Example 1
+Premises:
+If something can transport multiple passengers, then they are not empty.
+All airlines can transport multiple passengers.
+All planes are empty.
+All Boeing 707s are planes.
+If Greyhound is not an airline, then there are no Greyhound planes.
+
+Conclusion (Ground Truth: False)
+A Greyhound is a Boeing 707.
+
+(GPT-4 Incorrect CoT, 1): Let's think step by step. We want to evaluate if a Greyhound is a Boeing 707. Looking at our premises, we have no direct or indirect information linking Greyhounds to Boeing 707s. Given the information available, we cannot make any certain conclusion about a Greyhound being a Boeing 707. Therefore, it is uncertain whether a Greyhound is a Boeing 707.
+
+(GPT-4 Incorrect CoT, 2): Let's think step by step. We want to evaluate if a Greyhound is a Boeing 707. The first three premises don't provide any information about Greyhound or Boeing 707s. The fourth premise tells us that all Boeing 707s are planes but doesn't tell us anything about Greyhound. The fifth premise tells us that if Greyhound is not an airline, then there are no Greyhound planes, but this still doesn't imply that a Greyhound is a Boeing 707. Therefore, we do not have enough information to conclude whether a Greyhound is a Boeing 707 or not. So, the statement is uncertain.
+
+Example 2
+Premises:
+All students are humans.
+If someone studies, then they are a student.
+A person either studies or teaches.
+No young person teaches.
+Jerry neither teaches nor is a manager.
+Rose is young or a student.
+
+Conclusion (Ground Truth: True)
+Rose is a human or Jerry is a manager.
+
+(GPT-4 Incorrect CoT, 1): Let's think step by step. We want to evaluate if Rose is a human or Jerry is a manager. Let's first look at Rose. From premise 6, we know that Rose is either young or a student. If Rose is a student, then from premise 1 we know that Rose is a human. If Rose is young, we don't know from the premises whether she is a human. Therefore, it is uncertain whether Rose is a human. Now let's look at Jerry. From premise 5, we know that Jerry is not a manager. Therefore, Jerry is not a manager. So, it is uncertain whether Rose is a human, but we know that Jerry is not a manager, so the statement is false.
+
+(GPT-4 Incorrect CoT, 2): Let's think step by step. We want to evaluate if Rose is a human or Jerry is a manager. First, we know that Jerry neither teaches nor is a manager, which means Jerry is not a manager. Therefore, the only way for the conclusion to be true is if Rose is a human. We know that Rose is either young or a student. If she's a student, since all students are humans, then she is a human. However, if Rose is young, we don't have enough information to determine whether she's a human. Therefore, it's uncertain whether Rose is a human or Jerry is a manager.
+\end{lstlisting}
+

@@ -1,0 +1,294 @@
+\section{Accuracy Results for All Tasks} \label{appendix:all-accuracy-results}
+\subsection{Correctness Checking}
+Fig. \ref{fig:correctness-checking-results-full} shows the full set of correctness checking results across all models for each of the three datasets.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.65\textwidth}
+        \includegraphics[width=\linewidth]{figures_v2/appendix/accuracy_barplots/humaneval_correctness.pdf}
+        \subcaption{}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.33\textwidth}
+        \includegraphics[width=\linewidth]{figures_v2/appendix/accuracy_barplots/livecodebench_correctness.pdf}
+        \subcaption{}
+    \end{subfigure}
+\end{figure}
+\begin{figure}[H]
+    \ContinuedFloat
+    \centering
+    \begin{subfigure}[b]{0.65\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures_v2/appendix/accuracy_barplots/odex_correctness.pdf}
+        \subcaption{}
+    \end{subfigure}
+\caption{Correctness checking results across all models and datasets}
+\label{fig:correctness-checking-results-full}
+\end{figure}
+
+\pagebreak These results are shown in heatmap form in Fig. \ref{fig:correctness-checking-heatmaps}.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.32\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/main/accuracy_heatmaps/humaneval_verification.pdf}
+        \subcaption{Correctness (HumanEval)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/main/accuracy_heatmaps/odex_verification.pdf}
+        \subcaption{Correctness (ODEX)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/main/accuracy_heatmaps/livecodebench_verification.pdf}
+        \subcaption{Correctness (LeetCode)}
+    \end{subfigure}
+    \caption{Heatmap of accuracies for correctness checking.}
+    \label{fig:correctness-checking-heatmaps}
+\end{figure}
+
+In Fig. \ref{fig:confusion-matrix-all}, we show the confusion matrices of predicted and correct labels, which highlights the prediction biases of various models.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures_v2/appendix/confusion_matrix/humaneval_confusion_matrix_full.pdf}
+        \subcaption{HumanEval}
+    \end{subfigure}
+\end{figure}
+\begin{figure}[H]
+    \ContinuedFloat
+    \centering
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures_v2/appendix/confusion_matrix/livecodebench_confusion_matrix_full.pdf}
+        \subcaption{LeetCode}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.9\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures_v2/appendix/confusion_matrix/odex_confusion_matrix_full.pdf}
+        \subcaption{ODEX}
+    \end{subfigure}
+    \caption{Confusion matrices of predictions vs. labels}
+    \label{fig:confusion-matrix-all}
+\end{figure}
+
+\pagebreak
+In Fig. \ref{fig:correctness-checking-counterfeit}, we also show a few more plots highlighting that models often mispredict counterfeit samples as correct.
+
+\begin{figure}[ht!]
+    \centering
+    \begin{subfigure}[b]{0.56\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/appendix/correctness/correctness_humaneval_codellama-7b.pdf}
+        \subcaption{HumanEval (CL-7B)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.42\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/appendix/correctness/correctness_humaneval_codellama-34b.pdf}
+        \subcaption{HumanEval (CL-34B)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.42\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/appendix/correctness/correctness_livecodebench_deepseek-instruct-6.7b.pdf}
+        \subcaption{LeetCode (DS-6.7B)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.56\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/appendix/correctness/correctness_livecodebench_deepseek-instruct-33b.pdf}
+        \subcaption{LeetCode (DS-33B)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.42\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/appendix/correctness/correctness_odex_starcoder.pdf}
+        \subcaption{ODEX (StarCoder)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.55\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/appendix/correctness/correctness_odex_deepseek-instruct-33b.pdf}
+        \subcaption{ODEX (DS-33B)}
+    \end{subfigure}
+    \hfill
+    \caption{Models are much better at assessing the correctness of correct samples than counterfeit samples.}
+    \label{fig:correctness-checking-counterfeit}
+\end{figure}
+
+\clearpage
+\subsection{Execution Prediction}
+Fig. \ref{fig:execution-prediction-results-full} shows the full set of correctness checking results across all models for each of the three datasets.
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.65\textwidth}
+        \includegraphics[width=\linewidth]{figures_v2/appendix/accuracy_barplots/humaneval_execution.pdf}
+        \subcaption{}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.33\textwidth}
+        \includegraphics[width=\linewidth]{figures_v2/appendix/accuracy_barplots/livecodebench_execution.pdf}
+        \subcaption{}
+    \end{subfigure}
+\caption{Execution prediction results across all models and datasets}
+\label{fig:execution-prediction-results-full}
+\end{figure}
+
+These results are shown in heatmap form in Fig. \ref{fig:execution-prediction-heatmaps}.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.35\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/main/accuracy_heatmaps/humaneval_execution.pdf}
+        \subcaption{Execution (HumanEval)}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.35\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/main/accuracy_heatmaps/livecodebench_execution.pdf}
+        \subcaption{Execution (LeetCode)}
+    \end{subfigure}
+    \caption{Heatmap of accuracies for correctness checking.}
+    \label{fig:execution-prediction-heatmaps}
+\end{figure}
+
+\pagebreak In Fig. \ref{fig:execution-counterfeit}, we show that on other datasets and models, models are generally better at executing correct samples than counterfeit samples with outputs that don't match those of the correct samples, and that models often predict the output of the correct sample when asked to execute these counterfeit samples.
+
+\begin{figure}[ht!]
+    \centering
+    \begin{subfigure}[b]{0.42\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/appendix/execution/execution_humaneval_codellama-7b.pdf}
+        \subcaption{HumanEval (CL-7B)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.57\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/appendix/execution/execution_humaneval_codellama-34b.pdf}
+        \subcaption{HumanEval (CL-34B)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/appendix/execution/execution_humaneval_deepseek-instruct-33b.pdf}
+        \subcaption{HumanEval (DS-33B)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/appendix/execution/execution_humaneval_starcoder.pdf}
+        \subcaption{HumanEval (StarCoder)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.42\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/appendix/execution/execution_livecodebench_deepseek-instruct-6.7b.pdf}
+        \subcaption{LeetCode (DS-6.7B)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.55\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/appendix/execution/execution_livecodebench_deepseek-instruct-33b.pdf}
+        \subcaption{LeetCode (DS-33B)}
+    \end{subfigure}
+    \hfill
+    \caption{Models are much better at executing correct samples than counterfeit samples, and even often execute counterfeit samples as if they were correct.}
+    \label{fig:execution-counterfeit}
+\end{figure}
+
+\clearpage
+\subsection{Repair}
+\label{appendix:repair}
+Figures~\ref{fig:repair-full-humaneval}-\ref{fig:repair-full-odex} show the full set of scatterplots for the repair experiments in Sec.~\ref{sec:repair}.
+In these plots, \emph{the same model is used for both repair and the initial code generation}, so that the resampling strategy can be represented by the line $y=x$ (simplifying exposition).
+Note that even in the most successful setting, DS-I-33b on HumanEval, the number of problems for which repair is more successful than simply resampling is still in the minority (35/81).
+
+Figures~\ref{fig:repair-bars}-\ref{fig:repair-heatmaps} also shows the absolute mean success rate of repair across tasks for each model and dataset, similarly to how was done in the previous sections.
+Note that these absolute numbers should not be paid to much attention to, since repair must always be compared to the accuracy of the simple resampling strategy; however, they do show that models do not appear to be better at repairing their own counterfeit samples than those generated by other models.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.33\textwidth}
+        \includegraphics[width=\linewidth]{figures_v2/appendix/repair/humaneval/filtered_cl34-repairs-cl34-base-50-0.6-2048_scored-scatter-with-base.pdf}
+        \subcaption{CL-I-34b}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.33\textwidth}
+        \includegraphics[width=\linewidth]{figures_v2/appendix/repair/humaneval/filtered_ds33-repairs-ds33-base-50-0.6-2048_scored-scatter-with-base.pdf}
+        \subcaption{DS-I-33b}
+        \label{fig:repair-hull-humaneval-ds33}
+    \end{subfigure}
+\caption{Repair success vs. baseline pass@1 on HumanEval.} 
+\label{fig:repair-full-humaneval}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.33\textwidth}
+        \includegraphics[width=\linewidth]{figures_v2/appendix/repair/lcb/ds6.7-repairs-ds6.7-base-50-0.6-2048_scored-scatter-with-base.pdf}
+        \subcaption{DS-I-6.7b}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.33\textwidth}
+        \includegraphics[width=\linewidth]{figures_v2/appendix/repair/lcb/ds33-repairs-ds33-base-50-0.6-2048_scored-scatter-with-base.pdf}
+        \subcaption{DS-I-33b}
+    \end{subfigure}
+\caption{Repair success vs. baseline pass@1 on LeetCode.} 
+\label{fig:repair-full-leetcode}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.33\textwidth}
+        \includegraphics[width=\linewidth]{figures_v2/appendix/repair/odex/cl34-repairs-cl34-base-50-0.6-2048_scored-scatter-with-base.pdf}
+        \subcaption{CL-I-34b}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.33\textwidth}
+        \includegraphics[width=\linewidth]{figures_v2/appendix/repair/odex/ds33-repairs-ds33-base-50-0.6-2048_scored-scatter-with-base.pdf}
+        \subcaption{DS-I-33b}
+    \end{subfigure}
+\caption{Repair success vs. baseline pass@1 on ODEX.} 
+\label{fig:repair-full-odex}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.25\textwidth}
+        \includegraphics[width=\linewidth]{figures_v2/appendix/repair/humaneval/accuracy.pdf}
+        \subcaption{HumanEval}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.25\textwidth}
+        \includegraphics[width=\linewidth]{figures_v2/appendix/repair/lcb/accuracy.pdf}
+        \subcaption{LeetCode}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.25\textwidth}
+        \includegraphics[width=\linewidth]{figures_v2/appendix/repair/odex/accuracy.pdf}
+        \subcaption{ODEX}
+    \end{subfigure}
+\caption{Average repair accuracy across all models and datasets.}
+\label{fig:repair-bars}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.25\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/appendix/repair/humaneval/hm.pdf}
+        \subcaption{HumanEval}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.25\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/appendix/repair/lcb/hm.pdf}
+        \subcaption{LeetCode}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.25\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_v2/appendix/repair/odex/hm.pdf}
+        \subcaption{ODEX}
+    \end{subfigure}
+    \caption{Heatmaps of average repair accuracy across all models and datasets.}
+    \label{fig:repair-heatmaps}
+\end{figure}
+

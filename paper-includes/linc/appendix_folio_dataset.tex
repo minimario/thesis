@@ -1,0 +1,10 @@
+\subsection{FOLIO Dataset Preprocessing}
+\label{appendix_folio_dataset}
+We use the publicly available FOLIO dataset on \url{https://github.com/Yale-LILY/FOLIO}. We choose representative samples from the training split of the dataset to be our few-shot examples and use the validation split of the dataset in our evaluation. The testing split is not publicly available. 
+The original dataset has 204 validation examples. However, we discovered that there are errors in 22 of the samples. We remove these samples for our evaluation and use the remaining 182 examples. The errors as follows:
+\begin{itemize}
+    \item In 4 samples, one or more of the ground truth FOL expressions have unbalanced parentheses (samples 3, 109, 110, 111).
+    \item In 8 samples, the label obtained by executing the ground-truth FOL expressions does not match the provided ground truth label. We double-checked this, first by executing the FOL expressions through Prover9 and second by checking it manually. (samples 6, 28, 30, 48, 113, 115, 139, 140). 
+    \item In 10 samples, the number of premises does not match the number of FOL expressions (samples 10, 11, 12, 88, 106, 107, 108, 174, 175, 176).
+\end{itemize}
+The sample numbers above refer to the line index in the validation file located at \url{https://github.com/Yale-LILY/FOLIO/blob/main/data/v0.0/folio-validation.jsonl}.

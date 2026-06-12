@@ -1,0 +1,52 @@
+\chapter{What We Measure Shapes What We Build}
+\label{chap:measure-shapes}
+
+\section{Chapter Claim}
+\begin{draftblock}
+Benchmarks and metrics are interventions on the field. Once a measurement
+target is credible, researchers train against it, model releases report it, and
+systems are built to improve it. The evaluation papers in this thesis sit
+inside that feedback loop: measuring execution, contamination, zero-to-one
+application building, theorem-proving environments, and proof length changes
+what the community tries to build.
+\end{draftblock}
+
+\section{CRUXEval: Execution Traces as a Training Target}
+\sourcepaper{\path{resources/CRUXEval.zip}. Local source lists Alex Gu as first author.}{Final thesis prose should be new dissertation prose, not pasted paper prose.}
+
+\input{paper-includes/cruxeval/measure-shapes}
+
+\section{LiveCodeBench: Core Benchmark for Reasoning and Reinforcement Learning}
+\sourcepaper{\path{resources/LiveCodeBench_ICLR.zip}. Local source lists Naman Jain and King Han before Alex Gu; Alex is not first author.}{Non-first-author source: any LiveCodeBench-derived draft prose must be wrapped in \texttt{\string\needsrewrite\{...\}} and rewritten by Alex before final submission.}
+
+\color{rewriteblue}
+\input{paper-includes/livecodebench/measure-shapes}
+\color{black}
+
+\section{VibeCodeBench: Full Web-App Generation}
+\sourcepaper{\path{resources/Vibe_Code_Bench_Paper.zip}. Alex contributed, but is not first author.}{Non-first-author source: keep source-derived prose marked in blue and rewrite/attribute it before final submission.}
+
+\color{rewriteblue}
+\input{paper-includes/vibecodebench/measure-shapes}
+\color{black}
+
+\section{LeanDojo: A Theorem Proving Environment and Benchmark}
+\sourcepaper{\path{resources/arXiv-2306.15626v2.tar.gz}. Alex contributed to LeanDojo but is not first author; local source lists Kaiyu Yang before Alex Gu.}{Non-first-author source: keep any source-derived prose marked in blue and rewrite/attribute it before final submission.}
+
+\color{rewriteblue}
+\input{paper-includes/leandojo/measure-shapes}
+\color{black}
+
+\section{ProofOptimizer: Training Language Models to Simplify Proofs without Human Demonstrations}
+\label{sec:proofoptimizer}
+\input{paper-includes/proofoptimizer/body}
+
+\section{Takeaways}
+\begin{draftblock}
+The feedback loop is the chapter's organizing principle. CRUXEval made
+execution ability a target. LiveCodeBench made contamination-aware coding
+evaluation part of model comparison. VibeCodeBench made full web-app generation
+measurable. LeanDojo made Lean theorem proving reproducible and programmable.
+ProofOptimizer made proof length an optimization target. In each case, the
+metric did not merely record progress; it redirected engineering effort.
+\end{draftblock}

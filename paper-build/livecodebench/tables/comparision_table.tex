@@ -1,0 +1,29 @@
+\begin{table}[!t]
+\centering
+\caption{Comparing \lcb{} with existing coding and competition programming benchmarks.}
+\label{tab:benchmark_comparison}
+\resizebox{.95\textwidth}{!}{% 
+\begin{tabular}{lccccccc}
+  \toprule
+  Benchmark & \shortstack{\textbf{Contamination}\\\textbf{Prevention}} & \shortstack{\textbf{Problem}\\\textbf{Curation}} & \shortstack{\textbf{Robust Test}\\\textbf{Based Eval.}} & \shortstack{\textbf{Varied}\\\textbf{Difficulties}} & \shortstack{\textbf{Not}\\\textbf{Saturated}} & \shortstack{\textbf{Broader Eval.}\\\textbf{Scenarios}} & \shortstack{\textbf{Comp. Analysis}\\\textbf{across Models}}   \\
+  \midrule
+  \humaneval{} \citep{chen2021evaluating} & \xmark & \cmark & \xmark & \cmark & \xmark &  \xmark &  \cmark\\
+  \humanevalplus{} \citep{liu2023your} & \xmark & \cmark & \cmark & \cmark & \xmark & \xmark &  \cmark \\
+  \mbpp{} \citep{austin2021program} & \xmark & \cmark & \xmark & \cmark & \xmark & \xmark &  \cmark \\
+  %\mbppplus{} & \xmark & \cmark & \xmark & \cmark & \xmark \\
+  \midrule
+  \apps{} \citep{hendrycks2021measuring} & \xmark & \xmark & \xmark & \cmark  & \cmark & \xmark &  \xmark \\
+  \contests{} \citep{li2022competition} & \xmark & \xmark & \cmark & \xmark & \cmark & \xmark &  \xmark \\
+  \xcode{} \citep{khan2023xcodeeval} & \xmark & \xmark & - & \xmark & \cmark & \cmark \protect\footnotemark[2] &  \xmark \\
+  \codescope{} \citep{yan2023codescope} & \xmark & \xmark & - & \xmark & \cmark & \cmark \protect\footnotemark[2] &  \xmark \\
+  \taco{} \citep{li2023taco} & \xmark & \xmark & \xmark & \xmark & \cmark & \xmark &  \xmark \\
+  \usacobench{} \citep{shi2024language} & \xmark & \cmark & \cmark & \cmark & \cmark & \xmark &  \xmark \\
+  \midrule
+  \livecodebench{} (Ours) & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark &  \cmark \\
+  \bottomrule
+\end{tabular}}
+    \vspace{-5pt}
+\end{table}
+
+\stepcounter{footnote}
+\footnotetext{\livecodebench{} considers different evaluation scenarios compared to \xcode{} and \codescope{} focusing on settings where reliable evaluation is possible.}

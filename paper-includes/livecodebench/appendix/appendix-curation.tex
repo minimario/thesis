@@ -1,0 +1,72 @@
+\subsection{Curation}
+\label{app:sec:curation}
+
+\input{paper-includes/livecodebench/tables/benchmark-stats.tex}
+
+\subsubsection{Platform Specific Curation}
+\label{subsec:platform-specific}
+We describe the curation process for each platform.
+
+\vspace{2pt}
+\noindent \textbf{\leetcode{}.}
+We collect problems from all weekly and biweekly contests on \leetcode{} that have taken place after April'23.
+For each problem, we collect the problems, public tests, and user solutions.
+The platform also provides a difficulty label for each problem which we use to tag the problems as \easy{}, \medium{}, and \hard{}.
+Since \leetcode{} provides a starter code for each problem, we also collect it and provide it to the \llm{} in the STDIN format.
+Since the hidden tests are not directly available, we use our generator-based test input generation approach (Section~\ref{appendix:input-generators}) and also collect the auto grader failing tests for some of the recent problems.
+
+\vspace{2pt}
+\noindent \textbf{\atcoder{}.}
+We collect problems from the \texttt{abc} (beginner round) contests on \atcoder{} that have taken place after April'23. 
+We deliberately avoid the more challenging \texttt{arc} and \texttt{agc} contests which are designed for more advanced Olympiad participants.
+The problems are assigned numeric difficulty ratings, and we exclude \texttt{abc} problems with a rating of more than $500$.
+We also use these numeric ratings to tag the problems as \easy{}, \medium{}, and \hard{}.
+Specifically, we use the rating brackets $[0-200)$, $[200-400)$, and $[400-500]$ to perform the classification.
+\atcoder{} provides public and hidden tests for each problem which we directly use in the benchmark.
+
+\vspace{2pt}
+\noindent \textbf{\codeforces{}.}
+We have collected problems from the Division 3 and Division 4 contests on \codeforces{}.
+Notably, we find that even with this filter, the problems are harder than the other two platforms.
+\codeforces{} also provides difficulty ratings for the problems which we use to tag the problems as \easy{}, \medium{}, and \hard{} using the rating brackets $\{800\}$, $(800-1000]$, and $(1000-1300]$ respectively.
+Due to the higher difficulty, we only consider a small fraction of problems from \codeforces{} and semi-automatically construct test case generators, as they do not provide complete tests on the platform (long tests are truncated).
+
+\noindent Table~\ref*{tab:platform_comparison} provides various statistics about the problems that we have collected for \livecodebench{}. 
+%(\redo{appendix}).
+%Specifically, for  \leetcode{}, we use the original program difficulty labels (\easy{}, \medium{}, and \hard{}) provided by the website which we find to be a good proxy for the difficulty of the problem for current \llms{}.
+% \atcoder{} platform holds weekly contests at different difficulty levels and additionally provides a difficulty rating for the problems. 
+% Here, we only consider problems from \texttt{abc} (beginner round) contests and further restrict to maximum difficulty rating of $500$.
+% To tag difficulties, we use the difficulty rating brackets [0-200), [200-400), and [400-500] for classifying problems as \easy{}, \medium{}, and \hard{} respectively.
+% Finally, we find problems in \codeforces{} to have a higher overall difficulty compared to the other two platforms. 
+% We restrict problems in Division 3 and Division 4 contests and use corresponding (platform provided) rating to annotate difficulty. 
+% Specifically, we use difficulty rating brackets [800-800], (800-1000], and (1000-1300] to classify problems as \easy{}, \medium{}, and \hard{} respectively.
+
+
+%A key aspect of the benchmark is attributing a release date for each problem (dependent on the contest dates). This allows us to measure the performance of \llms{} over time and fairly compare models trained at different times by ``scrolling'' the benchmark over time. Specifically, for a new model with cutoff date (normalized to release date if explicit cutoff not available), we can measure the performance of the model on the benchmark on problems released after the cutoff date. This allows us to measure the performance of the model on uncontaminated unseen problems and fairly compare it with other models.
+
+\subsubsection{Scenario-specific benchmark construction}
+\label{subsec:scenario-specific}
+
+\textbf{Code Generation and Self-Repair.}
+We use the natural language problem statement as the problem statement for these scenarios. 
+For \leetcode{}, as noted above, an additional starter code is provided for the functional input format.
+For \atcoder{} and \codeforces{} problems, we use the standard input format (similar to ~\citep{hendrycks2021measuring}). 
+The collected or generated tests are then used to evaluate the correctness of the generated programs.
+Our final dataset consists of $511$ problem instances across the three platforms. 
+
+\vspace{2pt}
+\noindent \textbf{Code Execution.} 
+We draw inspiration from the benchmark creation procedure used in ~\citep{gu2024cruxeval}. 
+First, we collect a large pool of $\smallsim 2000$ \textit{correct, human-submitted solutions} from the \leetcode{} subset. 
+%Because all programs are correct, there are no subtle bugs or tricky spots in the code. 
+However, many of these programs have multiple nested loops, complex numerical computations, and a large number of execution steps. 
+Therefore, we apply compile-time and run-time filters to ensure samples are reasonable, and we double-check this with a manual inspection. 
+More details on the filtering criteria and statistics of the dataset can be found in Appendix~\ref{appendix:dataset-execution}. 
+Our final dataset consists of $479$ samples from $85$ problems.
+
+\vspace{2pt}
+\noindent \textbf{Test Case Output Prediction.} 
+We use the natural language problem statement from the \leetcode{} platform and the example test inputs to construct our test case output prediction dataset.
+Since the example test inputs in the problems are reasonable test cases for humans to reason about and understand the problems, they also serve as ideal test inputs for \llms{} to process.
+Our final dataset consists of $442$ problem instances from a total of $181$ \leetcode{} problems.
+

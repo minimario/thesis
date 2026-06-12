@@ -1,0 +1,57 @@
+\begin{textcolorbox}[Prompt for Logical Gap Judge]
+\textbf{Task:} Evaluate the logical rigor of a proposed solution to a mathematical inequality problem. Focus on whether the reasoning includes non-trivial claims made without justification, logical leaps, or unsupported assertions, while allowing for valid optimization-based, algebraic, or analytic analysis when properly demonstrated.
+This prompt does not evaluate whether the direction of an inequality was justified using toy cases, special values, or asymptotic behavior; that aspect is handled separately. \\
+
+\textbf{Instructions:}
+
+1. Carefully read the entire reasoning process used to solve the inequality.
+
+2. Identify whether the solution includes:
+
+\quad - Any non-obvious (non-trivial) claims or transformations without justification or explanation.
+
+\quad - Any logical gaps or skipped steps that lead to intermediate or final conclusions.\\
+3. All significant transformations—especially involving inequalities, bounds, or extremal behavior—must be supported by: algebraic manipulation, well-known identities or theorems, valid analytical tools (e.g., convexity, derivatives, limits) or step-by-step numeric or symbolic reasoning.
+
+4. Optimization methods (e.g., Lagrange multipliers, derivative-based analysis) are valid only if the analysis is explicitly shown:
+
+\quad - If a solution invokes optimization or analytical techniques, it must demonstrate key steps, derivative conditions, or critical point verification.
+
+\quad - Statements such as ``solving the constrained optimization problem confirms...'' without any derivation or argument are considered unjustified.
+
+\quad - You do not need to assess whether toy cases, special values, or extreme behavior were used to infer the inequality direction. That responsibility lies outside the scope of this Judge.\\
+5. Simple algebra or widely known transformations (e.g., AM-GM, factoring identities) may be used without full derivation.\\
+6. The goal is to assess whether each important conclusion within the reasoning—not just the final answer—is logically supported and rigorously justified.\\
+
+\textbf{Output Format:}
+
+\texttt{<Analysis>:} Step-by-step explanation of whether the reasoning is logically sound. Highlight any unjustified claims or skipped steps, unless they are supported by valid asymptotic, numeric, or analytic reasoning. \\
+\texttt{<Flagged Reasoning Step (if applicable)>:} Quote or summarize the specific step(s) where an unjustified claim or logical leap occurred. \\
+\texttt{<Answer>:} \texttt{True} or \texttt{False}. \texttt{True} if the reasoning is valid; \texttt{False} if it contains unjustified steps or unsupported claims. \\
+
+\textbf{Key Considerations:}
+
+1. Focus on whether each major step (not just the final answer) is logically justified.\\
+2. Non-trivial algebraic identities or inequality steps must be explained unless they are well-known.\\
+3. Minor simplifications and standard techniques are acceptable without proof.\\
+4. Do not flag steps involving toy cases, extreme values, or special substitutions used to infer inequality direction—those are out of scope here.\\
+5. Claims like ``a numerical check shows'' must include specific values, results, or graphs to be valid.\\
+6. Optimization-based arguments (e.g., Lagrange multipliers, critical point methods) must include demonstrated steps or analytic structure. If only the method is named but not applied, the reasoning should be flagged.\\
+7. Do not flag steps used solely for equality verification, sharpness testing, or illustration.\\
+8. Do not provide improvement suggestions—simply judge whether the logic is valid or flawed as presented.\\
+
+\textbf{Examples of Inputs and Outputs:}
+
+\texttt{\{examples\}}\\
+
+\textbf{Now analyze the following problem and solution:}
+
+Original Problem:
+\texttt{\{query\}}
+
+Solution:
+\texttt{\{response\}}
+
+\end{textcolorbox}
+
+

@@ -1,0 +1,224 @@
+
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2025_conference,times}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{math_commands.tex}
+
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage{url}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+% \usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+
+
+% \usepackage{geometry}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{ifthen}
+% \usepackage[normalem]{ulem}
+\usepackage{svg}
+\usepackage{subfiles}
+\usepackage{xspace}
+\usepackage{cleveref}
+\usepackage{wrapfig}
+\usepackage{dialogue}
+\usepackage[most]{tcolorbox}
+\usepackage{subcaption}
+% \usepackage{amssymb}
+\usepackage{multirow}
+% \usepackage{titling}
+\usepackage{arydshln}
+% \usepackage{pifont}
+\usepackage{pifont}
+
+\input{macros}
+\definecolor{RoyalBlue}{rgb}{0.25, 0.41, 0.88}
+\definecolor{brickred}{rgb}{0.8, 0.25, 0.33}
+\definecolor{forestgreen}{rgb}{0.13, 0.55, 0.13}
+\newcommand{\cmark}{\textcolor{forestgreen}{\ding{51}}\xspace}
+\newcommand{\xmark}{\textcolor{red}{\ding{55}}\xspace}
+\newcommand{\ag}[1]{\textcolor{red}{\bf\small [AG: #1]}}
+
+
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+
+\title{LiveCodeBench: Holistic and Contamination Free Evaluation of Large Language Models for Code}
+
+% Authors must not appear in the submitted version. They should be hidden
+% as long as the \iclrfinalcopy macro remains commented out below.
+% Non-anonymous submissions will be rejected without review.
+
+% \author{\hspace{2mm} Naman Jain \hspace{2.5mm} King Han \hspace{2.5mm} Alex Gu \hspace{2.5mm} Wen-Ding Li \hspace{2.5mm} Fanjia Yan \hspace{2.5mm} Tianjun Zhang \\
+% \hspace{18mm} \textbf{Sida Wang}\hspace{2.5mm} \textbf{Armando Solar-Lezama}\hspace{2.5mm} \textbf{Koushik Sen} \hspace{2.5mm} \textbf{Ion Stoica} \\
+% \hspace{38mm}UC Berkeley \hspace{5mm} MIT\hspace{5mm} Cornell\hspace{5mm} Meta\\
+% \texttt{\{naman\_jain,tianjunz,weichiang,jegonzal,ksen,istoica\}@berkeley.edu}
+% }
+
+\author{Naman Jain\textsuperscript{\textdagger} \quad 
+King Han\textsuperscript{\textdagger} \quad 
+Alex Gu\textsuperscript{*} \textsuperscript{\textdollar} \quad 
+Wen-Ding Li\textsuperscript{*}\textsuperscript{\textdaggerdbl} \quad  
+Fanjia Yan\textsuperscript{*}\textsuperscript{\textdagger} \quad
+\textbf{Tianjun Zhang}\textsuperscript{*}\textsuperscript{\textdagger} \\ \\
+\quad \quad \quad \quad \quad \textbf{Sida I. Wang}%\textsuperscript{\textsection} 
+\quad 
+\textbf{Armando Solar-Lezama}\textsuperscript{\textdollar} \quad \textbf{Koushik Sen}\textsuperscript{\textdagger} \quad 
+\textbf{Ion Stoica}\textsuperscript{\textdagger} \\ \\
+\quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \textsuperscript{\textdagger} UC Berkeley \quad \quad \textsuperscript{\textdollar} MIT \quad \quad \textsuperscript{\textdaggerdbl} Cornell 
+%\quad \quad \textsuperscript{\textsection} Meta AI
+\\
+{ }\\
+\texttt{\{naman\_jain,kingh0730,fanjiayan,tianjunz,ksen,istoica\}@berkeley.edu}\\
+\texttt{\{gua,asolar\}@csail.mit.edu} \quad \texttt{wl678@cornell.edu} \quad \texttt{sidawang88@gmail.com}
+\vspace{-4pt}
+} 
+
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+
+
+\maketitle
+
+\begin{abstract}
+  \noindent Large Language Models (\llms{}) applied to code-related applications have emerged as a prominent field, attracting significant interest from academia and industry.
+  However, as new and improved \llms{} are developed, existing evaluation benchmarks (e.g., \humaneval{}, \mbpp{}) are no longer sufficient for assessing their capabilities suffering from data contamination, overfitting, saturation, and focus on merely code generation.
+  In this work, we propose \livecodebench{}, a comprehensive and contamination-free evaluation of \llms{} for code, which collects \textit{new} problems over time from contests across three competition platforms, \leetcode{}, \atcoder{}, and \codeforces{}.
+  Notably, our benchmark also focuses on a broader range of code-related capabilities, such as self-repair, code execution, and test output prediction, beyond just code generation.
+  Currently, \livecodebench{} hosts over six hundred coding problems that were published between May 2023 and Aug 2024.
+  We evaluate over $50$ \llms{} on \livecodebench{} (\lcb{} for brevity) presenting the largest evaluation study of code \llms{} on competition problems. 
+  Based on the study, we present novel empirical findings on contamination, overfitting, and holistic evaluations. 
+  We demonstrate that time-segmented evaluations serve as a robust approach to evade contamination; they are successful at detecting contamination across a wide range of open and closed models including \gptfouro{}, \claude{}, \deepseek{}, and \codestral{}.
+  Next, we highlight overfitting and saturation of traditional coding benchmarks like \humaneval{} and demonstrate \lcb{} allows more reliable evaluations.
+  Finally, our holistic evaluation scenarios allow for measuring the different capabilities of programming agents in isolation.
+  % We present empirical findings on contamination, holistic performance comparisons, potential overfitting in existing benchmarks as well as individual model comparisons.
+  %Finally, we will release all prompts and model completions for further community analysis, along with a general toolkit for adding new scenarios and models.%\footnote{The website is available at: \url{https:}}\footnote{The code is available at: \url{https:}}
+\end{abstract}
+
+
+\vspace{-3pt}
+\section{Introduction}
+\label{sec:introduction}
+\input{introduction.tex}
+
+\input{prior_work.tex}
+
+\vspace{-3pt}
+\section{Holistic Evaluation}
+\label{sec:tasks}
+\input{tasks.tex}
+
+\vspace{-3pt}
+\section{Benchmark Curation}
+\label{sec:benchmark}
+\input{benchmark.tex}
+
+\vspace{-3pt}
+\section{Experiment Setup}
+\label{sec:setup}
+\input{setup.tex}
+
+\vspace{-3pt}
+\section{Results}
+\label{sec:results}
+\input{results.tex}
+
+\vspace{-3pt}
+\section{Related Work}
+\label{sec:related-work}
+\input{related-work}
+
+\vspace{-3pt}
+\section{Limitations and Conclusion}
+\label{sec:limitations}
+\input{limitations}
+
+\input{conclusion}
+
+\section*{Acknowledgement}
+This work was supported in part by NSF grants CCF:1900968, CCF:1908870 and by SKY Lab industrial sponsors and affiliates Astronomer, Google, IBM, Intel, Lacework, Microsoft, Mohamed Bin Zayed University of Artificial Intelligence, Nexla, Samsung SDS, Uber, and VMware. 
+A. Gu is supported by the NSF Graduate Research Fellowship under Grant No. 2141064. 
+A. Solar-Lezama is supported by the NSF and Intel Corporation through NSF Grant CCF:2217064.
+Any opinions, findings, conclusions, or recommendations in this paper are solely those of the authors and do not necessarily reflect the position of the sponsors. 
+
+\noindent Finally, we thank  Manish Shetty, Wei-Lin Chiang, Jierui Li, Horace He, Federico Cassano, Pengcheng Yin, Kexun Zhang, Rishabh Singh, and Aman Madaan for helpful feedback at various stages of the work. We particularly thank Kexun Zhang for providing results for C++ and Nikhil Thakur for helping maintain the benchmark.
+
+
+
+% \section*{Acknowledgements}
+% This work was supported in part by NSF grants CCF:1900968, CCF:1908870 and by SKY Lab industrial sponsors and affiliates Astronomer, Google, IBM, Intel, Lacework, Microsoft, Mohamed Bin Zayed University of Artificial Intelligence, Nexla, Samsung SDS, Uber, and VMware.
+% A. Gu is supported by the NSF Graduate Research Fellowship under Grant No. 2141064.
+% A. Solar-Lezama is supported by the NSF and Intel Corporation through NSF Grant CCF:2217064.
+% Any opinions, findings, conclusions, or recommendations in this paper are solely those of the authors and do not necessarily reflect the position of the sponsors.
+
+% \noindent Finally, we thank Manish Shetty, Wei-Lin Chiang, Jierui Li, Horace He, Dylan Zhang, Federico Cassano, Pengcheng Yin, and Aman Madaan for helpful feedback at various stages of the work.
+
+\bibliography{bibliography}
+\bibliographystyle{iclr2025_conference}
+
+
+% ACM reference style
+% \bibliographystyle{ACM-Reference-Format}
+% ACL reference style
+% \bibliographystyle{acl_natbib}
+
+\newpage
+% \input{checklist}
+\newpage
+\appendix
+
+\include{appendix/appendix-dataset}
+\newpage
+\section{UI}
+% figures/UI/full_ui.png
+% figures/UI/scrolled_ui.png
+
+\begin{figure*}[!h]
+  \centering
+  \includegraphics[width=0.9\linewidth]{figures/UI/full_ui.png}
+  \includegraphics[width=0.9\linewidth]{figures/UI/scrolled_ui.png}
+  \caption{UI of \livecodebench{} showing two views -- May-Jan and Sep-Jan. The contaminated models are blurred and the performance difference is visible across the two views. The scroller on the top allows selecting different periods of time highlighting the live nature of the benchmark.}
+  \label{app:fig:scrolling}
+\end{figure*}
+\newpage
+\include{appendix/appendix-curation}
+\newpage
+\include{appendix/appendix-experimental}
+\newpage
+\include{appendix/appendix-results}
+\newpage
+\include{appendix/appendix-qualitative}
+\newpage
+\include{appendix/appendix-limitations}
+
+
+\end{document}

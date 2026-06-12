@@ -1,0 +1,194 @@
+\documentclass{article}
+
+\usepackage{ssArxiv}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage[title]{appendix}
+
+\usepackage{amsmath,amsbsy,amsgen,amscd,amssymb,amsthm,amsfonts}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{subcaption, geometry, graphicx, lipsum}
+\usepackage{microtype}
+\usepackage{multirow}
+\usepackage[
+  pagebackref=true,
+  colorlinks=true,
+  citecolor=MidnightBlue,
+  linkcolor=Fuchsia,
+]{hyperref}
+\usepackage{pifont}
+\usepackage[nameinlink]{cleveref}
+\usepackage{url} 
+\usepackage{graphicx}
+\usepackage{algorithm,algorithmic}
+\usepackage[round]{natbib}
+\usepackage{xspace}
+\usepackage{caption}
+\captionsetup[table]{skip=5pt}
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  columns=fullflexible,
+  frame=single,
+  breaklines=true,
+  postbreak=\mbox{$\hookrightarrow$\space},
+  rulecolor=\color{black},
+}
+\lstset{moredelim=[is][\color{red}]{!*}{*!}} 
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\lstdefinestyle{mystyle}{  
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstdefinestyle{boxed}{  
+    frame=single,
+    breaklines=true,
+    postbreak=\mbox{$\hookrightarrow$\space},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=t,                    
+    keepspaces=true,                 
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstdefinestyle{reasoning}{  
+    breaklines=false,
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    breakautoindent=0pt,
+    breakindent=0pt,
+    basicstyle=\itshape\footnotesize,
+    breaklines=true,
+    breakatwhitespace=true,         
+    captionpos=t,                    
+    keepspaces=true,                 
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,
+}
+
+\lstset{style=mystyle}
+
+\usepackage[dvipsnames]{xcolor}
+\usepackage[most]{tcolorbox}
+
+% Define the color
+\definecolor{lightgreen}{HTML}{C4FFCF}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{remark}{Remark}
+\newtheorem{theorem}{Theorem}
+\newtheorem{assumption}{Assumption}
+\crefname{assumption}{assumption}{assumptions}
+\newtheorem{definition}{Definition}
+
+\newcommand{\red}[1]{\textbf{\textcolor{red}{#1}}}
+\newcommand{\green}[1]{\textbf{\textcolor{ForestGreen}{#1}}}
+
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\benchmark}{\textsc{CRUXEval}\xspace}
+\newcommand{\benchmarki}{\textsc{CRUXEval-I}\xspace}
+\newcommand{\benchmarko}{\textsc{CRUXEval-O}\xspace}
+
+\newcommand{\codellamamed}{\textsc{Code Llama 13B}\xspace}
+\newcommand{\codellamalarge}{\textsc{Code Llama 34B}\xspace}
+
+\makeatletter
+\newcommand\nnfootnote[1]{%
+  \begin{NoHyper}
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \end{NoHyper}
+}
+
+\makeatother
+  
+\setlength{\parindent}{0em}
+\setlength{\parskip}{0.75em}
+
+
+\renewcommand*\backref[1]{\ifx#1\relax \else (Cited on pg. #1) \fi}
+\title{The Counterfeit Conundrum: Can Code Language Models Grasp the Nuances of Their Incorrect Generations? \\ \
+}
+
+\author{\name Alex Gu
+\email{gua@mit.edu} \\
+\addr{MIT CSAIL} \\
+\name Wen-Ding Li$^{\star}$
+\email{wl678@cornell.edu} \\
+\addr{Cornell University} \\
+\name Naman Jain$^{\star}$
+\email{naman\_jain@berkeley.edu} \\
+\addr{University of California, Berkeley} \\
+\name Theo X. Olausson$^{\star}$
+\email{theoxo@csail.mit.edu} \\
+\addr{MIT CSAIL} \\
+\name Celine Lee$^{\star}$
+\email{cl923@cornell.edu} \\
+\addr{Cornell University} \\
+\name Koushik Sen
+\email{ksen@berkeley.edu} \\
+\addr{University of California, Berkeley} \\
+\name Armando Solar-Lezama
+\email{asolar@csail.mit.edu} \\
+\addr{MIT CSAIL} \\
+}
+
+\begin{document}
+
+\maketitle
+\raggedbottom
+
+\nnfootnote{$^{\star}$ Equal contribution, author order determined via \texttt{random.shuffle}}
+
+\begin{abstract}
+While language models are increasingly more proficient at code generation, they still frequently generate incorrect programs. Many of these programs are obviously wrong, but others are more subtle and pass weaker correctness checks such as being able to compile. In this work, we focus on these \textit{counterfeit samples}: programs sampled from a language model that 1) have a high enough log-probability to be generated at a moderate temperature and 2) pass weak correctness checks. Overall, we discover that most models have a very shallow understanding of counterfeits through three clear failure modes. First, models mistakenly classify them as correct. Second, models are worse at reasoning about the execution behaviour of counterfeits and often predict their execution results as if they were correct. Third, when asking models to fix counterfeits, the likelihood of a model successfully repairing a counterfeit is often even lower than that of sampling a correct program from scratch. Counterfeits also have very unexpected properties: first, counterfeit programs for problems that are easier for a model to solve are \textit{not necessarily} easier to detect and only slightly easier to execute and repair. Second, counterfeits from a given model are just as confusing to the model itself as they are to other models. Finally, both strong and weak models are able to generate counterfeit samples that equally challenge all models. In light of our findings, we recommend that care and caution be taken when relying on models to understand their own samples, especially when no external feedback is incorporated.
+\end{abstract}
+
+\input{sec1-new_intro_arxiv}
+\input{sec2-new_experimental-setup}
+\input{sec3-new_correctness-checking}
+% \input{sec4-new_analysis}
+\input{sec4-new-analysis-arxiv}
+\input{sec5_qualitative-analysis}
+\input{sec6_related-work}
+\input{sec7-conclusion}
+\input{sec8-limitations}
+\input{sec9-acknowledgements}
+
+\bibliography{custom}
+\bibliographystyle{plainnat}
+
+\appendix
+\raggedbottom
+\include{appendix-dataset}
+\include{appendix-prompts}
+\include{appendix-results-accuracy}
+\include{appendix-results-insights}
+\include{appendix-qual-samples}
+
+\end{document}
+

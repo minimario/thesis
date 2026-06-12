@@ -1,0 +1,114 @@
+\begin{table}[htbp]
+  \centering
+  \footnotesize
+  \label{tab:llm_judges}
+  \setlength{\tabcolsep}{4pt} % reduce column spacing
+  \resizebox{\textwidth}{!}{%
+  \renewcommand{\arraystretch}{0.9} % increase row height
+  % \begin{tabular}{l|c*{8}{>{\centering\arraybackslash}p{1.6cm}}}
+  \begin{tabular}{l|cccccccc}
+    \toprule
+    \textbf{Metrics} 
+      & \textbf{GPT-4o mini} 
+      & \textbf{GPT-4o} 
+      & \textbf{GPT-4.1 mini} 
+      & \textbf{GPT-4.1} 
+      & \textbf{o3-mini} 
+      & \textbf{o4-mini}
+      & \textbf{o1} 
+      & \textbf{o3} \\
+    \midrule
+    \multicolumn{9}{c}{\textit{\textbf{Final Answer Judge}}} \\
+    \midrule
+    Accuracy (\%)
+      & 100.0 & - & - & - & - & 100.0 & - & - \\
+    Precision (\%)
+      & 100.0 & - & - & - & - & 100.0 & - & - \\
+    Recall (\%)
+      & 100.0 & - & - & - & - & 100.0 & - & - \\
+    \rowcolor{blue!15}
+    F1 score
+      & \textbf{1.0} & - & - & - & - & \textbf{1.0} & - & - \\
+    \midrule
+      \multicolumn{9}{c}{\textit{\textbf{Toy Case Judge}}} \\
+    \midrule
+    Accuracy (\%)
+      & 80.0 & 86.3 & 88.8 & 90.0 & 91.3 & 91.3 & 80.0 & 91.3 \\
+    Precision (\%)
+      & 89.3 & 84.6 & 82.2 & 87.5 & 87.8 & 86.0 & 71.2 & 90.0 \\
+    Recall (\%)
+      & 65.8 & 86.8 & 97.4 & 92.1 & 94.7 & 97.4 & 97.4 & 92.1 \\
+    \rowcolor{blue!15}
+    F1 score
+      & 0.76 & 0.86 & 0.89 & 0.90 & 0.91 & \textbf{0.91} & 0.82 & 0.91 \\
+    \midrule
+    \multicolumn{9}{c}{\textit{\textbf{Logical Gap Judge}}} \\
+    \midrule
+    Accuracy (\%)
+      & 64.6 
+      & 71.3 
+      & 78.8 
+      & 75.0 
+      & 80.0 
+      & 96.3
+      & 72.2 
+      & 90.8 \\
+    Precision (\%)
+      & 82.4 
+      & 63.5 
+      & 71.0 
+      & 67.9 
+      & 75.0 
+      & 95.1
+      & 64.4 
+      & 97.0 \\
+    Recall (\%)
+      & 35.9 
+      & 100.0 
+      & 97.5 
+      & 95.0 
+      & 90.0 
+      & 97.5
+      & 97.4 
+      & 84.2 \\
+    \rowcolor{blue!15}
+    F1 score
+      & 0.50 
+      & 0.78 
+      & 0.82 
+      & 0.79 
+      & 0.82 
+      & \textbf{0.96} 
+      & 0.78 
+      & 0.90 \\
+    \midrule
+    \multicolumn{9}{c}{\textit{\textbf{Numerical Approximation Judge}}} \\
+    \midrule
+    Accuracy (\%)
+      & 80.0 & 71.3 & 60.0 & 87.5 & 72.5 & 87.5 & 96.3 & 96.3 \\
+    Precision (\%)
+      & 82.1 & 63.9 & 56.2 & 80.4 & 65.1 & 83.0 & 95.2 & 95.2 \\
+    Recall (\%)
+      & 78.0 & 97.5 & 100.0 & 100.0 & 100.0 & 95.1 & 97.6 & 97.6 \\
+    \rowcolor{blue!15}
+    F1 score
+      & 0.80 & 0.77 & 0.72 & 0.89 & 0.79 & 0.89 & \textbf{0.96} & \textbf{0.96} \\
+    \midrule
+    \multicolumn{9}{c}{\textit{\textbf{Numerical Calculation Judge}}} \\
+    \midrule
+    Accuracy (\%)
+      & 65.0 & 62.5 & 70.9 & 61.3 & 58.2 & 73.7 & 69.4 & 71.3 \\
+    Precision (\%)
+      & 64.2 & 62.0 & 67.6 & 60.3 & 58.2 & 69.2 & 67.2 & 67.1 \\
+    Recall (\%)
+      & 91.5 & 93.6 & 97.9 & 100.0 & 100.0 & 100.0 & 100.0 & 100.0 \\
+    \rowcolor{blue!15}
+    F1 score
+      & 0.75 & 0.75 & 0.80 & 0.75 & 0.74 & \textbf{0.82} & 0.80 & 0.80 \\
+    \bottomrule
+  \end{tabular}%
+  }
+  \vspace{2mm}
+  \caption{Performance of LLM-based judges across different model backends.}
+  \label{tab:judge_performance_llms}
+\end{table}

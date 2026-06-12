@@ -1,0 +1,4 @@
+\section{Limitations}
+\label{sec:limitations}
+
+Due to the cost of full benchmark runs, we report a single run per (model, prompt) configuration. To reduce noise from underlying model changes, we ran the prompt-intervention experiments consecutively. SlopCodeBench's size (196 checkpoints across 36 problems) enables substantial within-run averaging, but we cannot directly quantify run-to-run variance. Second, although the benchmark is language-agnostic by construction and the harness supports any language that meets the entrypoint contract, the experiments in this paper evaluate only Python solutions; extending the evaluation to additional languages is only constrained by cost. Since refactors should reduce human degradation while feature additions drive it, this comparison likely understates the agent-vs-human gap. Finally, we mitigate potential future training-data leakage by embedding sentinel tokens and canaries.

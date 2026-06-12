@@ -1,0 +1,24 @@
+\section{Proofwriter StarCoder+ Errors} \label{sec:appendix_proofwriter_errors}
+We also analyzed, qualitatively, the errors that StarCoder+ makes on the ProofWriter dataset. Since premises from the ProofWriter dataset are relatively simple and direct, lossy translation is rarer. Most errors are due to syntax or improper representations. We show five representative errors below:
+
+\begin{lstlisting}
+Premise: All quiet people are round.
+StarCoder+ FOL: all x. Quiet(x) -> Round(x)
+Ground Truth FOL: all x. (Quiet(x) -> Round(x))
+
+Premise: If someone is quiet and nice then they are cold.
+Starcoder+ FOL: all x. (Quiet(x) \& Nice(x)) -> Cold(x)
+Ground Truth FOL: all x. ((Quiet(x) \& Nice(x)) -> Cold(x))
+
+Premise: If something is furry then it is quiet.
+Starcoder+ FOL: Furry(x) -> Quiet(x)
+Ground Truth FOL: all x. (Furry(x) -> Quiet(x))
+
+Premise: The cow eats the dog.
+Starcoder+ FOL: Cow(Eats(Dog))
+Ground Truth FOL: Eats(Cow, Dog)
+
+Premise: The cow is blue.
+Starcoder+ FOL: Cow(x) \& Blue(x)
+Ground Truth FOL: Blue(Cow)
+\end{lstlisting}

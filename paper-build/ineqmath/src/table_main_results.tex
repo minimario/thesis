@@ -1,0 +1,213 @@
+\begin{table}[t!]
+  \vspace{-6mm}
+  \centering
+  \setlength{\tabcolsep}{2pt}
+  {\large
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{%
+  l
+  | r r r @{\hspace{10pt}}   % Final Acc
+  | r r r @{\hspace{10pt}}   % Answer Acc
+  | r r r @{\hspace{10pt}}   % Toy Case
+  | r r r @{\hspace{10pt}}   % Logical
+  | r r r @{\hspace{10pt}}   % Approx.
+  | r r r                    % Calc.
+}
+\toprule
+% ── First header row: empty over first 7 cols, then Step Acc with left rule
+ & \multicolumn{3}{c|}{} 
+ & \multicolumn{3}{c}{} 
+ & \multicolumn{12}{|c}{\textbf{Step Acc ($\uparrow$)}} \\
+% ── Horizontal rule just under Step Acc
+\cmidrule(lr){8-19}
+% ── Second header row: sub‐groups (no parentheses)
+ & \multicolumn{3}{c}{\textbf{Overall Acc ($\uparrow$)}} 
+ & \multicolumn{3}{|c}{\textbf{Answer Acc ($\uparrow$)}} 
+ & \multicolumn{3}{|c}{\textbf{No Toy Case}} 
+ & \multicolumn{3}{c}{\textbf{No Logic. Gap}} 
+ & \multicolumn{3}{c}{\textbf{No Approx. Error}} 
+ & \multicolumn{3}{c}{\textbf{No Comp. Error}} \\
+% ── Fine‐grained rules under each subgroup
+\cmidrule(lr){2-4}  \cmidrule(lr){5-7}
+\cmidrule(lr){8-10} \cmidrule(lr){11-13}
+\cmidrule(lr){14-16}\cmidrule(lr){17-19}
+% ── Third header row: the actual column labels
+\textbf{Models}
+ & All & Bnd. & Rel.  
+ & All & Bnd. & Rel.  
+ & All & Bnd. & Rel.  
+ & All & Bnd. & Rel.  
+ & All & Bnd. & Rel.  
+ & All & Bnd. & Rel.  \\
+
+      \midrule
+      \multicolumn{19}{c}{\textit{\textbf{Heuristic Methods}}} \\
+      \midrule
+      Random Guess & $\quad$  - & $\quad$  - & $\quad$ - & \cellcolor{LightBlue}8.5 & 0.0 & 16.3 & - & - & - & - & -  & -  & - & - & - & - & - & -\\
+      Frequent Guess & $\quad$  - & $\quad$  - & $\quad$  - & \cellcolor{LightBlue}18.0 & 9.4 & 26.0 & - & - & - & - & -  & -  & - & - & - & - & - & -\\
+  
+      \midrule
+      \multicolumn{19}{c}{\textit{\textbf{Open-source Chat LLMs}}} \\
+      \midrule
+       Qwen2.5-Coder-32B~\cite{hui2024qwen2}         & \cellcolor{LightRed}1.5\prv{39.0} & 1.0\prv{50.0} & 1.9\prv{28.9} & \cellcolor{LightBlue}40.5 & \underline{51.0} & 30.8 & \cellcolor{LightBlue}36.0 & 27.1 & 44.2 & \cellcolor{LightBlue}3.0  & 2.1  & 3.8  & \cellcolor{LightBlue}90.5 &  \underline{96.9} & 84.6 & \cellcolor{LightBlue}88.5 & 89.6 & 87.5 \\
+       Llama-4-Scout~\cite{meta2025llama4scout}             & \cellcolor{LightRed}1.5\prv{32.0} & 2.1\prv{44.8} & 1.0\prv{20.2} & \cellcolor{LightBlue}33.5 & 46.9 & 21.2 & \cellcolor{LightBlue}30.5 & 15.6 & 44.2 & \cellcolor{LightBlue}3.5  & \underline{4.2}  & 2.9  &  \cellcolor{LightBlue}\underline{93.0} & 94.8 &  \underline{91.3} & \cellcolor{LightBlue}92.5 & 92.7 & 92.3 \\
+       Qwen2.5-72B~\cite{qwen2024qwen2.5-72b}                & \cellcolor{LightRed}2.5\prv{39.5} & \underline{3.1}\prv{47.9} & 1.9\prv{31.8} & \cellcolor{LightBlue}\underline{42.0} & \underline{51.0} & 33.7 &  \cellcolor{LightBlue}\underline{54.5} &  \underline{53.1} &  \underline{55.8} & \cellcolor{LightBlue}\underline{5.0}  & \underline{4.2}  & \underline{5.8}  & \cellcolor{LightBlue}91.0 & 94.8 & 87.5 &  \cellcolor{LightBlue}\underline{95.0} &  \underline{94.8} & 95.2 \\
+       Llama-4-Maverick~\cite{meta2025llama4maverick}          & \cellcolor{LightRed}2.5\prv{38.0} & 2.1\prv{43.7} & 2.9\prv{32.7} & \cellcolor{LightBlue}40.5 & 45.8 & \underline{35.6} & \cellcolor{LightBlue}42.5 & 28.1 &  \underline{55.8} & \cellcolor{LightBlue}4.0  & \underline{4.2}  & 3.8  & \cellcolor{LightBlue}89.0 & 91.7 & 86.5 &  \cellcolor{LightBlue}\underline{95.0} & 92.7 &  \underline{97.1} \\
+       Qwen2.5-7B~\cite{qwen2024qwen2.5-7b}                 & \cellcolor{LightRed}\underline{3.0}\prv{32.0} & 2.1\prv{38.5} & \underline{3.8}\prv{26.0} & \cellcolor{LightBlue}35.0 & 40.6 & 29.8 & \cellcolor{LightBlue}44.5 & 32.3 &  \underline{55.8} & \cellcolor{LightBlue}4.5  & 3.1  & \underline{5.8}  & \cellcolor{LightBlue}92.5 &  \underline{96.9} & 88.5 & \cellcolor{LightBlue}93.0 & 92.7 & 93.3 \\
+  
+      
+      \midrule
+      \multicolumn{19}{c}{\textit{\textbf{Proprietary Chat LLMs}}} \\
+      \midrule
+       Gemini 2.0 Flash-Lite~\cite{google2025gemini2flashlite}      & \cellcolor{LightRed}1.5\prv{31.5} & 2.1\prv{41.7} & 1.0\prv{22.1} & \cellcolor{LightBlue}33.0 & 43.8 & 23.1 & \cellcolor{LightBlue}11.5 & 11.5 & 11.5 & \cellcolor{LightBlue}3.5  & 3.1  & 3.8  & \cellcolor{LightBlue}73.0 & 77.1 & 69.2 & \cellcolor{LightBlue}90.5 & 87.5 & 93.3 \\
+       GPT-4o mini~\cite{openai2024gpt4omini}                & \cellcolor{LightRed}2.0\prv{37.5} & 1.0\prv{41.7} & 2.9\prv{33.6} & \cellcolor{LightBlue}39.5 & 42.7 & 36.5 & \cellcolor{LightBlue}29.0 & 11.5 & \underline{45.2} & \cellcolor{LightBlue}2.5  & 2.1  & 2.9  & \cellcolor{LightBlue}90.0 & 91.7 & 88.5 & \cellcolor{LightBlue}93.0 & 92.7 & 93.3 \\
+       GPT-4.1~\cite{openai2025gpt41}                    & \cellcolor{LightRed}2.5\prv{38.0} & 0.0\prv{31.3} & \underline{4.8}\prv{44.2} & \cellcolor{LightBlue}40.5 & 31.3 & \underline{49.0} & \cellcolor{LightBlue}16.0 & 12.0 & 19.0 & \cellcolor{LightBlue}10.0 & 8.3  & 11.5 & \cellcolor{LightBlue}59.5 & 66.7 & 52.9 & \cellcolor{LightBlue}93.5 & 92.7 & \underline{94.2} \\
+       GPT-4o~\cite{openai2024gpt4o}                    & \cellcolor{LightRed}3.0\prv{34.5} & 2.1\prv{38.5} & 3.8\prv{30.8} & \cellcolor{LightBlue}37.5 & 40.6 & 34.6 & \cellcolor{LightBlue}\underline{32.0} & \underline{21.9} & 43.0 & \cellcolor{LightBlue}3.5  & 3.1  & 3.8  & \cellcolor{LightBlue}\underline{92.5} & \underline{93.8} &  \underline{91.4} & \cellcolor{LightBlue}94.0 & 93.8 & \underline{94.2} \\
+      Gemini 2.0 Flash~\cite{google2025gemini2flash}           & \cellcolor{LightRed}3.0\prv{46.0} & 3.1\prv{56.3} & 2.9\prv{36.5} & \cellcolor{LightBlue}49.0 & 59.4 & 39.4 & \cellcolor{LightBlue}15.5 & 13.5 & 17.3 & \cellcolor{LightBlue}13.5 & 7.3  & 19.2 & \cellcolor{LightBlue}55.5 & 60.4 & 51.0 & \cellcolor{LightBlue}\underline{94.5} & 94.8 & \underline{94.2} \\
+      Grok 3~\cite{xai2025grok3}&  \cellcolor{LightRed}\underline{3.5}\prv{51.0}&  \underline{4.2}\prv{62.5}&  2.9\prv{40.4}& \cellcolor{LightBlue}\underline{54.5} & \underline{66.7} & 43.3& \cellcolor{LightBlue}17.0 & 13.7 & 20.2& \cellcolor{LightBlue}\underline{16.0} & \underline{11.6} &\underline{20.2}& \cellcolor{LightBlue}36.0 & 42.1 & 30.8& \cellcolor{LightBlue}93.0 & \underline{96.8} & 90.4 \\
+       
+      \midrule
+      \multicolumn{19}{c}{\textit{\textbf{Open-source Reasoning LLMs}}} \\
+      \midrule
+  
+      QwQ-32B~\cite{alibaba2025qwq32b}                    & \cellcolor{LightRed} 2.0\prv{47.5} & 2.1\prv{52.1} & 1.9\prv{43.3} & \cellcolor{LightBlue}49.5 & 54.2 & 45.2 & \cellcolor{LightBlue}26.0 & 25.0 & 26.9 & \cellcolor{LightBlue}29.5 & 20.1 &  37.5 & \cellcolor{LightBlue}21.0 & 20.8 & 21.2 & \cellcolor{LightBlue}87.0 & 82.3 & \underline{91.3} \\
+  
+       Deepseek-R1 (Llama-70B)~\cite{deepseek2025r1llama70b}
+     & \cellcolor{LightRed} 3.5\prv{50.0}
+     &  5.2\prv{53.1}
+     &  1.9\prv{47.1}
+     &  \cellcolor{LightBlue}\underline{53.5} &  \underline{58.3} &  \underline{49.0}
+     & \cellcolor{LightBlue}23.0 & 24.0 & 22.1
+     &  \cellcolor{LightBlue}26.0 &  20.9 & 30.8
+     & \cellcolor{LightBlue} \underline{35.5} & \underline{38.5} & 32.7
+     & \cellcolor{LightBlue}87.0 & 89.6 & 84.6 \\
+  
+      Deepseek-R1 (Qwen-14B)~\cite{deepseek2025r1qwen14b}
+     & \cellcolor{LightRed} 5.0\prv{35.5}
+     &  \underline{6.3}\prv{36.4}
+     &  3.8\prv{34.7}
+     & \cellcolor{LightBlue}40.5 & 42.7 & 38.5
+     & \cellcolor{LightBlue}21.0 & 18.8 & 23.1
+     &  \cellcolor{LightBlue}21.0 &  19.8 & 22.1
+     & \cellcolor{LightBlue}\underline{35.5} & \underline{38.5} & 32.7
+     & \cellcolor{LightBlue}85.0 & 91.7 & 78.8 \\
+
+      Deepseek-R1~\cite{deepseekai2025}
+     & \cellcolor{LightRed} 5.0\prv{44.5}
+     &  4.2\prv{63.5}
+     &  5.8\prv{26.9}
+     & \cellcolor{LightBlue}49.5 & 67.7 & 32.7
+     & \cellcolor{LightBlue}57.0 & 53.1 & 60.9
+     & \cellcolor{LightBlue}17.5 &  6.3 & 27.9
+     & \cellcolor{LightBlue}81.0 & 95.8 & 67.3
+     & \cellcolor{LightBlue}95.0 &  \underline{99.0} & 91.3 \\
+      
+      Qwen3-235B-A22B~\cite{qwen2025qwen3_235b_a22b}
+     & \cellcolor{LightRed} \underline{6.0}\prv{35.0}
+     &  3.1\prv{32.3}
+     &  \underline{8.7}\prv{37.5}
+     & \cellcolor{LightBlue}41.0 & 35.4 & 46.2
+     & \cellcolor{LightBlue}\underline{35.0} & \underline{30.2} & \underline{39.4}
+     & \cellcolor{LightBlue}\underline{36.0} & \underline{26.0} & \underline{45.2}
+     & \cellcolor{LightBlue}31.0 & 28.1 & \underline{33.7}
+     & \cellcolor{LightBlue}\underline{92.5} & \underline{93.8} & \underline{91.3} \\
+  
+  \midrule
+  \multicolumn{19}{c}{\textit{\textbf{Proprietary Reasoning LLMs}}} \\
+  \midrule
+  
+   Claude 3.7 Sonnet~\cite{anthropic2025claude37sonnet}
+     & \cellcolor{LightRed} 2.0\prv{40.0}
+     &  2.1\prv{44.8}
+     &  1.9\prv{35.6}
+     & \cellcolor{LightBlue}42.0 & 46.9 & 37.5
+     & \cellcolor{LightBlue}49.0 & 36.5 & 60.6
+     &  \cellcolor{LightBlue}4.0 &  3.1 &  4.8
+     &  \cellcolor{LightBlue}93.5 & 95.8 & 91.3
+     & \cellcolor{LightBlue}93.0 & 90.6 & 95.2 \\
+
+    Gemini 2.5 Flash~\cite{google2025gemini2.5flash}
+     & \cellcolor{LightRed} 4.5\prv{1.0}~
+     &  3.1\prv{1.1}~
+     &  5.8\prv{0.9}~
+     & \cellcolor{LightBlue}5.5 & 4.2 & 6.7
+     & \cellcolor{LightBlue}88.0 & 84.4 & 91.3
+     & \cellcolor{LightBlue}13.5 & 7.3 & 19.2
+     & \cellcolor{LightBlue}\underline{\textbf{100.0}} & \underline{\textbf{100.0}} & \underline{\textbf{100.0}}
+     & \cellcolor{LightBlue}\underline{\textbf{100.0}} & \underline{\textbf{100.0}} & \underline{\textbf{100.0}} \\
+
+  
+      Grok 3 mini~\cite{xai2025grok3mini}
+     & \cellcolor{LightRed} 6.0\prv{65.5}
+     &  4.2\prv{68.7}
+     &  7.7\prv{62.5}
+     &  \cellcolor{LightBlue}\underline{\textbf{71.5}} & \underline{72.9} &  \underline{\textbf{70.2}}
+     & \cellcolor{LightBlue}24.0 & 16.7 & 30.8
+     & \cellcolor{LightBlue}19.5 & 11.5 & 26.9
+     & \cellcolor{LightBlue}53.5 & 63.5 & 44.2
+     & \cellcolor{LightBlue}91.0 & 94.8 & 87.5 \\
+
+      Gemini 2.5 Pro~\cite{google2025gemini2.5pro}
+     & \cellcolor{LightRed} 6.0\prv{1.0}~
+     & 7.3\prv{1.0}~
+     & 4.8\prv{1.0}~
+     & \cellcolor{LightBlue}7.0 & 8.3 & 5.8
+     & \cellcolor{LightBlue}88.5 & 83.3 & 93.3
+     & \cellcolor{LightBlue}19.0 & 12.5 & 25.0
+     & \cellcolor{LightBlue}\underline{\textbf{100.0}} & \underline{\textbf{100.0}} & \underline{\textbf{100.0}}
+     & \cellcolor{LightBlue}99.5 & \underline{\textbf{100.0}} & 99.0 \\
+
+    o1~\cite{openai2024o1}
+     & \cellcolor{LightRed} 8.0\prv{54.5}
+     &  7.3\prv{55.2}
+     &  8.7\prv{53.8}
+     & \cellcolor{LightBlue}62.5 & 62.5 & 62.5
+     & \cellcolor{LightBlue}34.5 & 37.5 & 31.7
+     & \cellcolor{LightBlue}17.5 & 12.5 & 22.1
+     & \cellcolor{LightBlue}86.5 & 99.0 & 75.0
+     & \cellcolor{LightBlue}99.5 & \underline{\textbf{100.0}} & 99.0 \\
+  
+      o3-mini~\cite{OpenAI2025o3mini}
+     & \cellcolor{LightRed} 9.5\prv{53.0}
+     &  7.3\prv{62.5}
+     & 11.5\prv{44.3}
+     & \cellcolor{LightBlue}62.5 & 69.8 & 55.8
+     & \cellcolor{LightBlue}37.0 & 34.4 & 39.4
+     & \cellcolor{LightBlue}22.0 & 17.7 & 26.0
+     & \cellcolor{LightBlue}77.5 & 92.7 & 63.5
+     & \cellcolor{LightBlue}95.0 & 96.9 & 93.3 \\
+  
+      o4-mini~\cite{openai2025o4mini}
+     & \cellcolor{LightRed} 15.5\prv{49.5}
+     & 14.6\prv{48.9}
+     & 16.3\prv{50.0}
+     & \cellcolor{LightBlue}65.0 & 63.5 & 66.3
+     & \cellcolor{LightBlue}62.0 & 58.3 & 65.4
+     & \cellcolor{LightBlue}26.0 & 25.0 & 26.9
+     & \cellcolor{LightBlue}86.5 & 90.6 & 82.7
+     & \cellcolor{LightBlue}93.0 & 92.7 & 93.3 \\
+  
+      o3~\cite{openai2025o4mini}
+     & \cellcolor{LightRed} \underline{21.0}\prv{16.0}
+     &  \underline{18.8}\prv{11.4}
+     &  \underline{23.1}\prv{20.2}
+     & \cellcolor{LightBlue}37.0 & 30.2 & 43.3
+     & \cellcolor{LightBlue}\underline{93.5} & \underline{91.7} & \underline{95.2}
+     & \cellcolor{LightBlue}\underline{39.5} & \underline{28.1} & \underline{50.0}
+     & \cellcolor{LightBlue}91.5 & 99.0 & 84.6
+     & \cellcolor{LightBlue}97.0 & 96.9 & 97.1 \\
+  \midrule
+  \rowcolor{gray!20}
+  \textbf{Average Accuracy ($\uparrow$)} & 5.0\prv{38.0}  & 4.5 \prv{42.9} & 5.5\prv{33.5} & 43.0 & 47.4 & 39.0 & 40.3 & 34.8 & 45.5 & 15.0 & 11.0 & 18.7 & 73.1 & 77.9 & 68.8 &93.2 & 93.7 & 92.8 \\
+  \rowcolor{gray!20}
+  \textbf{Average Error Rate ($\downarrow$)}& 95.0\urv{38.0}  & 95.5 \urv{42.9} & 94.5\urv{33.5} & 57.0 & 52.6 & 61.0 & 59.7 & 65.2 & 54.5 & 85.0 & 89.0 & 81.3 & 26.9 & 22.1 & 31.2 &6.8 & 6.3 & 7.2  \\
+      \bottomrule
+  \end{tabular}%
+  } % end resizebox
+  } % end large
+  \vspace{1.5mm}
+  \caption{\small Evaluation performance of chat and reasoning LLMs on the \dataset benchmark (the test set). \textit{Bnd.} denotes bound problems and \textit{Rel.} denotes relation ones. We report: (1) \textit{Overall Acc}, which reflects the correctness of both the final answer and intermediate steps; (2) \textit{Answer Acc}, which measures final answer correctness alone; and (3) \textit{Step Acc}, which evaluates the accuracy of intermediate steps across four error categories---\textit{Toy Case}, \textit{Logical Gap},  \textit{Numerical Approximation}, and \textit{Numerical Computation}. \textcolor{blue}{Blue superscripts $\downarrow$} indicate accuracy drop (\textit{Overall Acc} - \textit{Answer Acc}) from step-wise errors. \underline{Underlining} denotes best result within each model category; \textbf{boldface} highlights best overall performance. Default max token limit for reasoning LLMs is 10K.}
+  \vspace{-5mm}
+  \label{tab:main_results}
+\end{table}
+  

@@ -1,0 +1,92 @@
+\vspace{-0.3cm}
+
+\section{Paths Forward} \label{sec:paths}
+
+% \todo{reorder}
+
+\vspace{-0.2cm}
+
+\subsection{Training: New Objectives and Synthetic Data}
+
+\vspace{-0.1cm}
+
+\textit{Reinforcement Learning (RL)}: 
+RL has delivered considerable improvements in isolated but challenging algorithmic  problems~\citep{deepseekai2025deepseekr1}.
+A promising direction is to scale such reinforcement learning approaches to more mature real-world tasks by collecting execution-assisted gym-like programming environments~\citep{jain2024r2e, pan2024trainingsoftwareengineeringagents}.
+Particularly, we believe it will be important to incorporate tasks with high construct validity and consider ways of mitigating and model task ambiguity~\citep{shao2024collaborativegym}.
+
+% \naman{this is generally fine -- but lately i have been thinking if supervising these tasks manually is necessary or can the model learn them as necessary in end-to-end RL like I think training for algorithmic-debugging with RL might be instilling some level of execution world-model}
+
+
+\textit{Synthetic Data}: In code, synthetic data is a promising method for gathering more data. In contrast to text, code contains strong, verifiable feedback such as test cases, program execution engines, and other symbolic tools. For example, to generate code with interesting program invariants, we can sample a large batch of programs and filter using an invariant detector to keep the ones with interesting invariants. Successful synthetic data can also be used to seed the generation of more complex synthetic data. Code is also compositional, allowing the possibility of combining individual building blocks to even generate synthetic data with repository-level scope. In DSLs, it is often possible to generate programs with desired properties via sampling. This technique has been successfully applied to difficult reasoning tasks such as ARC-AGI \citep{li2024combining} and math olympiad problems \citep{trinh2024solving, deepmindalphaproof}.
+
+\vspace{-0.2cm}
+
+\subsection{Developing a World Model for Code}
+
+\vspace{-0.1cm}
+
+% \todo{data to data vs. modelling. like javascript DOM. multimodal aspects can help. but scalable way to generalize. multimodal world model. }
+
+% \todo{put continual learning here}
+
+In Sec. \ref{sec:c-global-understanding}, we discussed how LLMs do not have a global understanding of codebases. We believe it is important for a coding language model to have a good ``world model'' for code in the same way that students completing a programming course will gain a holistic understanding of coding. 
+% Especially in OOD domain tasks (Sec. \ref{sec:c-ood-domains}), code understanding will be crucial in order to make novel advances.
+
+
+\textit{Augmenting Data with Program Information}: While code is currently often treated as pure tokens, we can actually extract a lot of information about a program by using the wide variety of programming language tools available. These tools can be used to augment existing programs in the training set with available information describing properties the code. We believe that being able to see code alongside its properties will enhance a model's overall world model of code. These properties can include static analysis (abstract syntax trees, data flow analyses), dynamic analysis (program states, call stacks), program instrumentation (memory consumption, code coverage), and formal verification (concurrency analysis, program invariants).
+
+% Some of this information can be as follows:
+% \begin{itemize}
+%     \item Static analysis: the syntactic structure of a program (abstract syntax trees, control flow graphs), information about the type of each variable, data flow analysis (reachability, liveness analysis)
+%     \item Dynamic analysis: program states at various points in the program, call stacks, dynamically curated properties
+%     \item Program instrumentation: memory consumption, runtime analysis, code coverage (like statement or branch coverage)  
+%     \item Formal verification: concurrency analysis, program invariants, memory safety
+% \end{itemize}
+
+
+\textit{Training with More Tasks}: Another way to steer code models to have a more general understanding of code is to widen the distribution of tasks models are exposed to during training, such as including the tasks in Sec. \ref{sec:tasks-milestones}. Training should include more tasks that improve a model's semantic understanding, such as describing errors in subtle bugs or predicting the execution states of a program. This training could be done in a curriculum-like manner to gradually improve world model capabilities.
+
+% \naman{this is generally fine -- but lately i have been thinking if supervising these tasks manually is necessary or can the model learn them as necessary in end-to-end RL like I think training for algorithmic-debugging with RL might be instilling some level of execution world-model}
+
+% That being said, we do not believe that it is necessary for LLMs to have a perfect world model of code. In mathematics, we do not expect LLMs to perform hundred digit multiplication problems. However, we might expect them to be able to estimate the order of magnitude of the result. Similarly, perfectly predicting the program state of a piece of code after every line is not necessary, but having a high-level understanding of a program's execution flow is expected. A coding LLM should have this general world model of code, enabling it to then intelligently use tools like debuggers and code executors for instances that require more precision. 
+
+\vspace{-0.25cm}
+
+\subsection{Integration with SWE development frameworks}
+
+\vspace{-0.1cm}
+
+Integrating AI with SWE development frameworks is critical for practical applications and impact on developer workflows. While software development is inherently integrated with tools, workflows, and processes, scaffolding and meta-code (Sec. \ref{sec:c-low-resource}) is often absent from source code and scarce in AI training data. Ensuring that AI deeply understands software deployment beyond code editing is crucial, as writing code is only a small part of the development cycle. In continuous integration and continuous deployment (CI/CD), automated pipelines are the backbone for building, testing, and deploying code changes. CI/CD accelerates feedback cycles and minimizes integration issues. AI offers several integration points within CI/CD. AI-powered code review tools can be incorporated into CI pipelines to automatically identify and flag style violations, potential security vulnerabilities, and code smells before human reviewers are involved. Furthermore, AI can provide intelligent deployment risk assessments. By analyzing code changes, test outcomes, and historical deployment data, AI can predict the likelihood of deployment issues, informing decisions about whether to proceed with automated deployment or mandate manual verification steps. Finally, AI can automate the generation of release notes by summarizing commit messages, issue tracker data, and relevant code modifications within the CI/CD process.
+
+\vspace{-0.25cm}
+
+\subsection{Agents and Tool Integration}
+
+\vspace{-0.1cm}
+
+% static symbolic analysis?
+\textit{Learned Tool Usage}: To improve the tool usage of AI agents, we should teach agents to understand the intricacies of tools so that they can autonomously invoke them as needed when writing code. Drawing inspiration from learning how to play games, we imagine a RL approach where the model can learn the strengths and weaknesses of each tool by trying it out at various points in code writing.
+
+% Agents and tool use have recently become a popular paradigm for tackling complex tasks such as programming. However, the majority of agentic coding systems use tools in a relatively primitive way (Sec. \ref{sec:tool-use}), and the scope of tools currently used is quite narrow. In addition, the use of tools is often superficial, such as feeding compiler feedback into the model. Unlike human programmers, today's agents do not yet autonomously decide how and when to use each tool. To be more successful, however, we believe that these agents should understand the intricacies of each tool and be able to autonomously invoke them as needed while performing software engineering. Like learning how to play complicated games, we imagine a potential reinforcement learning approach where the model can learn the strengths and weaknesses of each tool.
+
+\textit{Neurosymbolic Approaches}: Today, the majority of research in AI for code do not take into account the deep symbolic properties of code. We believe that LMs and ymbolic tools should be more deeply integrated with each other. This could include using information about program structure in training (e.g. ASTs) or using the grammar of the programming language to do constrained decoding.
+
+\vspace{-0.25cm}
+
+\subsection{Context Adaptation and Continual Learning}
+
+\vspace{-0.1cm}
+
+Low-resource languages (Sec. \ref{sec:c-low-resource}), custom APIs, library version updates (Sec. \ref{sec:c-library-updates}), and large codebases (Sec. \ref{sec:c-long-context-retrieval}) all surface the fact that code LMs struggle to adapt to specialized contexts. 
+
+% \textit{Adapting continual learning to the code domain}: Throughout the maturation cycle of a software project, more and more features are going to be added to a codebase that become available as new building blocks and APIs. In Lean, as eager contributors formalize more and more math textbooks, new definitions, theorems, and premises are being added to \texttt{Mathlib} every day and can often be leveraged directly to prove more complex theorems. Because code is always changing, solving this continual learning problem is important for productively working in new codebases.
+
+% There is a large body of literature in continual learning, many of which may be applicable to this issue. However, continual learning in the code domain has one key difference: one of the biggest issues in traditional continual learning is catastrophic forgetting, that networks will forget old information when learning new information \citep{kirkpatrick2017overcoming}. To some extent however, especially in version and API updates, forgetting is actually a desirable behavior in order to avoid the use of deprecated API's or past version of libraries. While some deprecated usage patterns are completely useless, the tricky aspect here is that you don't want to forget everything from the old APIs, because there may still be useful implementation details. Therefore, we may need to design continual learning algorithms with controllable forgetting \citep{wu2024continual}.
+
+\textit{Test-time training}: One recent paradigm is test-time training, the idea of adapting to a specific problem instance by training on a narrow set of in-distribution examples. This allows a model to adapt to a specific codebase, new domain, or unseen API. The model could also use synthetic data to create in-distribution examples and annotate them with symbolic (e.g. compiler) feedback to gain a more global understanding of the current environment.
+
+\textit{Controllable forgetting}: If the correct repository version can be identified, the model can also be trained on the specific version of each API, reducing version-related hallucinations. This can also be combined with algorithms that can induce controllable forgetting \citep{wu2024continual}. 
+
+\textit{Retrieval-augmentation}: In these domains, the challenge is purely syntactic rather than algorithmic, making RAG-based methods ideal. When using APIs with multiple versions, providing retrievals in the current version can steer the model. These retrievals can be in the form of documentation, API function definitions, or example use cases. 
+

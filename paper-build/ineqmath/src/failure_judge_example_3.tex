@@ -1,0 +1,40 @@
+\begin{examplebox}[Judge Failure Example 3: Numerical Approximation]
+\textbf{Problem}: Let $x, y, z$ be positive real numbers such that $xy + yz + zx \geq 3$. Find the largest constant $C$ such that the following inequality holds for all $x, y, z$ satisfying the given constraint:
+$$
+\frac{x}{\sqrt{4x+5y}} + \frac{y}{\sqrt{4y+5z}} + \frac{z}{\sqrt{4z+5x}} \geq C
+$$
+\\
+\textbf{Solution Snippet}: \\
+...\\
+Therefore, our inequality becomes:
+\[
+    3\sqrt[3]{\frac{abc}{\sqrt{779abc}}} \geq C
+\]
+
+After simplifying, we can get:
+\[
+3\sqrt[3]{\frac{1}{\sqrt{779}}} \geq C
+\]
+
+Let's calculate this value:
+\[
+3 * (779^{-1/6}) \approx 1.0845
+\]
+
+Therefore, the largest constant C that satisfies the inequality is approximately 1.0845.
+
+The answer is \boxed{C=1.0845}.
+\\\\
+\textbf{Expected Evaluation for the Judge}:
+\\
+The solution replaces an exact symbolic expression with a numerical approximation (e.g., $3 \cdot 779^{-1/6} \approx 1.0845$) and uses that approximation as the final value for $C$. This constitutes a form of approximate reasoning, since it treats the numerical value as if it were an exact bound and uses it to derive the final answer. Therefore, the reasoning is not fully rigorous, and the answer is \boxed{\text{False}}.
+\\\\
+\textbf{Wrong Evaluation from the Judge}: \\
+\wrong{Providing a decimal approximation for the final constant is acceptable, because it is not used to support further reasoning or intermediate steps in the proof.} Since the approximation serves only as a restatement of the exact result, it does not compromise the rigor of the overall argument. Therefore, the answer is \boxed{\text{True}}.
+\\\\
+\textbf{Expert Comment}: \\
+The model incorrectly assumes that providing a numerical approximation for the final answer does not constitute further use of approximation in reasoning \wronghl. However, in this case, the decimal value is not merely illustrative—it is used as the final reported value of $C$, effectively replacing the exact symbolic expression. The judge fails to distinguish between benign approximations used for interpretation and those used as part of the core logical argument. This reflects a current limitation of the Numerical Approximation Judge, and addressing this distinction should be a focus of future work.
+
+\end{examplebox}
+
+

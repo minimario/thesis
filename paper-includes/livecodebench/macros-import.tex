@@ -1,0 +1,228 @@
+% notes
+\providecommand{\redo}[1]{{\color{red} #1}}
+\providecommand{\rebuttal}[1]{{#1}}
+
+
+\providecommand{\nbc}[3]{
+ {\colorbox{#3}{\bfseries\sffamily\scriptsize\textcolor{white}{#1}}}
+ {\textcolor{#3}{\sf\small\textit{#2}}}
+ }
+\definecolor{annotcolo}{rgb}{0.1,0.1,0.9}
+\providecommand{\nj}[1]{\nbc{NJ}{#1}{annotcolo}}
+
+
+% config
+\providecommand{\smalltextsc}[1]{\textsc{\small #1}}
+\providecommand{\scripttextsc}[1]{\textsc{\scriptsize #1}}
+\providecommand{\tinytextsc}[1]{\textsc{\tiny #1}}
+
+% sysnames
+\providecommand{\livecodebench}{\smalltextsc{LiveCodeBench}}
+\providecommand{\lcb}{\smalltextsc{LCB}}
+\providecommand{\livecodebenchtitle}{\textsc{LiveCodeBench}}
+
+
+% general
+\providecommand{\llm}{\smalltextsc{LLM}\xspace}
+\providecommand{\llms}{\smalltextsc{LLMs}\xspace}
+\providecommand{\chainot}{\smalltextsc{COT}\xspace}
+\providecommand{\python}{\smalltextsc{Python}\xspace}
+
+
+
+
+%models
+
+%openai
+\providecommand{\openai}{\smalltextsc{OpenAI}}
+\providecommand{\gpts}{\smalltextsc{GPTs}\xspace}
+\providecommand{\codedavinci}{\smalltextsc{Code-Davinci-002}\xspace}
+\providecommand{\gptthreefiveturbo}{\smalltextsc{GPT-3.5-turbo}\xspace}
+\providecommand{\gptfour}{\smalltextsc{GPT-4}\xspace}
+\providecommand{\gptfourturbo}{\smalltextsc{GPT-4-Turbo}\xspace}
+\providecommand{\gptfouro}{\smalltextsc{GPT-4-O}\xspace}
+
+%deepmind
+\providecommand{\alphacode}{\smalltextsc{AlphaCode}\xspace}
+\providecommand{\alphacodeB}[1]{\smalltextsc{AlphaCode-#1B}\xspace}
+
+%anthropic
+\providecommand{\claude}{\smalltextsc{Claude}\xspace}
+\providecommand{\claudes}{\smalltextsc{Claudes}\xspace}
+\providecommand{\claudetwo}{\smalltextsc{Claude-2}\xspace}
+\providecommand{\claudethrees}{\smalltextsc{Claude-3s}\xspace}
+\providecommand{\claudeinstantone}{\smalltextsc{Claude-Ins-1}\xspace}
+\providecommand{\claudeopus}{\smalltextsc{Claude-3-Opus}\xspace}
+\providecommand{\claudesonnet}{\smalltextsc{Claude-3-Sonnet}\xspace}
+
+%google
+\providecommand{\gemini}{\smalltextsc{Gemini}\xspace}
+\providecommand{\geminis}{\smalltextsc{Geminis}\xspace}
+\providecommand{\geminipro}{\smalltextsc{Gemini-Pro}\xspace}
+\providecommand{\geminiproonefive}{\smalltextsc{Gemini-Pro-1.5}\xspace}
+\providecommand{\geminiflash}{\smalltextsc{Gemini-Flash}\xspace}
+\providecommand{\geminiultra}{\smalltextsc{Gemini-Ultra}\xspace}
+
+%meta 
+\providecommand{\cllamas}{\smalltextsc{CodeLLaMas}\xspace}
+\providecommand{\cllama}{\smalltextsc{CodeLLaMa}\xspace}
+\providecommand{\cllamains}{\smalltextsc{CodeLLaMa-Ins}\xspace}
+\providecommand{\cllamabase}{\smalltextsc{CodeLLaMa-Base}\xspace}
+\providecommand{\cllamaB}[1]{\smalltextsc{CL-Ins-#1B}\xspace}
+\providecommand{\cllamacommonB}[1]{CL-#1B}
+\providecommand{\cllamabaseB}[1]{\smalltextsc{CL-Base-#1B}\xspace}
+\providecommand{\cllamaBList}{\smalltextsc{CL-Ins-\{7, 13, 34\}B}\xspace}
+\providecommand{\cllamabaseBList}{\smalltextsc{CL-Base-\{7, 13, 34\}B}\xspace}
+
+\providecommand{\llamas}{\smalltextsc{LLaMa-3s}\xspace}
+
+\providecommand{\llamabase}{\smalltextsc{L3-Base}}
+\providecommand{\llamabaselist}{\smalltextsc{L3-Base-\{7, 70\}B}\xspace}
+\providecommand{\llamainslist}{\smalltextsc{L3-Ins-\{7, 70\}B}\xspace}
+\providecommand{\llamaB}[1]{\smalltextsc{L3-Ins-#1B}\xspace}
+\providecommand{\llamabaseB}[1]{\smalltextsc{L3-Base-#1B}\xspace}
+
+%finetunes
+\providecommand{\wizardlong}{\smalltextsc{WizardCoder}\xspace}
+\providecommand{\wizard}{\smalltextsc{WC-34B}\xspace}
+\providecommand{\wizardtwo}{\smalltextsc{WC-33B}\xspace}
+\providecommand{\phind}{\smalltextsc{Phind-34B}\xspace}
+\providecommand{\magicoders}{\smalltextsc{MagiCoders}\xspace}
+\providecommand{\magicoder}[1]{\smalltextsc{MC-#1B}\xspace}
+\providecommand{\magicoderBLit}{\smalltextsc{MC-\{6.7, 7\}B}\xspace}
+
+%deepseek
+\providecommand{\deepseek}{\smalltextsc{DeepSeek}\xspace}
+\providecommand{\deepseekbase}{\smalltextsc{DeepSeek-Base}\xspace}
+\providecommand{\deepseekinstruct}{\smalltextsc{DeepSeek-Instruct}\xspace}
+\providecommand{\deepseeks}{\smalltextsc{DeepSeeks}\xspace}
+\providecommand{\deepseekcode}[1]{\smalltextsc{DS}-#1B\xspace}
+\providecommand{\deepseekcodeins}{\smalltextsc{DS-Ins}\xspace}
+\providecommand{\deepseekcodeB}[1]{\smalltextsc{DS-Ins-#1B}\xspace}
+\providecommand{\deepseekbaseB}[1]{\smalltextsc{DS-Base-#1B}\xspace}
+\providecommand{\deepseekcodeBList}{\smalltextsc{DS-Ins-\{1.3, 6.7, 33\}B}\xspace}
+\providecommand{\deepseekcodebaseBList}{\smalltextsc{DS-Base-\{1.3, 6.7, 33\}B}\xspace}
+
+% codeqwen
+\providecommand{\codeqwen}{\smalltextsc{CodeQwen}\xspace}
+\providecommand{\codeqwenchat}{\smalltextsc{CodeQwen-Chat}\xspace}
+
+%mistral
+
+\providecommand{\mixtral}{\smalltextsc{Mixtral}\xspace}
+\providecommand{\codestral}{\smalltextsc{Codestral}\xspace}
+\providecommand{\mistrallarge}{\smalltextsc{Mistral-L}\xspace}
+\providecommand{\mistral}{\smalltextsc{Mistral}\xspace}
+
+% bigcode
+
+\providecommand{\starcoder}{\smalltextsc{StarCoder}\xspace}
+\providecommand{\starcodertwo}{\smalltextsc{StarCoder2}\xspace}
+\providecommand{\starcodertwobase}{\smalltextsc{StarCoder2-Base}\xspace}
+\providecommand{\sctwoinsB}[1]{\smalltextsc{SC2-#1B}\xspace}
+\providecommand{\sctwobaseB}[1]{\smalltextsc{SC2-Base-#1B}\xspace}
+\providecommand{\sctwobaseBList}{\smalltextsc{SC2-Base-\{3,7,15\}B}\xspace}
+
+% cohere
+\providecommand{\commandr}{\smalltextsc{CMD-R}\xspace}
+\providecommand{\commandrplus}{\smalltextsc{CMD-R+}\xspace}
+
+
+% datasets
+\providecommand{\thestack}{\smalltextsc{Stack}\xspace}
+\providecommand{\apps}{\smalltextsc{APPS}\xspace}
+\providecommand{\contests}{\smalltextsc{Code-Contests}\xspace}
+\providecommand{\humaneval}{\smalltextsc{HumanEval}}
+\providecommand{\humanevalplus}{\smalltextsc{HumanEval+}}
+\providecommand{\mbpp}{\smalltextsc{MBPP}}
+\providecommand{\cruxeval}{\smalltextsc{CRUXEval}}
+\providecommand{\codet}{\smalltextsc{CodeT}}
+\providecommand{\xcode}{\smalltextsc{xCodeEval}\xspace}
+\providecommand{\codescope}{\smalltextsc{CodeScope}\xspace}
+\providecommand{\taco}{\smalltextsc{TACO}\xspace}
+\providecommand{\usacobench}{\smalltextsc{USCAOBench}\xspace}
+%coding websites
+\providecommand{\leetcode}{\smalltextsc{LeetCode}\xspace}
+\providecommand{\atcoder}{\smalltextsc{AtCoder}\xspace}
+\providecommand{\codeforces}{\smalltextsc{CodeForces}\xspace}
+\providecommand{\html}{\smalltextsc{HTML}\xspace}
+
+\providecommand{\easy}{\smalltextsc{Easy}\xspace}
+\providecommand{\medium}{\smalltextsc{Medium}\xspace}
+\providecommand{\hard}{\smalltextsc{Hard}\xspace}
+
+%website scrapes
+\providecommand{\problem}{\smalltextsc{$P$}\xspace}
+\providecommand{\solution}{\smalltextsc{$S$}\xspace}
+\providecommand{\tests}{\smalltextsc{$T$}\xspace}
+\providecommand{\testspublic}{\smalltextsc{$T_{p}$}\xspace}
+\providecommand{\testshidden}{\smalltextsc{$T_{h}$}\xspace}
+\providecommand{\contestdate}{\smalltextsc{$D$}\xspace}
+
+% metrics
+\providecommand{\passmetric}[1]{\smalltextsc{Pass@}#1\xspace}
+
+
+
+% %%%%
+\lstset{
+  basicstyle=\ttfamily\small,
+  columns=fullflexible,
+  % frame=single,
+  breaklines=true,
+  postbreak=\mbox{$\hookrightarrow$\space},
+  rulecolor=\color{black},
+}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\lstdefinestyle{mystyle}{  
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,        
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+% if you use cleveref..
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % THEOREMS
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \theoremstyle{plain}
+% \newtheorem{theorem}{Theorem}[section]
+% \newtheorem{proposition}[theorem]{Proposition}
+% \newtheorem{lemma}[theorem]{Lemma}
+% \newtheorem{corollary}[theorem]{Corollary}
+% \theoremstyle{definition}
+% \newtheorem{definition}[theorem]{Definition}
+% \newtheorem{assumption}[theorem]{Assumption}
+% \theoremstyle{remark}
+% \newtheorem{remark}[theorem]{Remark}
+
+% % Todonotes is useful during development; simply uncomment the next line
+% %    and comment out the line below the next line to turn off comments
+
+% \input{math_commands.tex}
+% \input{macros.tex}
+
+
+\providecommand{\smallsim}{\smallsym{\mathrel}{\sim}}
+
+\makeatletter
+\providecommand{\smallsym}[2]{#1{\mathpalette\make@small@sym{#2}}}
+\providecommand{\make@small@sym}[2]{%
+  \vcenter{\hbox{$\m@th\downgrade@style#1#2$}}%
+}
+\providecommand{\downgrade@style}[1]{%
+  \ifx#1\displaystyle\scriptstyle\else
+    \ifx#1\textstyle\scriptstyle\else
+      \scriptscriptstyle
+  \fi\fi
+}
+\makeatother

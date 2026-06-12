@@ -1,0 +1,188 @@
+% !TEX encoding = UTF-8 Unicode
+% !TEX TS-program = pdfLaTeX
+% !BIB TS-program = bibtex
+%
+% MIT thesis template for Alexander F. Gu.
+% Based on the maintained mitthesis class and the structure of Ivan Kuraj's
+% 2024 EECS PhD thesis.
+
+% For final archival builds with a full TeX Live install, keep DocumentMetadata
+% enabled. The Basic TeX install on this machine lacks tagpdf-base.sty, so this
+% guard lets draft builds compile here.
+\IfFileExists{tagpdf-base.sty}{%
+  \DocumentMetadata{
+    lang = en-US,
+    pdfversion = 1.7,
+    pdfstandard = a-2b,
+  }%
+}{}
+
+\documentclass[twoside,fontset=lmodern]{mitthesis}
+
+\usepackage[nopatch=footnote]{microtype}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{caption}
+\makeatletter
+\let\subfigure\@undefined
+\let\endsubfigure\@undefined
+\let\subcaption\@undefined
+\makeatother
+\IfFileExists{subcaption.sty}{%
+  \usepackage{subcaption}%
+}{%
+  \NewDocumentEnvironment{subfigure}{O{} m}{\begin{minipage}{#2}\centering}{\end{minipage}}%
+  \providecommand{\subcaption}[1]{\caption*{#1}}%
+}
+\usepackage{float}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\usepackage{multicol}
+\usepackage{pifont}
+\IfFileExists{wrapfig.sty}{%
+  \usepackage{wrapfig}%
+}{%
+  \newenvironment{wrapfigure}[2]{\begin{figure}[ht]\centering}{\end{figure}}%
+}
+\IfFileExists{enumitem.sty}{\usepackage{enumitem}}{}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathmorphing,backgrounds}
+\IfFileExists{needspace.sty}{%
+  \usepackage{needspace}%
+}{%
+  \newcommand{\needspace}[1]{}%
+}
+\IfFileExists{dirtree.sty}{%
+  \usepackage{dirtree}%
+}{%
+  \newcommand{\DTcomment}[1]{\quad ##1}%
+  \newcommand{\dirtree}[1]{\begin{quote}\ttfamily ##1\end{quote}}%
+}
+\IfFileExists{tcolorbox.sty}{%
+  \usepackage[most]{tcolorbox}%
+}{%
+  \newsavebox{\tcbfallbackbox}%
+  \newenvironment{tcolorbox}[1][]{%
+    \par\medskip
+    \begin{lrbox}{\tcbfallbackbox}\begin{minipage}{0.90\linewidth}%
+  }{%
+    \end{minipage}\end{lrbox}%
+    \noindent\begingroup\setlength{\fboxsep}{8pt}%
+    \colorbox{lightblue}{\usebox{\tcbfallbackbox}}%
+    \endgroup\par\medskip
+  }%
+  \NewDocumentCommand{\newtcolorbox}{m O{} O{} m}{%
+    \NewDocumentEnvironment{##1}{O{}}{\begin{tcolorbox}[##2,####1]}{\end{tcolorbox}}%
+  }%
+}
+\newsavebox{\thesiscoloredbox}
+\newenvironment{thesiscolorbox}[1]{%
+  \leavevmode\par\medskip
+  \def\thesisboxcolor{#1}%
+  \begin{lrbox}{\thesiscoloredbox}\begin{minipage}{0.90\linewidth}%
+}{%
+  \end{minipage}\end{lrbox}%
+  \noindent\makebox[\linewidth][c]{%
+    \begingroup\setlength{\fboxsep}{8pt}%
+    \colorbox{\thesisboxcolor}{\usebox{\thesiscoloredbox}}%
+    \endgroup
+  }%
+  \par\medskip
+}
+\newenvironment{aicodebluebox}{\begin{thesiscolorbox}{lightblue}}{\end{thesiscolorbox}}
+\newenvironment{aicodegreenbox}{\begin{thesiscolorbox}{lightgreen}}{\end{thesiscolorbox}}
+\newenvironment{aicodeorangebox}{\begin{thesiscolorbox}{lightorange}}{\end{thesiscolorbox}}
+\IfFileExists{adjustbox.sty}{%
+  \usepackage{adjustbox}%
+}{%
+  \NewDocumentEnvironment{adjustbox}{m}{\begin{center}}{\end{center}}%
+}
+\usepackage{xspace}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+\graphicspath{{figures/}{paper-assets/cruxeval/}{paper-assets/counterfeit/}{paper-assets/proofoptimizer/}{paper-includes/livecodebench/}{paper-includes/slopcodebench/}{paper-includes/ineqmath/}{paper-includes/linc/}{paper-includes/leandojo/}{paper-includes/vibecodebench/}}
+
+\input{macros}
+
+% Keep the default thesis draft in the target 100--200 page range. Flip this
+% to true for an archival/source-comparison build that includes paper appendices.
+\newif\ifincludeappendices
+\includeappendicesfalse
+
+\hypersetup{
+  pdfsubject={Doctoral thesis},
+  pdfkeywords={Alexander F. Gu, Massachusetts Institute of Technology, MIT, thesis},
+  pdfurl={},
+  pdfcontactemail={},
+  pdfauthortitle={}
+}
+
+\begin{document}
+
+\title{Three Lessons from Evaluating Language Models on Reasoning Tasks}
+
+\Author{Alexander F. Gu}{Department of Electrical Engineering and Computer Science}
+  [S.B., Massachusetts Institute of Technology, 2021]
+  [M.Eng., Massachusetts Institute of Technology, 2022]
+
+\Degree{Doctor of Philosophy}{Department of Electrical Engineering and Computer Science}
+
+\Supervisor{Armando Solar-Lezama}{Distinguished Professor of Computing}
+  [MIT Schwarzman College of Computing]
+
+\Acceptor{Leslie A. Kolodziejski}
+  {Professor of Electrical Engineering and Computer Science}
+  {Chair, Department Committee on Graduate Students}
+
+% Valid MIT degree months are February, May, June, and September.
+\DegreeDate{June}{2026}
+\ThesisDate{June 2026}
+
+% If at least one reader is listed, mitthesis generates a thesis committee page.
+\Reader{Kaiyu Yang}{Research Lead, Verifiable AI Team}{Apodex}
+\Reader{Jacob Andreas}{Associate Professor}{MIT EECS and CSAIL}
+
+% The default is "All rights reserved" plus the MIT thesis permission statement,
+% matching the reference thesis. Uncomment to use a Creative Commons license.
+% \CClicense{CC BY-NC-ND 4.0}{https://creativecommons.org/licenses/by-nc-nd/4.0/}
+
+\maketitle
+
+\begin{abstract}
+  \input{abstract}
+\end{abstract}
+
+\include{acknowledgments}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\include{chapters/introduction}
+\include{chapters/right-metrics}
+\include{chapters/beyond-score}
+\include{chapters/measure-shapes}
+\include{chapters/position-paper}
+\include{chapters/conclusion}
+
+\ifincludeappendices
+\appendix
+\include{appendices/notation}
+\include{appendices/additional-results}
+\include{appendices/paper-appendices}
+\fi
+
+\cleardoublepage
+\addcontentsline{toc}{backmatter}{\bibname}
+\bibliographystyle{unsrtnat}
+\bibliography{references,paper-includes/paper-bibliography}
+
+\end{document}
