@@ -1,5 +1,10 @@
-\subsection*{Paper Abstract}
-\input{paper-includes/proofoptimizer/main-secs/sec0-abstract}
+Theorem proving in formal environments such as Lean~\citep{lean} provides an excellent testbed for training large language models (LLMs) in mathematical reasoning via reinforcement learning (RL). Since Lean can mechanically verify proofs, it filters hallucinations, provides reliable reward signals, and enables unlimited high-quality synthetic reasoning data. Leveraging these benefits, LLMs finetuned with RL have achieved near gold-medal performance on the International Mathematical Olympiad (IMO)~\citep{chen2507seed} and shown strong results on difficult college-level benchmarks like PutnamBench~\citep{lin2025goedel2}.
+
+However, RL-trained provers often generate proofs that are correct but excessively long and inscrutable. Since their only reward signal is the \textit{correctness of generated proofs}, the resulting models produce proofs that are \textit{correct} yet \textit{suboptimal}: convoluted, bloated with redundant steps, or reliant on unnecessarily strong automation where a simple step would suffice. For example, Seed-Prover~\citep{chen2507seed}'s \href{https://github.com/ByteDance-Seed/Seed-Prover/blob/17f89e327e4f90f46b0af385efc233dbbe71f8bb/SeedProver/imo2025/IMO2025/P1.lean}{Lean proof of IMO 2025 P1} consists of 4,357 lines of code, 16x longer (by character count) than its \href{https://github.com/ByteDance-Seed/Seed-Prover/blob/17f89e327e4f90f46b0af385efc233dbbe71f8bb/SeedProver/imo2025/p1_proof.pdf}{informal counterpart}. Such proofs pose several practical drawbacks: they are 
+(1) difficult for humans to comprehend, limiting their value as a source of mathematical insight; (2) less suitable as synthetic training data, since models may struggle to learn from convoluted proofs; and
+(3) computationally inefficient to compile in Lean, which is especially problematic when integrated into existing formal libraries like mathlib~\citep{mathlib}. 
+
+These challenges highlight the need for \emph{proof simplification: transforming existing formal proofs into simpler forms while preserving correctness}. In this work, we adopt a natural notion of simplicity: \textit{proof length}, measured by the number of Lean tokens. However, our approach is agnostic to the choice of simplicity metric: it is not restricted to proof length, but applies to any automatically computable measure~\citep{kinyon-proof-simp}. 
 
 \input{paper-includes/proofoptimizer/main-secs/sec1-introduction}
 \input{paper-includes/proofoptimizer/main-secs/sec2-task-setup}

@@ -7,7 +7,7 @@ We formalize the proof simplification task as minimizing the complexity of a giv
 p^* = \argmin_{x \text{ proves } s} \mathcal{L}(x)
 \end{equation*}
 %
-Our method is agnostic to the choice of complexity measure $\mathcal{L}$, provided that it is deterministic and can be automatically computed from the proof. This flexibility encompasses the metrics used in prior work~\citep{ahuja2024improver}. In the rest of this paper, we adopt proof length as the measure of complexity, defined as the number of tokens produced by a Lean-specific tokenizer. Our proof length measure correlates with character count but does not penalize long identifier names, and it ignores comments and line breaks. We denote the length of a proof $x$ by $|x|$, i.e., $\mathcal{L}(x) = |x|$.
+Our method is agnostic to the choice of complexity measure $\mathcal{L}$, provided that it is deterministic and can be automatically computed from the proof. This flexibility encompasses the metrics used in prior work~\citep{ahuja2024improver}. Here, we adopt proof length as the measure of complexity, defined as the number of tokens produced by a Lean-specific tokenizer. Our proof length measure correlates with character count but does not penalize long identifier names, and it ignores comments and line breaks. We denote the length of a proof $x$ by $|x|$, i.e., $\mathcal{L}(x) = |x|$.
 
 % The model is given as input a compiling (in Mathlib 4.19.0) Lean proof $x$. The objective is to output the shortest proof $y_x$ that correctly compiles and proves the same statement as $x$.
 

@@ -165,12 +165,12 @@ There are several popular approaches to software testing, some short-term and ot
 
 \begin{aicodebluebox}
 \textit{Example: OSS-Fuzz on FreeType}: OSS-Fuzz~\citep{ossfuzzllm-results}, Google's automated fuzzing infrastructure, has proven its value by swiftly uncovering security flaws in critical software. For instance, when a recent source change was made to FreeType—a font rendering library deployed on over a billion devices—OSS-Fuzz detected a heap-buffer-overflow within hours:
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\footnotesize]
 ERROR: AddressSanitizer: heap-buffer-overflow on address 0x615000000ffa 
 READ of size 2 at 0x615000000ffa thread T0
 SCARINESS: 24 (2-byte-read-heap-buffer-overflow-far-from-bounds)
    #0 0x885e06 in tt_face_vary_cvtsrc/truetype/ttgxvar.c:1556:31
-\end{verbatim}
+\end{Verbatim}
 \end{aicodebluebox}
 
 The goal of software testing is to design tests that can surface bugs reliably. This is evaluated through metrics such as code coverage--how much of the source code is executed when the test suite is run. An alternate to code coverage is mutation score, where mutants are generated, and the score is defined as the percentage of mutants causing the suite to fail. While practical, software testing faces challenges such as the scalability limits of traditional tools and the difficulty of manually designing tests with good coverage. As LLMs continue to improve at coding, they present a promising avenue for automatically generating high-quality tests.
@@ -245,7 +245,9 @@ For a software system to work, the core logic must be written well, but that is 
 \textit{Example. Configuration validation:} Ciri \citep{lian2024large} is a tool that uses LLMs for configuration validation on open-source projects including Django, PostgreSQL, and Redis. They find that while Ciri excels at detecting misconfigurations of syntax and range violations, it struggles to detect dependency and version violations and is limited to a narrow range of misconfigurations. They also find that LLMs are biased towards more popular configuration parameters, which may lead to hallucinations in out-of-domain scenarios. 
 \end{aicodebluebox}
 
+\begin{sloppypar}
 \textit{Infrastructure-as-code and Security.} A particularly challenging case is generating \textit{Infrastructure-as-code} such as \texttt{Terraform}, where you specify the type of infrastructure specifications (such as AWS EC2 instances, Kubernetes clusters, S3 buckets, VPC buckets) as code and execute it to create the infrastructure. When generating such code, LLMs struggle with security configurations due to the complex interplay between service-level permissions (e.g., AWS resource access), resource-level permissions (e.g., specific allowed actions), and provider-specific security primitives like IAM roles, security groups, and network access controls.
+\end{sloppypar}
 
 \begin{aicodebluebox}
 \textit{Example. Distinguishing permission levels in cluster setup}: \cite{terrateam2024} show that on a task of bringing up a cluster, models fail to distinguish between ECS (Amazon Elastic Container Service) Task Execution Roles (for container operations) and Task Roles (for application-level permissions). This resulted in overly permissive policies where a single role was granted both image pull permissions and DynamoDB table access, violating principles of least privilege.

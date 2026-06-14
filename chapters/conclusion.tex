@@ -1,49 +1,39 @@
 \chapter{Conclusion}
 \label{chap:conclusion}
 
-\section{Summary}
-\begin{draftblock}
-This thesis argues that evaluation choices determine what we can truthfully say
-about code and reasoning models. The first part showed that metrics must target
-the intended capability: CRUXEval measures execution and input-output
-reasoning, Counterfeit Conundrum measures understanding of subtle wrong
-programs, and LiveCodeBench controls for temporal contamination. Non-owned
-supporting case studies add two further examples: SlopCodeBench measures
-iterative degradation, and IneqMath separates final-answer accuracy from proof
-soundness.
+I began this thesis with a simple principle: an evaluation is a lens through which we view the
+capabilities of a model. In the years following the release of GPT-4, models seemed like they could do
+anything, progress was faster than ever, and benchmarks saturated faster than the community expected.
+Designing evaluations well became a central challenge, one I hope this thesis has shed light on.
 
-The second part showed that the score alone is rarely enough. CoT and
-fine-tuning change which CRUXEval examples are solved, not just average
-accuracy. Counterfeit analyses show that generation difficulty does not predict
-understanding of near-miss programs. LiveCodeBench reveals overfitting and
-scenario-specific differences hidden by older benchmarks. LINC shows that
-neurosymbolic reasoning and chain-of-thought prompting can have similar
-accuracy while failing in complementary ways.
+The three lessons in this thesis are not independent guidelines; together, they describe the role I
+believe evaluations should play in the lifecycle of scientific development. First, it is important to choose
+the right metrics without bias, because a benchmark that measures the wrong property or contains
+confounding artifacts may support a misleading conclusion.
+Second, we must look beyond the score, because many of the most valuable scientific insights live beyond
+surface-level aggregate metrics. Finally, we must design evaluations with the future in mind, because what we
+measure shapes what we build.
 
-The third part showed that measurement shapes the systems built afterward.
-Execution metrics encourage execution-trace training. Live benchmarks become
-standard tools for reasoning-model evaluation. Non-owned examples such as
-VibeCodeBench and LeanDojo show how full web-app evaluation and theorem-proving
-infrastructure can redirect field practice. ProofOptimizer shows that optimizing
-proof length changes the theorem-proving objective itself.
-\end{draftblock}
+This final lesson, however, is a double-edged sword. We must keep Goodhart's law in mind:
+while a well-designed benchmark can steer an entire community towards a worthwhile capability, when a 
+measure becomes a target, it ceases to be a good measure. By choosing the right measurement, accounting for
+confounding factors, and analyzing beyond the headline metric, we can at least begin to mitigate this problem.
 
-\section{Future Work}
-\begin{draftblock}
-The immediate future work is to make these evaluation principles more durable.
-Live and contamination-resistant benchmarks need infrastructure that can keep
-pace with model releases. Soundness-aware reasoning benchmarks need stronger
-judges and better ways to audit judge failures. Iterative coding benchmarks need
-quality metrics that correspond more directly to developer maintenance cost.
-End-to-end web-app evaluation needs evaluator alignment protocols that remain
-reliable as applications and agents become more complex.
+It is worth reflecting on just how quickly the target has changed over the last few years.
+When we built CRUXEval, GPT-4 was still failing to solve a third of HumanEval, and it was an open question whether
+language models could reason about the code they produced at all. Just a few years later, they are now autonomously solving
+competitive programming problems, writing software from scratch, and reasoning about research-level mathematics. 
+This fast progress shaped the arc of the evaluations in this thesis: going from simulating simple execution behavior to solving
+competitive programming problems, proving challenging inequalities, vibe coding applications from scratch, writing iterative
+software engineering specifications, and beyond. We continuously adapt the metrics and analysis we choose to the progress in the field.
 
-The broader research direction is to treat evaluation as part of system design.
-For code models, this means measuring not only whether generated software works,
-but whether it can be understood, repaired, extended, and trusted. For
-mathematical and logical reasoning models, it means measuring not only whether
-the final answer is correct, but whether the reasoning process is valid and
-useful to humans or proof assistants. For the field as a whole, it means
-choosing metrics with the knowledge that those metrics will become training
-targets.
-\end{draftblock}
+Indeed, several of the evaluations in this thesis have already become much easier for frontier models. Today's top
+models achieve near-perfect scores on evaluations like \benchmark{} and have made substantial progress on
+LiveCodeBench. However, their influence has outlasted their original difficulty.
+The idea of evaluating code execution and reasoning has been carried forward by a wave of follow-up benchmarks and training methods. 
+The idea of \textit{live} and contamination-free benchmarks has become a standard way to measure language models as they continue to improve. 
+A benchmark's value lies not just in how long it resists saturation, but in the lessons and insights it leaves behind.
+
+As models become more capable and autonomous, their inner workings only become less and less transparent.
+Therefore, building fresh evaluations that serve as reliable lenses into these systems will be increasingly crucial. 
+While the benchmarks in this thesis have already begun to saturate, the discipline of building them will remain intact.

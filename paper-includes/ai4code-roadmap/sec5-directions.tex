@@ -70,7 +70,7 @@ These environments can be used further to improve reasoning skills, environment-
 Several prior works ~\citep{jain2024r2e, pan2024trainingsoftwareengineeringagents,guo2025syncmind, xie2025repost} curate executable environments for programming agents by supporting CI/heuristic-based repository installations.
 However, these works are at a relatively small scale and limited in scope, offering only a few thousand tasks from a maximum of a thousand repositories and more importantly, limited to the Python language.
 Scaling this up significantly requires solving several research and engineering problems. 
-First, installing arbitrary repositories from Github, even using CI is challenging and we require smarter solutions potentially involving LLM-based installation agents.
+First, installing arbitrary repositories from GitHub, even using CI is challenging and we require smarter solutions potentially involving LLM-based installation agents.
 Next, setting up execution infrastructure would require storing installed repository images in something akin to \verb|docker| for efficient storage and fast container startup times~\citep{team2025kimi}.
 Notably, combined docker images can grow massively large and often grow at hundreds of gigabytes even at a modest scale of a few hundred repositories. They require engineering support for efficient storage and serving of such images.
 
@@ -88,7 +88,7 @@ Notably, combined docker images can grow massively large and often grow at hundr
 
 \textbf{Sourcing task prompts and rewards:}
 Beyond environments, performing large-scale reinforcement learning would require collecting diverse challenging problems with an appropriate way to compute the rewards. 
-These task prompts can be collected from Github~\citep{pan2024trainingsoftwareengineeringagents} or generated synthetically from problems on Github.
+These task prompts can be collected from GitHub~\citep{pan2024trainingsoftwareengineeringagents} or generated synthetically from problems on GitHub.
 Moreover, assuming access to many executable repositories, we can source various end-to-end problems for tasks beyond bug-fixing such as optimization, fuzzing, etc.
 Access to pre-existing or generated test cases allows for measuring correctness and providing rewards. 
 
@@ -221,7 +221,7 @@ Besides uncertainty quantification, \citet{shao2024collaborativegym} identify co
 %\todo{Add example of pydata\_\_xarray-4750. The initial issue does not specify the max row needs to be configurable; but it was brought up in issue discussion.}
 
 \begin{aicodebluebox}
-\textit{Example: Discussion Helps Coding Agents Resolve Github Issues:} In SWE-bench~\citep{jimenez2024swebench} \texttt{pydata\_\_xarray-4750}, the original \href{https://github.com/pydata/xarray/issues/4736}{issue description} requests limiting the number of data rows displayed in \texttt{repr}. While it suggests a maximum of 25 rows, it does not specify whether this number should be configurable—a key requirement that emerged during the issue discussion. When SWE-Agent~\citep{yang2024sweagent}, powered by GPT-4o, uses only the issue description as the problem statement, it generates a function that hardcodes the maximum at 25, causing the solution to fail the test. However, incorporating the issue discussion allows the agent to produce a correct, test-passing implementation (see Listing \ref{lst:swe-agent-with-discussion}). This suggests that enabling coding agents to engage in discussions with users could potentially improve the issue solving rate.
+\textit{Example: Discussion Helps Coding Agents Resolve GitHub Issues:} In SWE-bench~\citep{jimenez2024swebench} \texttt{pydata\_\_xarray-4750}, the original \href{https://github.com/pydata/xarray/issues/4736}{issue description} requests limiting the number of data rows displayed in \texttt{repr}. While it suggests a maximum of 25 rows, it does not specify whether this number should be configurable—a key requirement that emerged during the issue discussion. When SWE-Agent~\citep{yang2024sweagent}, powered by GPT-4o, uses only the issue description as the problem statement, it generates a function that hardcodes the maximum at 25, causing the solution to fail the test. However, incorporating the issue discussion allows the agent to produce a correct, test-passing implementation (see Listing \ref{lst:swe-agent-with-discussion}). This suggests that enabling coding agents to engage in discussions with users could potentially improve the issue solving rate.
 \end{aicodebluebox}
 
 \begin{figure}[ht]
@@ -384,7 +384,7 @@ At inference time, most machine-generated code will be presented to humans in a 
 \newline \\
 \textit{Challenges addressed: \ref{sec:c-hai-colab}}
 \end{aicodeorangebox}
-Once code LLMs are deployed for inference, it is crucial to scaffold human supervision of AI-generated code. This goes beyond merely enhancing the accuracy of AI-generated code, as humans often still need to make the final decision on whether to accept the code or understand it for future integration and maintenance. A study on Github Copilot usage~\citep{10.1145/3551349.3560438} revealed that programmers tend to allocate less visual attention to AI-generated code. %, which further highlights the importance of designing AI systems that scaffold human oversight while reducing cognitive load during code review.
+Once code LLMs are deployed for inference, it is crucial to scaffold human supervision of AI-generated code. This goes beyond merely enhancing the accuracy of AI-generated code, as humans often still need to make the final decision on whether to accept the code or understand it for future integration and maintenance. A study on GitHub Copilot usage~\citep{10.1145/3551349.3560438} revealed that programmers tend to allocate less visual attention to AI-generated code. %, which further highlights the importance of designing AI systems that scaffold human oversight while reducing cognitive load during code review.
 While one solution is to train humans to better identify issues in AI-generated code~\citep{10.1145/3627217.3627238}, a more desirable approach is to design AI systems that scaffold human supervision, reducing their cognitive load when reviewing generated code.
 
 % This scaffolding principle has proven successful across domains.

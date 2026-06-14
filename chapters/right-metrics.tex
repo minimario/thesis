@@ -1,17 +1,16 @@
 \chapter{Focusing on the Right Metrics Without Bias Is Crucial}
 \label{chap:right-metrics}
 
-\begin{draftblock}
 Evaluation metrics play a pivotal role in shaping a scientific community's collective intuition.
-They shape both which aspects of model behavior become visible to the community 
-as well as how these behaviors are interpreted. Designing new metrics can surface surprising capabilities
-and shortcomings, while careful scrutiny of existing metrics can reveal confounding factors 
-that distort evaluation outcomes and lead to misleading conclusions about model performance. 
-It is therefore important to both create fresh metrics as well as refine existing ones, so that
-benchmark results can faithfully reflect the underlying abilities of systems they are designed to evaluate.
+They determine which aspects of model behavior become visible and how those behaviors are
+interpreted. Designing new metrics can surface surprising capabilities and shortcomings, while
+careful scrutiny of existing metrics can reveal confounding factors that distort evaluation
+outcomes and lead to misleading conclusions about model performance. It is therefore important to
+both create fresh metrics and remove sources of bias from existing ones, so that benchmark
+results faithfully reflect the abilities they are intended to measure.
 
-In the first three sections, we introduce new metrics that capture desired 
-properties and capabilities that are missed by existing benchmarks. Section~\ref{sec:cruxeval-code-reasoning-understanding-execution-evaluation}
+In the first three sections, we introduce metrics that capture desired
+properties and capabilities missed by existing benchmarks. Section~\ref{sec:cruxeval-code-reasoning-understanding-execution-evaluation}
 introduces \benchmark, a benchmark that measures code reasoning, understanding, and execution. 
 Through this work, we provide evidence that coding language models had just started to develop
 the ability to execute simple Python programs while showing that top models at the time still 
@@ -23,20 +22,19 @@ In Section~\ref{sec:ineqmath-right-metrics}, we discuss IneqMath, a benchmark of
 From measuring both final-answer correctness and step-wise reasoning soundness, we reveal that LLMs frequently 
 arrive at the correct answer but hallucinate unsound reasoning steps. 
 
-In the final two sections, we turn our attention towards faithful and sound measurement of existing metrics by
-isolating and addressing confounding biases. Section~\ref{sec:counterfeit-conundrum} introduces the 
+In the final two sections, we turn our attention toward faithful measurement by isolating
+confounding factors that change how standard metrics should be interpreted. Section~\ref{sec:counterfeit-conundrum} introduces the
 \textit{counterfeit conundrum}, where we find that filtering out trivial incorrect samples in the 
 benchmark can greatly change how we perceive accuracy on tasks like correctness checking, code execution, 
 and program repair. Finally, Section~\ref{sec:livecodebench-right-metrics} discusses LiveCodeBench, where we 
 measure accuracy across time on a suite of code-related tasks like code generation, revealing that accounting for
 contamination effects can drastically affect how models compare against each other.
-\end{draftblock}
 
 \section{CRUXEval: A Benchmark for Code Reasoning, Understanding and Execution}
 \label{sec:cruxeval-code-reasoning-understanding-execution-evaluation}
 \input{paper-includes/cruxeval/right-metrics}
 
-\section{SlopCodeBench: Benchmarking How Coding Agents Degrade Over Long-Horizon Iterative Tasks}
+\section[SlopCodeBench: Benchmarking How Coding Agents Degrade Over Long-Horizon Iterative Tasks]{SlopCodeBench: Benchmarking How Coding\\ Agents Degrade Over Long-Horizon Iterative Tasks}
 \label{sec:slopcodebench-right-metrics}
 \sourcepaper{\path{resources/latex_slop_code.zip}. Alex contributed to SlopCodeBench but is not first author; local source lists Gabriel Orlanski before Alex Gu.}{Non-first-author source: keep any source-derived prose marked in blue and rewrite/attribute it before final submission.}
 

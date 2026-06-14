@@ -2,7 +2,7 @@
   "latex-workshop.latex.outDir": "%DIR%",
   "latex-workshop.latex.external.build.command": "/usr/bin/make",
   "latex-workshop.latex.external.build.args": [
-    "LATEXMK=/home/minimario/.local/bin/latexmk",
+    "LATEXMK=latexmk",
     "MAIN=main"
   ],
   "latex-workshop.latex.recipe.default": "latexmk (thesis)",
@@ -19,7 +19,7 @@
   "latex-workshop.latex.tools": [
     {
       "name": "latexmk (thesis)",
-      "command": "/home/minimario/.local/bin/latexmk",
+      "command": "latexmk",
       "args": [
         "-synctex=1",
         "-interaction=nonstopmode",

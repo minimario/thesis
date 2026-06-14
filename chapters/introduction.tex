@@ -1,31 +1,75 @@
 \chapter{Introduction}
 \label{chap:introduction}
 
-An evaluation is a lens through which we view the capabilities of a model.
-A core challenge is then to construct evaluations that identify metrics that are both informative and unbiased, advancing our scientific understanding
-of the current state of the art and make informed decisions about how to move forward.
-In this thesis, we share three lessons regarding the evaluation of language models,
-particularly for coding, mathematics, and logical reasoning.
+In June 2020, OpenAI released GPT-3 \citep{brown2020language}, a language model that
+felt strong for its time but was still unreliable for many knowledge-based tasks.
+In the two years that followed, models showed progress through systems like Codex, Copilot, 
+and InstructGPT, but they remained brittle for programming, mathematics, and deeper
+reasoning tasks. In November 2022, however, a breakthrough seemed to occur. ChatGPT was 
+released, and for the first time an AI system felt like a generally usable assistant. 
+Just four months later, in March 2023, GPT-4 was made available, bringing a large jump 
+in reliability and performance.
 
-\section{Lesson 1: Focusing on the Right Metrics Without Bias is Crucial}
+Suddenly, the pace of progress made it seem like models could do anything, faster than our benchmarks
+could keep up. By the time GPT-4 was released, the community had built a
+substantial evaluation ecosystem: MMLU \citep{hendrycks2020measuring} tested broad academic knowledge, 
+BIG-Bench \citep{srivastava2022beyond} and BIG-Bench Hard \citep{suzgun2022challenging} collected diverse 
+challenging tasks, and HELM \citep{liang2022holistic} organized many evaluations into a more systematic comparison 
+framework. Other benchmarks targeted narrower capabilities that had long been difficult for language models, from 
+commonsense and science reasoning in WinoGrande \citep{sakaguchi2021winogrande}, HellaSwag \citep{zellers2019hellaswag}, 
+and ARC Challenge \citep{clark2018think}, to grade-school mathematical reasoning in GSM8K \citep{cobbe2021training}, 
+to code generation in HumanEval \citep{chen2021evaluating}, MBPP \citep{mbpp}, and APPS \citep{hendrycks2021measuring}. 
+Many of these evaluations had been designed as long-term challenges and stood for years, yet were now starting
+to saturate. On MMLU, GPT-4 reached 86\%, approaching the $\sim$90\% accuracy of human domain experts and nearly
+doubling the original GPT-3's 44\%. It exceeded 85\% on GSM8K and WinoGrande and surpassed 95\% on HellaSwag and
+ARC Challenge. The same pattern held for code: on HumanEval, a popular coding benchmark, GPT-4 scored 67\%, up
+from GPT-3.5's 48\% and the original Codex's 29\%.
 
-The first lesson we will examine is that focusing on the right metrics without bias is crucial. In science,
+At the same time, the models seemed to be able to do much more than what the benchmarks had sought
+to measure. One example of this was the ``Sparks of AGI'' report \citep{bubeck2023sparks}, which
+set aside standardized benchmark-based evaluation in favor of impressive qualitative demonstrations 
+of GPT-4: drawing a TikZ unicorn, writing a poem-based proof that there are infinitely many primes, 
+coding a functioning game from scratch, and displaying theory of mind. For a while thereafter, the best 
+way to understand these models was not to rely on academic benchmarks, but rather to browse community 
+demonstrations of what could be accomplished.
+
+The perception in the academic community therefore shifted. Previously, each individual research 
+community (NLP, coding, vision) developed models more or less with open recipes, guided by benchmarks 
+that served as a north star for progress. GPT-4 broke this status quo. It was the strongest system across 
+all of these domains at once, yet almost nobody outside of OpenAI understood how it had been trained. 
+With the strongest systems now closed and hard to understand from the outside, what we needed from an
+evaluation was itself changing: beyond serving as a guide to scientific progress, evaluations increasingly
+had to help us make sense of behaviors and quirks we could only observe externally. More broadly, it was a
+ripe time to rethink the role of evaluations.
+
+Ultimately, an evaluation needs to help model builders and scientists understand the
+capabilities and limitations of a model. The challenge is to design evaluations that
+identify meaningful shortcomings, advance our scientific understanding of the current
+state of the art, and suggest avenues for moving forward as a field. In this
+thesis, I will share three lessons from my experience designing evaluations for language models
+in the several years that followed GPT-4, particularly for coding, mathematics, and logical reasoning.
+
+
+\section{Lesson 1: Focusing on the Right Metrics Without Bias Is Crucial}
+
+The first lesson is that focusing on the right metrics without bias is crucial. In science,
 almost anything can be measured, but not everything is meaningful. The first question we face when designing any
-evaluation is what we should measure. 
+evaluation is what we should measure. The second is whether the resulting measurement is biased by
+confounding factors in the data or evaluation setup.
 
 In late 2023, language models like GPT-4 were just starting to become proficient at writing Python code.
 When humans learn programming, they not only learn to write code, but also gain the ability to read code, understand it,
-simulate its execution behavior, debug it, among a suite of other programming-related skills. At the time, there was little knowledge about 
+simulate its execution behavior, debug it, and develop a suite of other programming-related skills. At the time, there was little knowledge about 
 whether language models learned to do programming in the same ways that humans did. Especially because the coding data that language models were
 trained on primarily consisted of GitHub code, it was unclear whether these models could generalize to capabilities beyond code generation.
-Motivated by this, we designed CRUXEval, a benchmark asking language models to simulate (forwards and reverse) the execution of very simple 
+Motivated by this, we designed \benchmark, a benchmark asking language models to simulate the forward and reverse execution of very simple
 Python programs consisting of 3-13 lines with no complex control flow or calculations.
 
-When we released CRUXEval, many people in the community were skeptical about the design and utility of such a benchmark. 
-After all, a simple way to ace the forward execution subset of CRUXEval is to simply run the code in a Python interpreter.
+When we released \benchmark, many people in the community were skeptical about the design and utility of such a benchmark.
+After all, a simple way to ace the forward execution subset of \benchmark{} is to simply run the code in a Python interpreter.
 However, we still saw value in this benchmark for several reasons. First, as is evident today, language models that can effectively 
 program should have a good understanding and mental model of code. This may have been overlooked when simple single-turn benchmarks
-like HumanEval were the standards for coding evaluations, because real-world programming requires a much wider set of skills beyond
+like HumanEval were the standard for coding evaluations, because real-world programming requires a much wider set of skills beyond
 single-shot code generation. Second, the benchmark allows us to scientifically understand new phenomena of coding language models.
 For example, by showing that language models did have some ability to perform both forward and reverse execution, we saw early signs that
 language models did have some degree of generalization despite just training on raw code tokens.
@@ -34,53 +78,61 @@ Beyond choosing the right metric, we must also account for potential biases in o
 As an example, in IneqMath, we introduced a benchmark for evaluating the ability of language models to solve inequality problems. 
 When we measured the accuracy of Grok 3 mini, we saw that it was able to get the answer correct $72\%$ of the time, indicating a high level of proficiency at solving inequalities.
 However, upon closer examination, when changing the metric from evaluating at the final answer to evaluating the entire reasoning trace and solution, we found that the
-accuracy dropped to $6\%$, a stark difference that leads to an entire different conclusion. Arriving at the first conclusion misses the fact that models
+accuracy dropped to $6\%$, a stark difference that leads to an entirely different conclusion. Arriving at the first conclusion misses the fact that models
 may be able to correctly guess the final answer without providing a correct proof.
 
-Another example showing the importance of accounting for bias and confounding factors is our LiveCodeBench evaluation. 
+Another example showing the importance of accounting for confounding factors is our LiveCodeBench evaluation.
 Prior to LiveCodeBench, coding evaluations primarily relied on static benchmarks like HumanEval, fixed datasets that were released once and 
 never updated. However, this fails to account for data contamination: language models are often trained on data from the internet, which 
 could potentially include these benchmarks. While many models are trained with best-effort decontamination processes, it is not possible to 
 completely remove all traces of these benchmarks from the training set. Using time-controlled evaluations, we eliminate this bias. 
-As evidence of this, DeepSeek-Instruct-33B has a published data cutoff date of September 2023. When evaluated on problems between May-August 2023, it had an average 
+As evidence of this, DeepSeek-Instruct-33B has a published data cutoff date of September 2023. When evaluated on problems between May and August 2023, it had an average 
 accuracy of around 50\%. However, when evaluated on problems between September 2023 and February 2024, the average accuracy dropped to around 20\%, significantly lower.
 Similarly, the accuracy of DeepSeek-Base-33B (same cutoff date) plummeted from a pass@1 of 60\% on May 2023 LeetCode problems to around 0\% on September 2023 problems.
 
-Later in the thesis, we will go into much more detail about these examples and others, showing that focusing on the
-right metrics can lead to new insights and fresh perspectives on the capabilities of language models.
-Once we have an evaluation and metric built, the next step is to use it to analyze the capabilities of language models.
-Through in-depth analysis, we can often discover interesting phenomena that are not obvious from just
-looking at the final scores, leading to the next lesson.
+These examples preview the main idea of Chapter~\ref{chap:right-metrics}, but they are not exhaustive.
+The chapter will also discuss how iterative code-quality metrics in SlopCodeBench and counterfeit-focused
+metrics in the Counterfeit Conundrum expose failures that standard accuracy would obscure. Together, these
+case studies show that the right metric and the right controls can change the conclusion one draws from an evaluation.
+Once the metric exposes a gap, the next step is to analyze the behavior that produced it.
+Through in-depth analysis, we can often discover phenomena that are not obvious from the final
+scores alone, leading to the next lesson.
 
 \section{Lesson 2: Looking Beyond the Score Reveals Hidden Nuances}
 
-Often, the most interesting scientific insights can only be discovered after looking beyond surface-level metrics 
-with deeper analysis. In CRUXEval, by changing the measurement metric, we were able to reveal that language models 
-had some ability to perform execution. However, deeper analysis revealed even more insights about the relationship between 
-different coding capabilities. The most striking finding was when we looked at the relationship between HumanEval scores and
-CRUXEval scores across a suite of models. While the forward execution accuracy was highly correlated with the reverse execution
-accuracy, the HumanEval score showed a different trend. For base models, performance on HumanEval and CRUXEval are correlated.
+Often, the most interesting scientific insights only appear after looking beyond surface-level metrics
+with deeper analysis. In \benchmark{}, the execution metric already revealed that models could perform some execution;
+deeper analysis revealed more about how different coding capabilities relate to one another. The most striking finding
+came when we looked at the relationship between HumanEval scores and \benchmark{} scores across a suite of models. While the
+forward execution accuracy was highly correlated with the reverse execution accuracy, the HumanEval score showed a different
+trend. For base models, HumanEval and \benchmark{} performance were correlated.
 However, distilled models (WizardCoder, Phind, Phi) broke this trend, significantly beating their base models at HumanEval but
-not CRUXEval. This reveals a key limit of fine-tuning: while distillation on NL-to-code samples can greatly boost performance on
+not \benchmark. This reveals a key limit of fine-tuning: while distillation on NL-to-code samples can greatly boost performance on
 code generation, it does not necessarily improve a model's underlying understanding of code.
 
 Another illustration of this is when we developed LINC, a neurosymbolic method for logical reasoning.
-The task is that given set of natural language premises and a conclusion, one must determine if the conclusion
+The task is that, given a set of natural language premises and a conclusion, one must determine if the conclusion
 is true, false, or unknown based on the premises. The standard method of doing this was via chain-of-thought (CoT)
 prompting, having a language model reason through the premises to make a deduction about the validity of the conclusion.
 Our method, LINC, first formalized everything into a first-order logic program and then executed a first-order logic prover
-to determine the answer. On most of the evaluations, LINC outperformed CoT, which might lead one to believe it is
+to determine the answer. In most evaluations, LINC outperformed CoT, which might lead one to believe it is
 a superior method for performing logical reasoning. However, in one case, on the FOLIO benchmark 
 using GPT-4 as the base model, this was not the case: LINC only scored $73\%$ vs. CoT's $75\%$. 
 
-After this result, we conducted a series of thorough analyses to understand why LINC had underperformed in this
+After this result, we conducted a series of analyses to understand why LINC had underperformed in this
 specific case. First, we did a qualitative analysis of the errors of both approaches, and discovered they were very 
 different. Errors in LINC occurred when the models failed to properly capture implicit and explicit information that was 
 in the natural language statements (failure modes impossible in CoT), while errors in CoT occurred from making incorrect natural language logical deductions
 and failing to find the right reasoning chain (failure modes impossible in LINC). Upon further quantitative analysis, we found
 that LINC had worse recall but better precision on True/False predictions, and that LINC and CoT mispredicted on different examples.
-These nuances were not apparent from just looking at the performance scores and only came to light after
+These nuances were not apparent from looking at the performance scores and only came to light after
 this deeper analysis.
+
+Chapter~\ref{chap:beyond-score} expands this lesson beyond these two examples. We return to the
+Counterfeit Conundrum to understand what kinds of wrong programs models find confusing, and to
+LiveCodeBench to analyze overfitting, post-training, and differences between open and closed models.
+The common thread is that the aggregate score is a starting point: the scientific value often comes
+from analyzing the structure of the successes and failures behind it.
 
 Designing the right metric and carrying out the right analysis is only the first step.
 Once an evaluation reveals these nuances, it naturally raises further questions about what
@@ -91,47 +143,57 @@ shapes what we build.
 
 \section{Lesson 3: What We Measure Shapes What We Build}
 
-Evaluations should always be designed to be forward-looking. Once a benchmark is released, the nuances
-it uncovers often become a focal point for the relevant scientific community, influencing both what problems
-researchers measure and what model-building labs optimize for. \benchmark, for example, influenced the community in
-several ways.
+Evaluations are most useful when they are forward-looking. Once a benchmark is released, the
+capabilities and failure modes it makes visible often become focal points for the relevant
+scientific community, influencing both what researchers measure and what model-building labs
+optimize for. This does not mean that a benchmark must remain difficult forever. Often, its
+long-term value is that it names a capability, makes a failure mode concrete, and gives the field
+a shared target to improve.
 
-First, many later benchmark efforts explicitly built upon the idea of measuring capabilities beyond code 
-generation. For example, CRUXEval-X \citep{xu2024cruxevalx} extends our benchmark to measure execution in 19 different
-programming languages. REval \citep{chen2024reval} evaluates runtime state prediction in addition to input/output
-prediction. CodeMind \citep{liu2024codemind} introduces additional code reasoning tasks such as specification reasoning and
-dynamic semantics reasoning. The analysis we did in \benchmark{} also inspired several
-diagnostic and probing studies to understand the scientific properties of code language models. For example, in our
-counterfeit conundrum work \citep{gu2024counterfeit}, we studied how language models reason about subtly incorrect code, using execution as a
-probe to reveal that language models often simulated the execution of incorrect programs as if they were correct.
-In SeqCoBench \citep{maveli2025seqcobench}, the authors tested whether code LLMs recognized functionally equivalent code
-by applying semantics-preserving transformations and found that LLMs have a shallow understanding of semantics.
-Rethinking Reflection in Pre-Training \citep{shah2025rethinkingreflection} uses \benchmark{} as a code reasoning task to test
-whether pre-trained checkpoints can recover from incorrect prior reasoning about program inputs and outputs.
+\benchmark{} is one example. By measuring code execution and input-output reasoning directly, it
+helped make execution reasoning a target for both evaluation and training. Several later benchmark
+efforts explicitly built on this target: CRUXEval-X \citep{xu2024cruxevalx} extends execution
+evaluation to 19 programming languages, REval \citep{chen2024reval} evaluates runtime state
+prediction in addition to input-output prediction, and CodeMind \citep{liu2024codemind} introduces
+additional code-reasoning tasks such as specification reasoning and dynamic semantics reasoning.
+The same idea also influenced diagnostic work. For example, in the Counterfeit Conundrum
+\citep{gu2024counterfeit}, we used execution as a probe to show that language models often simulate
+subtly incorrect programs as if they were correct, and SeqCoBench \citep{maveli2025seqcobench}
+tested whether code LLMs recognize functionally equivalent code under semantics-preserving
+transformations.
 
-Second, many follow-up works have leveraged the idea of code execution prediction to better improve code 
-language models. For example, SemCoder \citep{ding2024semcoder} introduces a new strategy called monologue reasoning in order to teach code language models
-to reason about comprehensive semantics. CodeI/O \citep{li2025codei} found that structured training on
-input-output predictions not only improves performance on \benchmark{}, but also more broadly on other reasoning tasks.
-Later, Self-Execution Simulation \citep{maimon2026selfexecution} showed that combining supervised fine-tuning on execution traces
-with reinforcement learning allows models to iteratively self-fix by simulating test execution.
-Several months after its release, \benchmark{} also became a standard target for measuring the reasoning abilities of new
-coding models. For example, DeepSeek-Coder V2 \citep{deepseekai2024deepseekcoderv2}, Qwen 2.5 \citep{qwen2024qwen25coder},
-Qwen 3 \citep{qwen2025qwen3technical}, Kimi K2 \citep{moonshotai2025kimik2}, StarCoder 2 \citep{starcoder2},
-and Code World Model \citep{faircodegen2025cwm} all cite and report performance on \benchmark{}.
+The influence was not limited to evaluation. Follow-up training papers used execution traces and
+input-output prediction as supervision for stronger code reasoning models: SemCoder
+\citep{ding2024semcoder} teaches models to reason about program semantics, CodeI/O
+\citep{li2025codei} trains on input-output prediction, and Self-Execution Simulation
+\citep{maimon2026selfexecution} combines execution-trace fine-tuning with reinforcement learning for
+self-repair. \benchmark{} also became a standard diagnostic benchmark reported by many new coding
+model releases, including DeepSeek-Coder V2 \citep{deepseekai2024deepseekcoderv2}, Qwen 2.5
+\citep{qwen2024qwen25coder}, Qwen 3 \citep{qwen2025qwen3technical}, Kimi K2
+\citep{moonshotai2025kimik2}, StarCoder 2 \citep{starcoder2}, and Code World Model
+\citep{faircodegen2025cwm}. In this sense, making execution reasoning measurable helped turn it
+into a capability that later systems were trained for, reported on, and optimized around.
+
+Chapter~\ref{chap:measure-shapes} develops this lesson through a broader set of examples rather
+than only through \benchmark{}. LiveCodeBench shows how contamination-aware, time-indexed evaluation
+became a standard way to measure coding and reasoning models. VibeCodeBench shifts the target from
+isolated coding tasks to full web application development. LeanDojo illustrates how an evaluation can
+also become infrastructure for an entire research area. ProofOptimizer shows how measuring proof
+length turns proof simplification into a concrete optimization objective. Together, these examples
+support the final lesson of the thesis: what we measure shapes what we build.
 
 \section{Works Covered in This Thesis}
 
-The technical chapters of this thesis synthesize and discuss a collection of research projects on evaluating
+The technical chapters of this thesis synthesize a collection of research projects on evaluating
 language models for coding, mathematics, and reasoning. Chapter~\ref{chap:right-metrics} introduces \benchmark{}
 \citep{gu2024cruxeval}, SlopCodeBench \citep{orlanski2026slopcodebench}, IneqMath \citep{lu2025ineqmath},
 the Counterfeit Conundrum \citep{gu2024counterfeit}, and LiveCodeBench \citep{jain2024livecodebench}.
 Chapter~\ref{chap:beyond-score} returns to several of these works and also introduces LINC \citep{olausson2023linc}.
-Chapter~\ref{chap:measure-shapes} additionally introduces Vibe Code Bench \citep{vibe-code-bench}, LeanDojo \citep{yang2023leandojo}, and
-ProofOptimizer \citep{gu2026proofoptimizer}. Chapter~\ref{chap:position-paper} closes with the position paper
-\textit{Future Research and Challenges Remain Towards AI for Software Engineering} \citep{gu2025positionaiswe}.
+Chapter~\ref{chap:measure-shapes} additionally introduces VibeCodeBench \citep{vibe-code-bench}, LeanDojo \citep{yang2023leandojo}, and
+ProofOptimizer \citep{gu2026proofoptimizer}. Chapter~\ref{chap:position-paper} closes with the forward-looking report
+\textit{Future Research and Remaining Challenges Toward AI for Software Engineering} \citep{gu2025positionaiswe}.
 
-Needless to say, these projects were not done alone. Many of the works discussed in this thesis were collaborations,
+These projects were not done alone. Many of the works discussed in this thesis were collaborations,
 and the full author lists in the cited papers reflect the people who helped shape the ideas, build the
 systems, run the experiments, and write the original papers. Throughout the thesis, ``we'' refers to the research teams behind the corresponding
 works, and I am grateful to all of these collaborators for their contributions to all the content in this thesis.

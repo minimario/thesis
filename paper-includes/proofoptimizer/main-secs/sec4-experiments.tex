@@ -176,7 +176,7 @@ Finally, we find that test-time RL leads to even further improvements on min@1 a
 % \end{figure}
 
 \subsubsection{Analysis of Repair with Execution Feedback} \label{subsec:goedel-repair}
-As described in Sec. \ref{subsec:inference-time-algorithms}, we (1) sample $64$ simplifications for each proof with ProofOptimizer-ExpIt, (2) repair incorrect proofs with Goedel-Prover-V2-32B, and (3) shorten successful repairs with our linter. \textbf{Overall, we find while repair with execution feedback leads to improvements, it underperforms resampling because repaired proofs are often even longer than the original proofs.} Fig. \ref{fig:repair-plots} (left) shows the average proof length and reduction \% after sampling, repair, and linting. We our linter to be effective on repaired proofs, decreasing the average repaired proof length from $644 \to 576$ (miniF2F) and $877 \to 788$ (PutnamBench). In Fig. \ref{fig:repair-plots} (right), we plot the proof length of the original proofs (before Step 1) against simplified proofs (Step 1) and repaired proofs (Step 2). A majority of the repaired proofs (green dots) are above the $y=x$ line, meaning they are longer than the original proofs, let alone the simplified proofs (blue dots). 
+As described in Sec. \ref{subsec:inference-time-algorithms}, we (1) sample $64$ simplifications for each proof with ProofOptimizer-ExpIt, (2) repair incorrect proofs with Goedel-Prover-V2-32B, and (3) shorten successful repairs with our linter. \textbf{Overall, we find while repair with execution feedback leads to improvements, it underperforms resampling because repaired proofs are often even longer than the original proofs.} Fig. \ref{fig:repair-plots} (left) shows the average proof length and reduction \% after sampling, repair, and linting. We find our linter to be effective on repaired proofs, decreasing the average repaired proof length from $644 \to 576$ (miniF2F) and $877 \to 788$ (PutnamBench). In Fig. \ref{fig:repair-plots} (right), we plot the proof length of the original proofs (before Step 1) against simplified proofs (Step 1) and repaired proofs (Step 2). A majority of the repaired proofs (green dots) are above the $y=x$ line, meaning they are longer than the original proofs, let alone the simplified proofs (blue dots). 
 
 \begin{figure}[H]
     \centering
@@ -205,6 +205,7 @@ In Table \ref{tab:repair-pipeline-results}, we analyze the success rate of each 
 \caption{Step-by-step success rates, revealing the main bottleneck of long repaired proofs.}
 \label{tab:repair-pipeline-results}
 \centering
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{c c c c }
 \toprule
 \textbf{Dataset} &
@@ -222,7 +223,8 @@ $\frac{1288}{4800}$ (26.8\%) &
 $\frac{613}{3512}$ (17.4\%) &
 $\frac{5}{613} \to \frac{11}{613}$ (0.8\% → 1.8\%) \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 

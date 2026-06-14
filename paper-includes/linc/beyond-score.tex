@@ -214,7 +214,7 @@ First, we detail the failure modes for \texttt{LINC}:
 \begin{itemize}
 \itemsep0.1em
     \item[] \small Premise 1: \texttt{When a person reads a book, that person gains knowledge.}
-    \item[] \small FOL: \texttt{all x. all y. (Person(x) \& Reads(x, y) \& Book(y) -> Gains(x, Knowledge))}
+    \item[] \small FOL: \parbox[t]{0.78\linewidth}{\ttfamily\small all x. all y. (Person(x) \& Reads(x, y) \& Book(y) ->\\ Gains(x, Knowledge))}
     \item[] \small Premise 2: \texttt{Harry read the book "Walden" by Henry Thoreau.}
     \item[] \small FOL: \texttt{Reads(Harry, Walden)}
     \item[] \small Conclusion (Prover9: Uncertain): \texttt{Harry gains knowledge.}

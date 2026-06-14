@@ -6,15 +6,16 @@ can also distort our understanding when it measures the wrong behavior or
 contains confounding biases.
 
 This thesis studies three lessons from evaluating language models on reasoning
-tasks. First, evaluations must focus on the right metrics without bias. For code
-and mathematical reasoning, final correctness alone can miss important
-distinctions: a model may pass tests without understanding code, solve an
-inequality while producing an invalid proof, or perform well on a contaminated
-benchmark without genuinely generalizing. Second, benchmark scores are only a
-starting point for understanding model behavior. Deeper analysis can reveal
-structure hidden by aggregate performance, such as differences between code
-generation and code execution, benchmark-specific overfitting, and complementary
-failure modes between chain-of-thought prompting and neurosymbolic reasoning.
+tasks. First, focusing on the right metrics without bias is crucial. For code
+and mathematical reasoning, final correctness alone can miss important distinctions:
+a model may pass tests while producing brittle or low-quality code, solve an
+inequality while giving an invalid proof, or appear strong because an evaluation
+contains trivial negatives or contaminated examples. Second, looking beyond the score
+reveals hidden nuances. Deeper analysis can surface structure that aggregate
+performance conceals, such as differences between code generation and code
+execution, gains from distillation that do not reflect deeper understanding, and
+complementary failure modes between chain-of-thought prompting and neurosymbolic
+reasoning.
 Third, what we measure shapes what we build. Once evaluations become standard,
 they define what counts as progress and influence the capabilities that future
 systems are optimized to demonstrate.
