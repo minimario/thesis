@@ -1,6 +1,6 @@
 \input{paper-includes/livecodebench/macros-import}
 
-\subsection[Overfitting to HumanEval+]{Overfitting to \humanevalplus{}}
+\subsection[Overfitting to HumanEval+]{Overfitting to HumanEval+}
 
 We first compare the code generation performance of models on \humanevalplus{} vs. \livecodebench{},
 shown in Figure~\ref{fig:he_vs_lcb}. We observe two distinct clusters of models, shown in red and green. The green cluster shows models that perform 
@@ -9,10 +9,13 @@ The red cluster shows models that perform significantly better on \humanevalplus
 this cluster consists primarily of fine-tuned variants of open-access models, strongly indicative of overfitting
 or data contamination.  In particular, we draw attention to \deepseekcodeB{1.3}, which achieves
 $60\%$ on \humanevalplus{} but only $26\%$ on \lcb{}-Easy.
+These results mirror what we found with \benchmark{} in Section~\ref{sec:cruxeval-beyond-score}: a class of
+models with a high HumanEval (\humanevalplus{} in this case) score with no corresponding gains
+on a different benchmark.
 
-Overall, the lesson is that high scores on familiar benchmarks can be ambiguous. Sometimes, it may indicate
-general programming abilities, but other times it may be due to benchmark-specific adaptation. It is 
-crucial to compare across a varied suite of different benchmarks to understand the full picture, and we should be 
+Overall, the lesson is that high scores on familiar benchmarks can be ambiguous.
+Sometimes, it may indicate general programming abilities, but other times it may be due to benchmark-specific adaptation. 
+It is crucial to compare across a varied suite of different benchmarks to understand the full picture, and we should be 
 careful of techniques that promote overfitting rather than developing general abilities.
 
 \input{paper-includes/livecodebench/figures/main_results/scatter_plot.tex}
@@ -37,13 +40,19 @@ generalization.
 \subsection{Gap Between Closed and Open Models}
 
 In Figure~\ref{fig:lcb-beyond-open-closed-gap}, we investigate the gap between
-open-access and closed-access models. Overall, closed models generally outperform open models.
+open-access and closed-access models. 
+We already started to see this Section~\ref{sec:cruxeval-beyond-score}, where we found that GPT-4 had already 
+distinguished itself at CRUXEval compared to other models. It showed good performance on both CRUXEval and HumanEval seemingly
+without overfitting to either, and benefited significantly more from chain-of-thought than 
+any other models. 
+Overall, on \livecodebench{}, closed models generally outperform open models.
 However, the gap is not uniform, as models like \llamaB{70}, \mixtral{}, and \deepseekcodeB{33}
 perform on-par with the weaker closed models like \geminipro{} and \gptthreefiveturbo{}, and 
 \claudesonnet. However, this varies across scenarios, as closed-access models perform better in the 
 test output prediction and code execution scenarios. This suggests that strong base models
-and high-quality post-training data can partially close the gap, but that there are several 
-capabilities where closed models still have a significant lead.
+and high-quality post-training data can partially close the gap, but that there are several
+capabilities where closed models still have a significant lead. 
+
 
 \begin{figure}[H]
   \centering

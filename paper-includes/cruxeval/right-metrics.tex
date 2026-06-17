@@ -100,7 +100,12 @@ Concretely, we filter based on the following criteria.
 \end{itemize}
 
 \subsubsection{Data size and measuring noise} \label{subsec:data-size-noise}
-The success of HumanEval (164 examples) shows that evaluation benchmarks can be small where faster and cheaper evaluation is an overlooked advantage. Since additional examples are easy to generate, we first overgenerate and then measure if the noise is sufficiently small on a smaller dataset. 
+While larger benchmarks lead to higher statistical power, smaller benchmarks are faster and cheaper to
+run and iterate on. We therefore aim to make our benchmark as small as possible while
+controlling the probability that noise would cause us to reach a different conclusion
+than we would with a larger benchmark.
+Since additional examples are easy to generate, we first overgenerate and then measure if the noise is sufficiently 
+small on a smaller dataset. 
 
 % When determining the final size of our benchmark, we balanced two factors: the benchmark should be small enough to easily run and iterate on but large enough so that signal overcomes noise. 
 
