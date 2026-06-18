@@ -2,15 +2,17 @@
 \label{chap:measure-shapes}
 Chapters~\ref{chap:right-metrics} and~\ref{chap:beyond-score} argued for the importance of
 using the right metrics and analyzing beyond surface-level results to gain deeper insights.
-Once a benchmark is established, it then becomes a goalpost for future research and innovation.
-This chapter explores how the benchmarks we design and metrics we choose influence the trajectory of 
+Once a benchmark is established, it can become a goalpost for future research and innovation.
+This chapter explores how the benchmarks we designed and metrics we chose influenced the trajectory of
 work that comes afterwards.
 
 \section{CRUXEval}
+\label{sec:cruxeval-measure-shapes}
 
 \input{paper-includes/cruxeval/measure-shapes}
 
 \section{LiveCodeBench}
+\label{sec:livecodebench-measure-shapes}
 
 \input{paper-includes/livecodebench/measure-shapes}
 
@@ -31,18 +33,18 @@ In this chapter, we saw several examples of how benchmarks, metrics, and tools s
 research landscape that follows. In CRUXEval, we introduced code reasoning as an evaluation target,
 showing the community that important aspects of coding were worth measuring beyond code generation.
 Through LiveCodeBench, we made the idea of time-indexed evaluations more mainstream in the scientific community.
-In VibeCodeBench, we expanded the scope of coding benchmarks from 
-function- and repository-level tasks to end-to-end application development, using a new evaluation 
-methodology that promotes flexibility in the code that the model writes. 
+In VibeCodeBench, we expanded the scope of coding benchmarks from
+function- and repository-level tasks to end-to-end application development, using a new evaluation
+methodology that promotes flexibility in the code that the model writes.
 LeanDojo provided an influential benchmark and toolkit that helped researchers advance
-the field of theorem proving with language models. ProofOptimizer then illustrates the same
+the field of theorem proving with language models. ProofOptimizer then illustrated the same
 lesson at a smaller scale: once proof length became a measurable target, proof simplification
 became something a model could be trained to optimize.
 
-Having seen how what we measure shapes what we build, we close this thesis with a forward-looking report 
-on the future of software engineering: our perspective on what the field should measure and build next. 
+Having seen how what we measure shapes what we build, we close this thesis with a forward-looking report
+on the future of software engineering: our perspective on what the field should measure and build next.
 Many of its ideas trace directly back to the themes of this thesis. CRUXEval's lesson that generation is only one slice of coding ability
-is echoed in our call for measuring capabilities like code optimization and software testing. The contamination and overfitting problems that 
-motivated LiveCodeBench are fleshed out in Chapter~\ref{chap:position-paper}'s first challenge: evaluation and benchmarks. 
+is echoed in our call for measuring capabilities like code optimization and software testing. The contamination and overfitting problems that
+motivated LiveCodeBench are fleshed out in Chapter~\ref{chap:position-paper}'s first challenge: evaluation and benchmarks.
 Despite being written a year ago in a fast-moving field, most of the challenges we identify remain open today,
 which suggests that they are central problems rather than fleeting artifacts.

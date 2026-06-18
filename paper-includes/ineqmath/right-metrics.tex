@@ -1,7 +1,7 @@
 \input{paper-includes/ineqmath/macros-import}
 
 In \dataset, we studied the ability of language models to solve olympiad-style inequality
-problems. While previous evaluations in mathematics such as GSM8K \cite{cobbe2021training} and 
+problems. While previous evaluations in mathematics such as GSM8K \cite{cobbe2021training} and
 MATH-500 \cite{hendrycks2021measuring} focus on final-answer correctness, we designed \dataset
 to measure step-wise reasoning correctness in addition to final-answer accuracy. By doing so,
 we discovered what we call a \emph{soundness gap}: models often arrive at the correct final answer
@@ -24,12 +24,12 @@ relation, in this case $\ge$, that holds for all $a,b>0$.
 \input{paper-includes/ineqmath/src/figure_training_data_example_bound}
 
 We split inequality proofs into these two subtasks because
-they simplify the evaluation process while retaining the core challenges inherent 
-in the original problems. In total, \dataset contains a 1,252-problem training corpus 
+they simplify the evaluation process while retaining the core challenges inherent
+in the original problems. In total, \dataset contains a 1,252-problem training corpus
 split evenly between bound-estimation and relation-prediction tasks, as well as a
-test set contains 200 olympiad-level benchmark problems.
+test set containing 200 olympiad-level benchmark problems.
 
-To measure the accuracy of a problem, we use a final-answer judge in conjunction
+To measure the accuracy of a problem, we used a final-answer judge in conjunction
 with a suite of step-wise proof soundness judges.
 The \textbf{final-answer judge} is similar to that used in previous math benchmarks:
 it extracts the final answer and checks mathematical equivalence to the
@@ -43,7 +43,7 @@ decimal approximations replace exact symbolic reasoning in a way that affects
 the proof. The \textbf{numerical-computation judge} checks arithmetic and
 substitution errors once concrete quantities appear.
 
-We report three different metrics. \emph{Answer accuracy} only requires the final
+We reported three different metrics. \emph{Answer accuracy} only requires the final
 answer to be correct. \emph{Step accuracy} requires the reasoning trace
 to pass all four step-wise checks. \emph{Overall accuracy}
 requires both, and is the strongest check ensuring that both the answer and the
@@ -62,20 +62,20 @@ proof reasoning steps are correct.
 % Table: Main Results
 \input{paper-includes/ineqmath/src/table_main_results}
 
-In Table~\ref{tab:main_results}, we show the performance of 24 models on \dataset,
-revealing several insights into current LLM capabilities for inequality proving:
+In Table~\ref{tab:main_results}, we showed the performance of 24 models on \dataset,
+revealing several insights into LLM capabilities for inequality proving:
 
 
 \textbf{1) Reasoning LLMs achieve higher final-answer accuracy.} First, we compared
-reasoning models with their general-purpose chat counterparts. We saw that o1 (62.5\% \textit{Answer Acc}) and 
-Grok 3 mini (71.5\% \textit{Answer Acc}) significantly outperformed GPT-4o (37.5\%) and Grok 3 (54.5\%) in 
+reasoning models with their general-purpose chat counterparts. We saw that o1 (62.5\% \textit{Answer Acc}) and
+Grok 3 mini (71.5\% \textit{Answer Acc}) significantly outperformed GPT-4o (37.5\%) and Grok 3 (54.5\%) in
 final-answer accuracy.
 
 
-\textbf{2) Step-wise scrutiny reveals a dramatic performance drop.} 
-Second, we discovered a large soundness gap across all models. As we show in Figure~\ref{fig:ineqmath-key-results}, 
-the \textit{Overall Acc} plummeted when steps were evaluated. For instance, Grok 3 mini's accuracy 
-dropped from 71.5\% \textit{Answer Acc} to 6.0\% \textit{Overall Acc}. 
+\textbf{2) Step-wise scrutiny reveals a dramatic performance drop.}
+Second, we discovered a large soundness gap across all models. As shown in Figure~\ref{fig:ineqmath-key-results},
+the \textit{Overall Acc} plummeted when steps were evaluated. For instance, Grok 3 mini's accuracy
+dropped from 71.5\% \textit{Answer Acc} to 6.0\% \textit{Overall Acc}.
 
 \begin{figure}[H]
   \centering
@@ -92,12 +92,12 @@ providing a mathematically rigorous proof remains a significant challenge for al
 Even the best model, Gemini 2.5 Pro, only achieved 43.5\% \textit{Overall Acc}, highlighting
 that solving challenging inequality proofs remains a challenge for these LLMs.
 
-\textbf{4) Scaling does not reliably close the soundness gap.} Finally, we investigated 
-whether scaling up model size or test-time computation can help close the soundness gap. 
-The answer was largely no, as seen in Figure~\ref{fig:ineqmath-scaling}. Larger models did tend 
-to improve final-answer accuracy but did not help with overall accuracy. 
+\textbf{4) Scaling does not reliably close the soundness gap.} Finally, we investigated
+whether scaling up model size or test-time computation can help close the soundness gap.
+The answer was largely no, as seen in Figure~\ref{fig:ineqmath-scaling}. Larger models did tend
+to improve final-answer accuracy but did not help with overall accuracy.
 Similarly, increasing the maximum token budget of models could initially help, but quickly plateaued,
-as shown in Figure~\ref{fig:ineqmath-test-time-scaling}. 
+as shown in Figure~\ref{fig:ineqmath-test-time-scaling}.
 
 \begin{figure}[H]
   \centering
@@ -129,6 +129,6 @@ Because it is much more difficult to evaluate the soundness of an entire mathema
 to checking a final answer, many mathematics benchmarks have focused solely on the latter. However,
 through \dataset, we saw that evaluating both accuracies revealed a blind spot of previous evaluations,
 as models showed up to a 65.5\% drop between final-answer accuracy and overall accuracy.
-More broadly, our results show that benchmarks are only as informative as the metric 
-that it measures. While final-answer accuracy is easy to measure, it does not capture the capability 
-that we ultimately care about: generating sound mathematical proofs. 
+More broadly, our results showed that benchmarks are only as informative as the metrics
+that they measure. While final-answer accuracy is easy to measure, it does not capture the capability
+that we ultimately care about: generating sound mathematical proofs.

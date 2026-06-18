@@ -1,5 +1,5 @@
 When we released \benchmark{} in January 2024, coding benchmarks primarily measured the
-ability to write code. The release of our benchmark introduced 
+ability to write code. The release of our benchmark introduced
 the community to the idea of measuring code reasoning. In the two years since,
 the benchmark has shaped the field in three different ways. First, it inspired a family of
 code reasoning benchmarks. Second, it became a testbed for many execution-aware training and
@@ -11,45 +11,45 @@ evaluation.
 capability of interest through input and output prediction. Despite being simple and
 easy to run, it revealed many surprising insights about the behavior of language models.
 Soon, a wave of benchmarks embraced the idea of code reasoning and extended CRUXEval along
-many different axes. CRUXEval-X \citep{xu2024cruxevalx} translates the benchmark into
-nineteen programming languages. REval \citep{chen2024reval} increases the granularity of the
+many different axes. CRUXEval-X \citep{xu2024cruxevalx} translated the benchmark into
+nineteen programming languages. REval \citep{chen2024reval} increased the granularity of the
 prediction target by asking the model to reason about intermediate variable states, coverage, and
-execution paths. Others broaden the tested behaviors and semantics:
-ThrowBench \citep{prenner2025throwbench} targets runtime exceptions, CodeMind
-\citep{liu2024codemind} adds reasoning over a model's own generated code and
+execution paths. Others broadened the tested behaviors and semantics:
+ThrowBench \citep{prenner2025throwbench} targeted runtime exceptions, CodeMind
+\citep{liu2024codemind} added reasoning over a model's own generated code and
 specifications, and EquiBench \citep{wei2025equibench} and SeqCoBench
-\citep{maveli2025seqcobench} probe functional equivalence between programs.
-CodeCrash \citep{lam2025codecrash} tests an adversarial version of \benchmark{} through misleading
-perturbations of the original programs. Recently, the idea of code reasoning has also been scaled 
-beyond simple Python programs to real-world functions \citep{liu2025re2bench}, larger-scale 
+\citep{maveli2025seqcobench} probed functional equivalence between programs.
+CodeCrash \citep{lam2025codecrash} tested an adversarial version of \benchmark{} through misleading
+perturbations of the original programs. Recently, the idea of code reasoning has also been scaled
+beyond simple Python programs to real-world functions \citep{liu2025re2bench}, larger-scale
 repositories \citep{li2026reporeason}, and more complicated control flows including parallelism \citep{beger2025coconut}.
 
 \subsection{Explicitly Improving Code Execution}
-Since becoming a measurable target, code execution has frequently become 
-part of the training data for coding models. Several works have directly explored
-training on execution traces. SemCoder \citep{ding2024semcoder} trains on ``monologue
+Since becoming a measurable target, code execution has frequently become
+part of the training data for coding models. Several works directly explored
+training on execution traces. SemCoder \citep{ding2024semcoder} trained on ``monologue
 reasoning'' with execution traces, showing that approximating an interpreter in
-natural language improves both \benchmark{} and code generation. Similarly, CodeI/O \citep{li2025codeio} 
-trains on a large dataset of input-output pairs, showing that it improves not only code 
-reasoning but also general reasoning across math, logic, and commonsense tasks. 
-Execution tuning \citep{armengolestape2025execution} trains directly on
+natural language improved both \benchmark{} and code generation. Similarly, CodeI/O \citep{li2025codeio}
+trained on a large dataset of input-output pairs, showing that it improved not only code
+reasoning but also general reasoning across math, logic, and commonsense tasks.
+Execution tuning \citep{armengolestape2025execution} trained directly on
 execution traces of different granularities, and TracePile \citep{chen2025tracepile}
-collects a large-scale dataset of 2.6 million execution trace rationales. 
-More recently, Meta's Code World Model \citep{faircodegen2025cwm} includes execution traces 
-in its pre-training data to build an internal world model of program semantics. 
+collected a large-scale dataset of 2.6 million execution trace rationales.
+More recently, Meta's Code World Model \citep{faircodegen2025cwm} included execution traces
+in its pre-training data to build an internal world model of program semantics.
 
 Since the first wave of works training on execution traces, more creative execution-aware training strategies
-have emerged. CodeBoost \citep{wang2025codeboost} incorporates both input and output 
+have emerged. CodeBoost \citep{wang2025codeboost} incorporated both input and output
 prediction on raw code snippets into the reward function of a reinforcement learning loop.
-\citet{maimon2026selfexecution} train models to simulate their own generated
+\citet{maimon2026selfexecution} trained models to simulate their own generated
 code, improving both \benchmark{} and downstream competitive programming.
-Absolute Zero \citep{zhao2025absolutezero} uses a single model to self-generate \benchmark{}-style
-tasks to train reasoning capabilities with no external data. 
+Absolute Zero \citep{zhao2025absolutezero} used a single model to self-generate \benchmark{}-style
+tasks to train reasoning capabilities with no external data.
 
 \subsection{Adoption by Frontier Model Developers}
 Finally, \benchmark{} has been included as a standard evaluation in the release reports of
-many frontier models. Just two months after CRUXEval's release, it was included in the 
-release report of StarCoder2 \citep{lozhkov2024starcoder}. Since then, it has been 
+many frontier models. Just two months after CRUXEval's release, it was included in the
+release report of StarCoder2 \citep{lozhkov2024starcoder}. Since then, it has been
 included in many other models, such as IBM's Granite Code
 \citep{mishra2024granite}, Mistral's Codestral \citep{mistral2024codestral},
 01.AI's Yi-Coder \citep{yi2024yicoder}, ByteDance's Seed-Coder
@@ -59,13 +59,13 @@ included in many other models, such as IBM's Granite Code
 \citep{faircodegen2025cwm}, and successive generations of DeepSeek
 \citep{deepseekai2024deepseekv2, deepseekai2024deepseekcoderv2,
 deepseekai2024deepseekv3} and Qwen \citep{qwen2024qwen25coder,
-qwen2025qwen3technical} models. 
+qwen2025qwen3technical} models.
 
 Beyond simply reporting scores, a few of these release reports directly discuss
 how they optimized for \benchmark{} performance, showing that the benchmark played a role
-in shaping model development. For example, Qwen2.5-Coder explicitly mention that prioritizing executable
+in shaping model development. For example, Qwen2.5-Coder explicitly mentioned that prioritizing executable
 code during data cleaning improved their \benchmark{} performance \citep{qwen2024qwen25coder}.
 Ling-Coder-Lite also generated synthetic training data in \benchmark{}'s execution prediction style, which
-they said improved their score on the benchmark \citep{codefuse2025lingcoderlite}. Finally, Yi-Coder advertised 
+they said improved their score on the benchmark \citep{codefuse2025lingcoderlite}. Finally, Yi-Coder advertised
 being the first open code model to surpass 50\% accuracy on \benchmarko{}
-\citep{yi2024yicoder}, showing their attention to the benchmark. 
+\citep{yi2024yicoder}, showing their attention to the benchmark.

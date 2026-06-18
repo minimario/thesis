@@ -1,45 +1,31 @@
 
 \subsection{ProofOptimizer: LLMs for Proof Simplification}
 
-\subsubsection{Training}
+By focusing on proof simplicity as the target metric, we developed
+a training and inference-time pipeline for simplifying Lean proofs.
 
-\smallsec{Lean Base Model} First, we train a general-purpose Lean model by fine-tuning \texttt{Qwen\allowbreak-2.5\allowbreak-7B\allowbreak-Instruct} on a combination of five tasks: natural language problem solving, Lean 4 code completion, auto-formalization (problems and solutions), formal theorem proving, and tactic/proof state prediction. 
+\subsubsection{Training} \label{sec:expit-rl}
 
-\smallsec{Dataset for Proof Simplification} We employ a four-stage pipeline to generate high-quality proof simplification training data.
-\begin{enumerate}
-\itemsep1pt 
-    \item \textit{Problem Collection}: We first compile a dataset of theorem proving problems from \texttt{Goedel-Pset}, filtering out simple computational problems. Each problem consists of a natural language problem, solution, and Lean problem statement.
-    \item \textit{Proof Sketching}: We train a model that formalizes a problem's natural language solution into a Lean proof sketch consisting of a few high-level proof steps (usually 2-10) with lower level details omitted and filled in with Lean's \texttt{sorry} tactic.
-    \item \textit{Theorem Extraction and Filtering}: For each proof sketch, we extract each proof step into its own separate theorem. At the core, we are taking longer proofs and breaking them down into separate sub-theorems. We collect a total of 518K theorems this way. As we found some of these theorems to be trivial, we design an automation tactic to filter these out, leaving 307K theorems remaining.
-    \item \textit{Proof Generation}: We use \texttt{Goedel-Prover-V2-32B} to generate proofs of these theorems. The model successfully produces Lean proofs of 145K theorems, which we use as our dataset for training.
-\end{enumerate}
-
+First, we trained a general-purpose Lean model by fine-tuning \texttt{Qwen\allowbreak-2.5\allowbreak-7B\allowbreak-Instruct} on a combination of five tasks: natural language problem solving, Lean 4 code completion, auto-formalization (problems and solutions), formal theorem proving, and tactic/proof state prediction.
 Next, we describe our two training recipes: expert iteration and online reinforcement learning.
+For both recipes, we generated a data mix using a four-stage pipeline involving problem collection, proof
+sketching, theorem extraction and filtering, and proof generation.
 
-\paragraph{ProofOptimizer-ExpIt: Expert Iteration} \label{subsec:iterative-training}
-We leverage a STaR-like \citep{zelikman2022star} iterative training algorithm to improve our model. At a high level, we start with our base model $\pi_0$ and the collection of 145K proofs $P_0$. At each iteration, we attempt to simplify each proof, train our model on successful proof simplifications, and use the collection of simplified proofs as seed proofs for the next iteration. More precisely, at each iteration $i$, we do the following:
+\textit{ProofOptimizer-ExpIt: Expert Iteration}:
+We leveraged a STaR-like \citep{zelikman2022star} iterative training algorithm to improve our model. At a high level, we started with our base model $\pi_0$ and the collection of 145K proofs $P_0$. At each iteration, we attempted to simplify each proof, trained our model on successful proof simplifications, and used the collection of simplified proofs as seed proofs for the next iteration. More precisely, at each iteration $i$, we did the following:
 \begin{enumerate}
 \itemsep1pt
     \item \textbf{Sample}: For each proof $x \in P_i$, use $\pi_i$ to sample $4$ simplifications $Y_p \triangleq \{y_x^{1}, y_x^{2}, y_x^{3}, y_x^{4}\} \sim \pi_i(x)$.
-    \item \textbf{Filter}: Use the Lean compiler to find the shortest correct simplification $y_x \in \{x\} \cup Y_x$. Create a training dataset of proof simplifications $D_i = \{(x, y_x) \mid \text{len}(y_x) \le 0.8 \cdot \text{len}(x), x \in P_i\}$. The length constraint is designed to encourage the model to learn more substantial simplifications rather than trivial ones. For iterations after the first, as $x$ may have been simplified from a more complex proof $x' \in P_0$, we also add $(x', y_x)$ pairs to $D_i$, which are valid and larger proof simplifications. Also, collect simplified proofs $\pi_{i+1} = \{s_x \mid x \in P_i\}$ for the next iteration. 
+    \item \textbf{Filter}: Use the Lean compiler to find the shortest correct simplification $y_x \in \{x\} \cup Y_x$. Create a training dataset of proof simplifications $D_i = \{(x, y_x) \mid \text{len}(y_x) \le 0.8 \cdot \text{len}(x), x \in P_i\}$. The length constraint is designed to encourage the model to learn more substantial simplifications rather than trivial ones. For iterations after the first, as $x$ may have been simplified from a more complex proof $x' \in P_0$, we also add $(x', y_x)$ pairs to $D_i$, which are valid and larger proof simplifications. Also, collect simplified proofs $\pi_{i+1} = \{s_x \mid x \in P_i\}$ for the next iteration.
     \item \textbf{Train}: Fine-tune $\pi_i$ on $D_i$ to get $\pi_{i+1}$.
 \end{enumerate}
 
 
-\paragraph{ProofOptimizer-RL: Online Reinforcement Learning} \label{sec:rl}
-In addition to expert iteration as described in the previous section, we train a proof optimizer model with online reinforcement learning. Using the same dataset as in expert iteration, the reinforcement learning task consists in producing a valid but shorter proof $y$ for a statement given an initial proof $x$. The reward is defined as the relative shortening $R(x, y) = \frac{|y| - |x|}{|x|}$
-if $y$ is valid and $|y| \leq |x|$, and $R(x, y) = 0$ otherwise. We employ an asynchronous variant of the GRPO algorithm \citep{shao2024grpo} with advantage $A_i = R_i - \frac{1}{k}\sum_{j \leq k} R_j$
+\textit{ProofOptimizer-RL: Online Reinforcement Learning} \label{sec:rl}
+In addition to expert iteration as described in the previous section, we trained a proof optimizer model with online reinforcement learning. Using the same dataset as in expert iteration, the reinforcement learning task consists in producing a valid but shorter proof $y$ for a statement given an initial proof $x$. The reward is defined as the relative shortening $R(x, y) = \frac{|y| - |x|}{|x|}$
+if $y$ is valid and $|y| \leq |x|$, and $R(x, y) = 0$ otherwise. We employed an asynchronous variant of the GRPO algorithm \citep{shao2024grpo} with advantage $A_i = R_i - \frac{1}{k}\sum_{j \leq k} R_j$
 baselined with the average reward of $k = 8$ samples, no advantage normalization by standard deviation \citep{liu2025understandingr1zeroliketrainingcritical}, no KL regularization, and omitting sequences with zero advantage.
 
-
-\subsubsection{Inference-Time Techniques} \label{subsec:inference-time-algorithms}
-First, we implement a symbolic linter that removes extraneous tactics via Lean's \texttt{linter.\allowbreak{}unusedTactic} linter, which detects tactics that do not change the proof state and provides messages like \texttt{'norm\_num' tactic does nothing}. We then compare the following techniques on the linted proofs:
-
-\begin{itemize}
-\itemsep1pt
-\item \textbf{Test-Time RL}: We use the setup described in Section~\ref{sec:rl} and perform reinforcement learning on our two evaluation sets (jointly). Our test-time RL keeps the input proof fixed, meaning improvements occur solely in the model’s parameters.
-
-\item \textbf{Repair with Execution Feedback}: In this scheme, if ProofOptimizer fails to simplify a proof, we collect the execution feedback and ask \texttt{Goedel-Prover-V2-32B} to repair the proof with the error messages. Then, we apply the symbolic linter on the new proofs to further shorten successful repairs.
-
-\item \textbf{Iterative Proof Shortening}: For a given proof, we sample $k$ candidate shortenings and take the shortest correct one. Then, we sample $k$ shortenings of the new proof, take the shortest correct one -- and so on.
-\end{itemize}
+\subsubsection{Inference-Time} \label{subsec:inference-time-algorithms}
+At inference time, we first implemented a symbolic linter that removes extraneous tactics via Lean's \texttt{linter.\allowbreak{}unusedTactic} linter, which detects tactics that do not change the proof state and provides messages like \texttt{'norm\_num' tactic does nothing}.
+Then, we performed iterative proof shortening. For a given proof, we sampled $k$ candidate shortenings and took the shortest correct one. Then, we sampled $k$ shortenings of the new proof, took the shortest correct one -- and so on.

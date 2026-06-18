@@ -13,12 +13,12 @@ reasoning about the execution of programs, and constructing input-output pairs f
 with a holistic multi-scenario design.
 
 \subsection{Benchmark Construction}
-\livecodebench{} continuously collects contest problems from \leetcode{},
+\livecodebench{} was designed to continuously collect contest problems from \leetcode{},
 \atcoder{}, and \codeforces{}. These platforms periodically release problems
 with natural-language statements, example input-output pairs, hidden tests, and
-public contest dates. \livecodebench{} records the contest date for each
+public contest dates. \livecodebench{} recorded the contest date for each
 problem, which makes the release date part of the benchmark instance rather
-than external metadata. Therefore, we can scroll over different time windows by filtering problems
+than external metadata. This allowed us to scroll over different time windows by filtering problems
 between any pair of dates.
 
 The benchmark also emphasizes problem and test quality. Existing competitive
@@ -26,29 +26,29 @@ programming benchmarks can include problems that are difficult to evaluate by
 standard input-output auto-grading, such as problems that permit multiple
 correct outputs for a single input. Such problems can incorrectly penalize
 valid solutions. Other benchmarks can contain insufficient tests, adding noise
-to reported pass rates. \livecodebench{} uses automated scrapers and filtering
+to reported pass rates. \livecodebench{} used automated scrapers and filtering
 heuristics to collect problem statements, tests, ground-truth solutions, and
 metadata, while excluding problems that are not suitable for reliable
 input-output evaluation.
 
 Test collection is also an important aspect of the benchmark construction across all
 four scenarios. When tests are natively available through the platform, \livecodebench{}
-uses them directly. Otherwise, it uses a language model to synthesize test
+used them directly. Otherwise, it used a language model to synthesize test
 input generators rather than directly generating individual inputs. In addition, it
-includes adversarial or stress tests where possible. 
+included adversarial or stress tests where possible.
 
 \subsection{Effects of Contamination}
 \label{subsec:livecodebench-contamination}
 \noindent \textbf{Contamination in \deepseek{} and \gptfouro{}.}
 \livecodebench{} curates problems released since May $2023$.
 However, \deepseek{} was released Sep $2023$ and \gptfouro{}'s official cutoff date is Nov $2023$.
-In Figure~\ref{fig:lcb-contamination-all-tasks-thesis}, we show the performance of these models on \leetcode{} problems released in different months from May $2023$ and Aug $2024$.
+In Figure~\ref{fig:lcb-contamination-all-tasks-thesis}, we showed the performance of these models on \leetcode{} problems released in different months from May $2023$ and Aug $2024$.
 First, we noticed significant drops in model performance: \deepseekcodeB{33} after Aug. $2023$ and \gptfouro{} after Nov. $2023$.
 These drops aligned with the release/cutoff dates of the models, suggesting
-that earlier problems may indeed be contaminated. 
+that earlier problems may indeed be contaminated.
 This trend was consistent across other \livecodebench{} scenarios like repair and code execution.
 We noted that this performance drop occurred primarily for \leetcode{} problems, while model performance was relatively smooth across the months for problems from other platforms (Figure~\ref{fig:lcb-atcoder-contamination-thesis}),
-which suggested different levels of contamination across different sources. 
+which suggested different levels of contamination across different sources.
 
 \begin{figure}[H]
     \centering
@@ -71,7 +71,7 @@ which suggested different levels of contamination across different sources.
     \label{fig:lcb-atcoder-contamination-thesis}
 \end{figure}
 
-\noindent \textbf{Contamination Effects of Other Models:} In Figure~\ref{fig:lcb-contamination-all-models-thesis}, we show 
+\noindent \textbf{Contamination Effects of Other Models:} In Figure~\ref{fig:lcb-contamination-all-models-thesis}, we showed
 the performance of six models for each month between May $2023$ and Aug $2024$. \gptfourturbo{}, \mistrallarge{}, and \claudethrees{} were released in November $2023$, February $2024$, and March $2024$, respectively.
 For these three models, we did not observe significant performance variations across months.
 On the other hand, we observed that \deepseekbaseB{33} dropped from \passmetric{1} $\smallsim 60$ in May problems to \passmetric{1} $\smallsim 0$ in September \leetcode{} problems,
@@ -87,8 +87,8 @@ suggesting significant contamination. Finally, \codestral{} achieved \passmetric
 \end{figure}
 
 \subsection{Holistic Evaluation}
-\livecodebench{} also evaluates a broader set of coding capabilities. Instead of measuring 
-only code generation, it evaluates four scenarios: code generation,
+\livecodebench{} also evaluated a broader set of coding capabilities. Instead of measuring
+only code generation, it evaluated four scenarios: code generation,
 self-repair with execution feedback, code execution, and test-output
 prediction. These scenarios are intended to isolate capabilities that appear in
 real world software engineering workflows.
@@ -109,7 +109,7 @@ capabilities of \llms{}~\citep{olausson2023demystifying,shinn2023reflexion,chen2
 Here, the model is given a problem statement from which it generates a
 candidate program. If the program is incorrect, the model is additionally provided with error
 feedback, either the exception message or a failing test case, and is tasked
-with generating the fixed solution. 
+with generating the fixed solution.
 
 \item \textbf{Code Execution:}
 The code execution scenario is based on the output prediction setup used in
@@ -137,27 +137,27 @@ expected output of that input.
     \vspace{-15pt}
 \end{figure}
 
-In \Cref{fig:all_tasks_radial}, we show a high-level view of how various models perform
+In \Cref{fig:all_tasks_radial}, we showed a high-level view of how various models performed
 across the four scenarios. We observed that relative model differences changed across
-code generation, self-repair, code execution, and test-output prediction. 
+code generation, self-repair, code execution, and test-output prediction.
 
 \input{paper-includes/livecodebench/figures/introduction/radial_plot_bar_plot.tex}
 
-Next, in \Cref{fig:results_plots}, we show the full results of all models across each scenario.
+Next, in \Cref{fig:results_plots}, we showed the full results of all models across each scenario.
 This revealed that relative model performance is related across scenarios, with high correlations between
 \passmetric{1} scores. However, there were changes in relative gaps. After self-repair, \gptfourturbo{} increased its lead over \gptfour{}.
 \claudeopus{} and \mistrallarge{} performed well on the more reasoning and CoT-based scenarios, code execution and
-test-output prediction. 
+test-output prediction.
 
 \input{paper-includes/livecodebench/figures/main_results/main_results.tex}
 
 \subsection{Discussion}
-In \livecodebench{}, we showed how crucial it is to account for data contamination when 
+In \livecodebench{}, we showed how crucial it is to account for data contamination when
 evaluating code models. As we saw, model performance often drops sharply on problems
 released after a model's training cutoff date. Failing to take this bias into account can
 lead to misleading comparisons between models, as one model may have seen problems that another model has not.
-Through our holistic scenario design, we also saw that there are important differences in 
-the ability of frontier language models to perform code generation, repair, execution, and 
-test-output reasoning. Overall, \livecodebench{} provides a clearer and more holistic picture
+Through our holistic scenario design, we also saw that there are important differences in
+the ability of frontier language models to perform code generation, repair, execution, and
+test-output reasoning. Overall, \livecodebench{} provided a clearer and more holistic picture
 of the algorithmic coding capabilities of language models while setting a standard for
-future benchmarks to control for contamination biases. 
+future benchmarks to control for contamination biases.

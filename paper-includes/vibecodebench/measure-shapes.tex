@@ -7,23 +7,23 @@ were excited by the concept, others were critical, critiquing the idea of a
 model autonomously building a complete application without significant human
 intervention. Critics argued that models were not yet capable of handling the
 complexity of full application development and would produce insecure, buggy, or
-unusable results. 
+unusable results.
 
 While the idea was popular, there were no existing benchmarks that precisely measured
 the ``zero-to-one'' process of building the application from scratch. One tricky aspect
 of designing such a benchmark is that implementations of the same specification can vary
 widely, making it hard to design unit tests that can cover the full range of correct implementations.
-A key innovation of VibeCodeBench is therefore the use of browser-based workflows as an evaluation mechanism. 
-By defining user workflows that describe the intended behavior of the application, we use a
-model-controlled browser evaluator to interact with the generated application and 
-judge whether it meets the specification. In Section \ref{sec:vibecodebench-alignment}, we validate
-this evaluation approach by showing that model judgments align quite well with human judgments of application behavior.
+A key innovation of VibeCodeBench was therefore the use of browser-based workflows as an evaluation mechanism.
+By defining user workflows that describe the intended behavior of the application, we used a
+model-controlled browser evaluator to interact with the generated application and
+judge whether it met the specification. In Section \ref{sec:vibecodebench-alignment}, we validated
+this evaluation approach by showing that model judgments aligned quite well with human judgments of application behavior.
 
 The broader impact of VibeCodeBench is that it pushes coding evaluations toward
 the form that today's more capable models require. Instead of constraining models to
 implementing isolated functions and small repository-level edits, benchmarks need to measure
 end-to-end software construction under substantial design freedom. Just like how developers use
-coding assistants today, the agent should be in charge of choosing an implementation strategy, 
+coding assistants today, the agent should be in charge of choosing an implementation strategy,
 writing tests, running the code, and iteratively debugging until the application works. With applications
 of such scale, the way that evaluation is done will also need to evolve. We expect both browser-workflow evaluation and
 end-to-end, specification-driven tasks to become increasingly important as coding agents continuously improve.
@@ -79,10 +79,10 @@ accuracy on the held-out test set, generation cost, and wall-clock latency.
 
 Table~\ref{tab:vibecodebench-main-results-thesis} reports the main test-set
 leaderboard, including accuracy, generation cost, and generation latency.
-This shows the relative ordering of top-performing models while also highlighting
+This showed the relative ordering of top-performing models while also highlighting
 differences in cost and latency. Figure~\ref{fig:vibecodebench-tradeoffs-thesis}
 plots the same results as accuracy--cost and accuracy--latency frontiers. GLM-5
-is a clear outlier because it reaches high cost and latency through very long
+was a clear outlier because it reached high cost and latency through very long
 trajectories.
 
 \begin{table}[tbp]
@@ -125,23 +125,23 @@ Grok 4.1 Fast Reasoning & $1.20 \pm 1.20$\% & \$0.21 & 8.8m & $\times$ \\
 \end{figure}
 
 
-The analysis identifies a strong relationship between browser self-testing and
-final application quality. Browser tool calls per application correlate with
-accuracy (Pearson $r=0.72$), while edit volume is much less predictive. This
-indicates that VibeCodeBench rewards agents that build, run, inspect, and repair
+The analysis identified a strong relationship between browser self-testing and
+final application quality. Browser tool calls per application correlated with
+accuracy (Pearson $r=0.72$), while edit volume was much less predictive. This
+indicated that VibeCodeBench rewarded agents that build, run, inspect, and repair
 their applications in the same medium used by the evaluator.
 
-Error analysis shows that model improvements are driven in large part by
+Error analysis showed that model improvements were driven in large part by
 reductions in complete failures. Lower-performing models often produce
 applications that do not start or cannot complete any workflow, while stronger
-models more often produce partially working applications. External integrations
-remain a major source of difficulty in a majority of cases.
+models more often produced partially working applications. External integrations
+remained a major source of difficulty in a majority of cases.
 
 \subsection{Human Alignment and Impact} \label{sec:vibecodebench-alignment}
 
-One of the key innovations of VibeCodeBench is the model-controlled browser evaluator
-workflow. In order to validate this new evaluation methodology, we conduct a 
-human-alignment study to measure how well automated judgments align with
+One of the key innovations of VibeCodeBench was the model-controlled browser evaluator
+workflow. In order to validate this new evaluation methodology, we conducted a
+human-alignment study to measure how well automated judgments aligned with
 human perceptions of application behavior.
 
 \subsubsection{Methodology}
@@ -150,8 +150,8 @@ We selected six tasks covering a range of domains, difficulties, and
 integrations. For each task, we generated an application using each of Gemini 3.1 Pro, GPT-5.2, and Claude Sonnet 4.6,
 resulting in 18 applications and 1,401 unique substeps. Each application was evaluated by
 two human evaluators and four model evaluators (Gemini 3.1 Pro, GPT-5.2, Claude Sonnet 4.6, and
-Claude Sonnet 4.5). For each substep, the evaluator was asked to mark it passing or failing, and we 
-measure alignment on substeps as a binary judgement of whether two evaluators agree.
+Claude Sonnet 4.5). For each substep, the evaluator was asked to mark it passing or failing, and we
+measured alignment on substeps as a binary judgement of whether two evaluators agreed.
 
 \subsubsection{Results}
 
@@ -178,14 +178,14 @@ Reviewer C & 83.7 & 31.8 & 86.0 & 86.2 & 88.6 & \textbf{91.4} & -- & -- \\
 \end{table}
 
 Table~\ref{tab:vibecodebench-alignment-thesis} reports pairwise substep
-alignment between all evaluator pairs. Human-human agreement is high, ranging
-from 88.6\% to 93.6\%, indicating that manual judgments are relatively consistent.
-Model-model agreement is more heterogeneous: Claude Sonnet 4.6 and Claude Sonnet 4.5 align strongly with each other
-(87.8\%), Gemini 3.1 Pro is close to both Claude evaluators (86.4--86.5\%), and
-GPT-5.2 has low agreement with the other model evaluators (33.1--38.8\%). Model-human agreement is generally high but varies, with a mean of 86.4\% for 
-Claude Sonnet 4.5, 86.3\% for Claude Sonnet 4.6, 84.7\% for Gemini 3.1 Pro, 
-and 36.1\% for GPT-5.2. Claude Sonnet 4.5 is therefore the strongest evaluator 
-in our experiments, so we use it as the primary model evaluator in the benchmark. 
+alignment between all evaluator pairs. Human-human agreement was high, ranging
+from 88.6\% to 93.6\%, indicating that manual judgments were relatively consistent.
+Model-model agreement was more heterogeneous: Claude Sonnet 4.6 and Claude Sonnet 4.5 aligned strongly with each other
+(87.8\%), Gemini 3.1 Pro was close to both Claude evaluators (86.4--86.5\%), and
+GPT-5.2 had low agreement with the other model evaluators (33.1--38.8\%). Model-human agreement was generally high but varied, with a mean of 86.4\% for
+Claude Sonnet 4.5, 86.3\% for Claude Sonnet 4.6, 84.7\% for Gemini 3.1 Pro,
+and 36.1\% for GPT-5.2. Claude Sonnet 4.5 was therefore the strongest evaluator
+in our experiments, so we used it as the primary model evaluator in the benchmark.
 
 Our alignment experiment influenced how the benchmark was received by
 practitioners. A researcher at a frontier lab reported that they had been

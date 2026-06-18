@@ -1,25 +1,26 @@
 \input{paper-includes/leandojo/macros-import}
 
 LeanDojo was released in 2023, a time when there was limited tooling and infrastructure
-for doing research in machine learning for theorem proving. 
+for doing research in machine learning for theorem proving.
 Most existing works relied on private training datasets, kept model checkpoints
 and training codebases hidden, and did not come with easy-to-use interaction tools
-for working with Lean. Through LeanDojo, we addressed all these concerns, providing 
+for working with Lean. Through LeanDojo, we addressed all these concerns, providing
 an open-source toolkit for extracting data from and interacting with Lean, a large benchmark
 built from Lean's mathematical library, and ReProver, a retrieval-augmented
 prover that served as a reproducible baseline. As a result, LeanDojo had a significant
 influence on the field, accumulating over 600 citations and 800 GitHub stars, inspiring many
 theorem-proving systems built directly on its infrastructure.
 
-\subsection{A Benchmark and Toolkit for Open Theorem-Proving Research}
+\subsection{LeanDojo Benchmark}
 
 Figure~\ref{fig:leandojo-overall-thesis} provides an overview of how the different components
-of LeanDojo come together. 
-First, LeanDojo provides infrastructure to extracts proof meta-data from arbitrary
-Lean repositories. Second, applying this tooling on Mathlib produces the LeanDojo
-Benchmark, a collection of theorems, proofs, tactics, and premises. Third, we use this benchmark
-to train our ReProver model. Finally, the trained model proves theorems via interacting with Lean.
-It can initialize a theorem, observe the current proof state, try running a tactic, and see the feedback. 
+of LeanDojo come together. Here, we focus on the benchmark and tooling that facilitated progress
+in the field.
+First, LeanDojo provided infrastructure to extract proof meta-data from arbitrary
+Lean repositories. Second, applying this tooling on Mathlib produced the LeanDojo
+Benchmark, a collection of theorems, proofs, tactics, and premises. Third, we used this benchmark
+to train our ReProver model. Finally, the trained model proved theorems by interacting with Lean.
+It could initialize a theorem, observe the current proof state, try running a tactic, and see the feedback.
 
 \begin{figure}[tbp]
   \centering
@@ -32,48 +33,22 @@ It can initialize a theorem, observe the current proof state, try running a tact
 
 \subsubsection{Data Extraction}
 
-Repositories on GitHub (e.g., \texttt{mathlib} or \texttt{lean-liquid}) contain 
-Lean source code for theorems and proofs. However, they lack important runtime information 
-such as intermediate proof states. Therefore, LeanDojo extracts and augments Lean code with the following information:
-\begin{itemize}
-
-\item \emph{File dependencies and abstract syntax trees (ASTs):} LeanDojo
-processes the repo to produce a directed acyclic graph whose nodes are files
-and edges are import relations between files. In addition, LeanDojo produces
-the AST of each file. File dependencies and ASTs are useful for program
-analysis, e.g., collecting theorems defined in a file or premises accessible
-to a theorem.
-
-\item \emph{States and tactics:} LeanDojo extracts all tactics in proofs. For
-each tactic, it also extracts the states before/after the tactic, which allows
-us to reconstruct the proof tree in Figure~\ref{fig:leandojo-overall-thesis}
-(\emph{left}).
-
-\item \emph{Premises:} For each premise, such as \texttt{mod\_self}, LeanDojo
-records where it is defined (location in \texttt{data/nat/lemma.lean}) and
-where it is used (locations across many files).
-\end{itemize}
-
-LeanDojo's data extraction pipeline is not specific to Mathlib: it
-runs on arbitrary Lean repositories.
+Repositories on GitHub (e.g., \texttt{mathlib} or \texttt{lean-liquid}) contain
+Lean source code for theorems and proofs. However, they lack important runtime information
+such as intermediate proof states. Therefore, LeanDojo extracted and augmented Lean code with information
+such as file dependencies, ASTs, states and tactics, and premises.
+One design choice was that LeanDojo's data extraction pipeline was not specific to Mathlib: it ran on arbitrary Lean repositories,
+allowing researchers to construct their own benchmarks from any Lean project.
 
 \subsubsection{LeanDojo Benchmark}
-
-By running the data extraction pipeline on Mathlib, we can derive the
-LeanDojo Benchmark: \numproofs{} theorems and proofs extracted from \numfiles{} files, split into
+We created our benchmark by running this data extraction pipeline on Mathlib.
+LeanDojo Benchmark contained \numproofs{} theorems and proofs extracted from \numfiles{} files, split into
 \numtraintheorems{} theorems for training, \numvaltheorems{} for validation,
-and \numtesttheorems{} for testing. The benchmark contains \numtactics{}
-tactics, \numtacticswithpremises{} of which use at least one premise
-(\avgnumpremises{} on average), along with the definitions of all
-\numpremises{} premises. Because the extraction
-pipeline runs on arbitrary repositories, researchers can construct analogous
-benchmarks from any Lean project.
-
-LeanDojo also introduces a new challenging data split to mitigate memorization effects.
-Mathlib contains several instances of nearly identical theorems with similar proofs (Figure~\ref{fig:leandojo-quaternion-thesis}). 
+and \numtesttheorems{} for testing. One unique feature of our benchmark was that it introduced a new challenging data split to mitigate memorization effects.
+Mathlib contains several instances of nearly identical theorems with similar proofs (Figure~\ref{fig:leandojo-quaternion-thesis}).
 Using a random train/test split, a model can appear to solve a hard theorem by reusing a memorized proof pattern
-from its near-duplicate in training. In our \texttt{novel\_premises} split, we require every 
-test proof to use at least one premise that never appears in training set proofs. 
+from its near-duplicate in training. In our \texttt{novel\_premises} split, we require every
+test proof to use at least one premise that never appears in training set proofs.
 
 \begin{figure}[tbp]
   \centering
@@ -85,7 +60,7 @@ test proof to use at least one premise that never appears in training set proofs
 
 \subsubsection{Interacting with Lean}
 
-LeanDojo turns Lean into a gym-like
+LeanDojo turned Lean into a gym-like
 environment with a deliberately minimal interface:
 \texttt{initialize(theorem)} returns the theorem's initial proof state, a
 string representing the current goals and local contexts, and
@@ -93,14 +68,13 @@ string representing the current goals and local contexts, and
 either the next state or an error (e.g., from a timeout or an inapplicable
 tactic). Because the prover observes the outcome of every step, it can react
 to feedback as it goes, allowing iterative and feedback-driven proof search
-strategies to be easily implemented. LeanDojo's interaction tools improved the 
-reliability of previous tools: \texttt{lean-gym}~\citep{polu2023formal} misjudged 21.1\% of correct proofs
-as incorrect, while LeanDojo reduced the rate to 1.4\%. LeanDojo was also the
-first tool capable of interacting with Lean 4.
+strategies to be easily implemented. By providing this interaction environment,
+we allowed future researchers to implement a variety of proof search strategies that could be
+seamlessly tested on our benchmark.
 
-\subsection{ReProver: A Retrieval-Augmented Baseline}
-
-Before LeanDojo, tactic generators were typically language models that map a
+\subsection{ReProver: A Retrieval-Augmented Model for Lean}
+In addition to facilitate future progress in the field, LeanDojo also released an open-source
+model: ReProver, a retrieval-augmented model. Before LeanDojo, tactic generators were typically language models that map a
 proof state directly to the next tactic. A model trained this way can only
 apply premises it has seen during training and memorized: if a proof requires
 a lemma the model has not internalized, there is no mechanism for finding it.
@@ -112,22 +86,22 @@ generator's input with the retrieved premises.
 
 \subsubsection{Retrieve: Premise Selection}
 
-Our retriever is based on Dense Passage Retriever
+Our retriever was based on Dense Passage Retriever
 (DPR)~\citep{karpukhin2020dense}: a Transformer encoder that embeds the proof state
-and all candidate premises into a vector space. At each step, we retrieve by finding the candidate premise 
+and all candidate premises into a vector space. At each step, we retrieved by finding the candidate premise
 with the highest cosine similarity with the current proof state.
-The retriever is trained by minimizing a standard contrastive loss function between positive premises 
+The retriever was trained by minimizing a standard contrastive loss function between positive premises
 and in-batch negative premises.
 
-We incorporate two insights specific to premise selection. First,
-instead of retrieving from all premises in the library, we restrict the retrieval set to
+We incorporated two insights specific to premise selection. First,
+instead of retrieving from all premises in the library, we restricted the retrieval set to
 premises accessible to the current theorem: those defined in the same file
-before it or imported from other files. This the candidate premise set much smaller:
+before it or imported from other files. This made the candidate premise set much smaller:
 LeanDojo Benchmark contains \numpremises{} premises in total, but the average number of accessible premises is only
 \numaccessiblepremises{}. Second, DPR's performance depends critically on the
 quality of negative examples. In early experiments, we sampled all negative
 premises randomly, and the model often mistakenly retrieved other premises
-from the same file as the positive one. Therefore, we train on a mixture of
+from the same file as the positive one. Therefore, we trained on a mixture of
 \emph{in-file negatives} and random negatives.
 
 \subsubsection{Augment: Tactic Generation}
@@ -135,48 +109,20 @@ from the same file as the positive one. Therefore, we train on a mixture of
 As in Figure~\ref{fig:leandojo-overall-thesis} (\emph{bottom}), retrieved
 premises are concatenated with the state.\footnote{We retrieve 100 premises,
 concatenate them with the state, and truncate the concatenation to a fixed
-length.} Then an encoder-decoder Transformer, ByT5~\citep{xue2022byt5}, takes
-them as input and generates the tactic. The model is trained to minimize the
+length.} Then an encoder-decoder Transformer, ByT5~\citep{xue2022byt5}, took
+them as input and generated the tactic. The model was trained to minimize the
 cross entropy loss w.r.t. human-written tactics. When proving theorems, the
-model generates multiple tactic candidates at each step, which are used in a
+model generated multiple tactic candidates at each step, which were used in a
 standard best-first search algorithm to find proofs~\citep{han2022proof}.
 
 \subsection{Results}
 
-To evaluate premise selection, we use standard metrics in information
-retrieval: R@$k$ (recall for the top $k$ retrieved premises) and MRR (mean
-reciprocal rank). In Table~\ref{tab:leandojo-premise-thesis}, we show that
-our method significantly outperforms BM25~\citep{robertson2009probabilistic},
-a strong classical retrieval method. In addition, we run two ablations: retrieving
-from all premises instead of accessible premises, and another without in-file negatives.
-We find that both ablations degrade performance.
-
-On theorem proving, we use \emph{Pass@1}: the prover is given
-one attempt with a wall-clock time limit of 10
-minutes. We compare ReProver against two baselines. \texttt{tidy} is a Mathlib tactic that
-uses heuristics to complete proofs. We also prompt GPT-4 prompted to generate tactics in a
-zero-shot setting using the same best-first search algorithm. With GPT-4, data contamination is possible,
-as many theorems had been publicly available on GitHub before GPT-4's data cutoff date.
-
-\begin{table}[tbp]
-\caption{Premise selection on the LeanDojo Benchmark test sets. R@$k$ is recall
-among the top $k$ retrieved premises and MRR is mean reciprocal rank (higher is
-better). The retriever outperforms BM25 and both ablations.}
-\label{tab:leandojo-premise-thesis}
-\centering
-\small
-\begin{tabular}{@{}lcccccc@{}}
-  \toprule
-   Method & \multicolumn{3}{c}{\texttt{random}} & \multicolumn{3}{c}{\texttt{novel\_premises}} \\
-   \cmidrule(r){2-4} \cmidrule(r){5-7} & R@1 & R@10 & MRR & R@1 & R@10 & MRR \\
-  \midrule
-  BM25 & 6.7 & 17.2 & 0.15 & 5.9 & 15.5 & 0.14\\
-  ReProver retriever & \textbf{13.5} & \textbf{38.4} & \textbf{0.31} & \textbf{9.1} & \textbf{27.6} & \textbf{0.24} \\
-  \quad w/ all premises & 11.7 & 36.2 & 0.27 & 7.1 & 23.1 & 0.20 \\
-  \quad w/o in-file negatives & 10.8 & 33.1 & 0.25 & 7.9 & 25.7 & 0.22 \\
-  \bottomrule
-\end{tabular}
-\end{table}
+Table~\ref{tab:leandojo-proving-thesis} shows the results on the testing data
+of LeanDojo Benchmark. ReProver outperformed all baselines on two different
+data splits, demonstrating the effectiveness of retrieval-augmented theorem
+proving. GPT-4 performed substantially worse than our method. On the \texttt{novel\_premises},
+all methods performed substantially worse, but we observed that retrieval still
+provided a significant boost.
 
 \begin{table}[tbp]
 \caption{Theorem proving Pass@1 (\%) on the LeanDojo Benchmark test sets.
@@ -198,42 +144,40 @@ tactics without retrieval. All methods degrade substantially on the
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:leandojo-proving-thesis} shows the results on the testing data
-of LeanDojo Benchmark. ReProver outperforms all baselines on two different
-data splits, demonstrating the effectiveness of retrieval-augmented theorem
-proving. GPT-4 performs substantially worse than our method. On the \texttt{novel\_premises},
-all methods perform substantially worse, but we observe that retrieval still
-provides a significant boost.
-
-Finally, we run ReProver on theorems from MiniF2F~\citep{zheng2022minif2f} and
+Finally, we ran ReProver on theorems from MiniF2F~\citep{zheng2022minif2f} and
 ProofNet~\citep{azerbayev2023proofnet}. The distribution of theorems in these datasets
 is different from Mathlib, making it an out-of-distribution dataset.
-On MiniF2F's test set, ReProver achieves a Pass@1 of 26.5\%, competitive with then state-of-the-art methods without
+On MiniF2F's test set, ReProver achieved a Pass@1 of 26.5\%, competitive with then state-of-the-art methods without
 RL (25.9\%~\citep{polu2023formal}). On ProofNet, our Pass@1 is 13.8\%, which
 is the first reported theorem proving result on this dataset. Further, our
-prover discovers 33 proofs in MiniF2F and 39 proofs in ProofNet for theorems
-that did not previously have Lean proofs. 
+prover discovered 33 proofs in MiniF2F and 39 proofs in ProofNet for theorems
+that did not previously have Lean proofs.
+
+ReProver was able to make an impact in the theorem proving community because it was a strong
+baseline that was comparable to state-of-the-art models, while being simple and relatively fast
+to train. In the years to come, researchers built upon it in order to develop new algorithms and training
+schemes in theorem proving.
 
 \subsection{Opening Up Future Theorem-Proving Research}
-LeanDojo's broader influence came from providing an open-source Lean playground 
-consisting of toolkits, data, models, and benchmarks. This lowered the barrier to entry 
-for research in neural theorem proving, as anyone could now train their own theorem provers. 
-Lean Copilot~\citep{song2024towards} built on LeanDojo and ReProver to run 
-language models in an IDE, suggesting tactics and searching for proofs as users write them. Lean-STaR~\citep{lin2024lean} leveraged LeanDojo's 
+LeanDojo's broader influence came from providing an open-source Lean playground
+consisting of toolkits, data, models, and benchmarks. This lowered the barrier to entry
+for research in neural theorem proving, as anyone could now train their own theorem provers.
+Lean Copilot~\citep{song2024towards} built on LeanDojo and ReProver to run
+language models in an IDE, suggesting tactics and searching for proofs as users write them. Lean-STaR~\citep{lin2024lean} leveraged LeanDojo's
 data and interaction environment to performing expert iteration, leading to a new state-of-the-art
-at the time. 
+at the time.
 
 In the years since, the field has grown far beyond what these early systems
 could reach. Benchmarks such as PutnamBench~\citep{tsoukalas2024putnambench}
 continued to push the boundaries of neural theorem proving. After large-scale reinforcement
 learning became mainstream, systems like AlphaProof~\citep{deepmindalphaproof},
 Goedel-Prover-V2~\citep{lin2025goedel2}, and Seed-Prover~\citep{chen2507seed}
-quickly advanced the capabilities of theorem proving models, reaching near 
+quickly advanced the capabilities of theorem proving models, reaching near
 gold-medal performance on the International Mathematical Olympiad. Once provers
 could reliably produce correct proofs, a new issue became apparent. Optimizing for
 correctness alone yields proofs that are correct but inscrutable to human readers,
 far from what a mathematician would want to read or what a library like Mathlib would
 want to maintain. Echoing the theme of Chapter~\ref{chap:right-metrics}, it was now important
-to focus more on metrics beyond correctness. Inspired by this, we developed ProofOptimizer 
+to focus more on metrics beyond correctness. Inspired by this, we developed ProofOptimizer
 (Section~\ref{sec:proofoptimizer}), the first end-to-end fine-tuned model for optimizing
 Lean proofs.

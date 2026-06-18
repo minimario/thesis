@@ -2,32 +2,32 @@
 Around the time of \livecodebench{}'s release, models were being trained
 on larger and larger crawls of the internet, making static benchmarks increasingly vulnerable
 to contamination. It was the first benchmark to challenge the status quo of static coding
-benchmarks, instead focusing on \emph{live}ness, continuously collecting new problems and 
-updating the evaluation set every few months. First, this design has inspired a wave of
-contamination-aware benchmarks across code, math, and general reasoning, helping to shift 
-the community's mindset to treat contamination as a first-class concern. 
-Second, with over $1500$ citations, \livecodebench{} has been adopted as a standard evaluation by 
+benchmarks, instead focusing on \emph{live}ness, continuously collecting new problems and
+updating the evaluation set every few months. First, this design inspired a wave of
+contamination-aware benchmarks across code, math, and general reasoning, helping to shift
+the community's mindset to treat contamination as a first-class concern.
+Second, with over $1500$ citations, \livecodebench{} has been adopted as a standard evaluation by
 researchers and frontier model developers alike, utilizing appropriate time windows
 to avoid contamination.
 
 \subsection{Contamination-Aware Benchmarks}
 \livecodebench{} popularized the recipe of using problems from a scrolling
 time window drawn from a continuously updated source of new tasks. LiveBench
-\citep{white2024livebench} extends \livecodebench{} beyond code to a larger suite of tasks
+\citep{white2024livebench} extended \livecodebench{} beyond code to a larger suite of tasks
 including math, reasoning, language, and data analysis. The recipe also propagated into adjacent domains: LiveMathBench
-\citep{liu2024livemathbench} applies the same idea to competition
+\citep{liu2024livemathbench} applied the same idea to competition
 mathematics, assembling fresh problem sets from annual contests such as the AMC and the
-Putnam. LiveAoPSBench \citep{mahdavi2025liveaopsbench} timestamps olympiad-level
+Putnam. LiveAoPSBench \citep{mahdavi2025liveaopsbench} timestamped olympiad-level
 problems mined from the Art of Problem Solving forum, similarly observing a steady
-performance decline on more recent problems showing a similar phenomenon that we do in the math domain.
-LiveMathematicianBench \citep{he2026livemathematicianbench} pushes the idea to
+performance decline on more recent problems and showing a similar phenomenon in the math domain.
+LiveMathematicianBench \citep{he2026livemathematicianbench} pushed the idea to
 research-level mathematics, drawing problems from arXiv papers posted after model
 training cutoffs.
-LiveCodeBench Pro \citep{zheng2025livecodebenchpro} extends the benchmark's idea to harder olympiad-level
+LiveCodeBench Pro \citep{zheng2025livecodebenchpro} extended the benchmark's idea to harder olympiad-level
 problems, and in software engineering, SWE-bench-Live
-\citep{zhang2025swebenchlive} applies the same monthly-update discipline to
+\citep{zhang2025swebenchlive} applied the same monthly-update discipline to
 real GitHub issues created after a fixed date. The idea has even been applied to multimodal
-evaluation: LiveXiv \citep{shabtay2024livexiv} builds a continuously refreshed
+evaluation: LiveXiv \citep{shabtay2024livexiv} built a continuously refreshed
 visual-question-answering benchmark from newly posted arXiv manuscripts.
 
 Beyond the specific benchmarks it inspired, \livecodebench{} helped shift how
@@ -38,7 +38,7 @@ problems correlates with their prevalence on GitHub \citep{roberts2024to,
 riddell2024quantifying}, and caught coding benchmarks leaking into training
 data shortly after release \citep{matton2024leakage}. However, these works
 treated contamination as something to detect after the fact. Instead,
-\livecodebench{} treats contamination as a first-class design concern. 
+\livecodebench{} treated contamination as a first-class design concern.
 By showing a scrolling benchmark with time-adjustable windows, it directly
 exposed sharp performance drops on newer problems. As evident by the
 number of live benchmarks following \livecodebench{}, contamination-free benchmarks
@@ -47,7 +47,7 @@ have become a standard expectation.
 \subsection{Adoption by Frontier Model Developers}
 Finally, \livecodebench{} became part of the standard evaluation suite for
 frontier model releases, particularly among open-weight and
-reasoning-oriented systems. It appears in the release reports of successive
+reasoning-oriented systems. It appeared in the release reports of successive
 DeepSeek generations \citep{deepseekai2024deepseekv3,
 deepseekai2025deepseekr1}, the Qwen2.5-Coder and Qwen3 reports
 \citep{qwen2024qwen25coder, qwen2025qwen3technical}, Google's Gemini 2.5
@@ -55,14 +55,14 @@ deepseekai2025deepseekr1}, the Qwen2.5-Coder and Qwen3 reports
 ByteDance's Seed-Coder \citep{bytedance2025seedcoder}, Zhipu's GLM-4.5
 \citep{zeng2025glm45}, MiniMax-M1 \citep{minimax2025m1}, Mistral's Magistral
 \citep{mistral2025magistral}, and NVIDIA's Llama-Nemotron
-\citep{bercovich2025llamanemotron}, among others. 
+\citep{bercovich2025llamanemotron}, among others.
 
-In addition, many of these reports reference \livecodebench{}'s contamination methodology.
-The DeepSeek-V3 report \citep{deepseekai2024deepseekv3} restricts evaluation to a
+In addition, many of these reports referenced \livecodebench{}'s contamination methodology.
+The DeepSeek-V3 report \citep{deepseekai2024deepseekv3} restricted evaluation to a
 recent window (problems from August to November 2024) precisely to avoid
-leakage. Similarly, the Qwen2.5-Coder report \citep{qwen2024qwen25coder} 
-evaluates only on the most recent months, describing them as questions that ``could
+leakage. Similarly, the Qwen2.5-Coder report \citep{qwen2024qwen25coder}
+evaluated only on the most recent months, describing them as questions that ``could
 not have leaked into the training set'' and thus reflect
-out-of-distribution ability. Gemini 2.5 \citep{comanici2025gemini} reports
+out-of-distribution ability. Gemini 2.5 \citep{comanici2025gemini} reported
 \livecodebench{} with its exact problem date range (October 2024 through
-January 2025) stated alongside the score. 
+January 2025) stated alongside the score.
