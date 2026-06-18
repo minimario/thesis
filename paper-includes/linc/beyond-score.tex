@@ -18,7 +18,7 @@ On the other hand, the challenge shifts to faithful and accurate formalization. 
 information from the premises without adding or removing any information. Since it is not clear how the difficulties of formalization
 and natural language reasoning compare, the main focus of our work was to compare and contrast \texttt{LINC} with traditional
 \texttt{Chain-of-Thought} approaches. Through thorough experimentation and analysis on two challenging datasets,
-we provided insights into the strengths and weaknesses of both approaches. Overall, we found that they have distinct behaviors and
+we provided insights into the strengths and weaknesses of both approaches. Overall, we found that they had distinct behaviors and
 failure modes, suggesting a strong synergy between theorem provers and language models.
 
 
@@ -233,7 +233,7 @@ As a result, \texttt{LINC} predicted \texttt{Uncertain} instead of the ground tr
     \item[] \small FOL: \texttt{German(HeinrichSchmidt)}
 \end{itemize}
 
-\textbf{L3: FOL contains syntax errors.}  Across all generations, we found that the FOL expressions sometimes contained syntax errors: 38\% for StarCoderPlus, 24\% for GPT-3.5, and 13\% for GPT-4. The most common error is that the same symbol is used with multiple arities. As an example, if \texttt{Summer(July4)} and \texttt{Loves(Alex, Summer)} were both present in a FOL translation, \texttt{Summer} would have a multiple arity violation.
+\textbf{L3: FOL contains syntax errors.}  Across all generations, we found that the FOL expressions sometimes contained syntax errors: 38\% for StarCoderPlus, 24\% for GPT-3.5, and 13\% for GPT-4. The most common error was that the same symbol was used with multiple arities. As an example, if \texttt{Summer(July4)} and \texttt{Loves(Alex, Summer)} were both present in a FOL translation, \texttt{Summer} would have a multiple arity violation.
 
 Next, we detail three failure modes for \texttt{CoT}:
 
@@ -271,13 +271,13 @@ Mike has an F1 visa.
 
 \subsubsection{Quantitative Analysis}
 
-\textbf{1. Compared to \texttt{CoT}, \texttt{LINC} has worse recall but better precision on \texttt{True}/\texttt{False} predictions.} To see this,
+\textbf{1. Compared to \texttt{CoT}, \texttt{LINC} had worse recall but better precision on \texttt{True}/\texttt{False} predictions.} To see this,
 we plotted the confusion matrices in Figure~\ref{linc-paper:fig:gpt_cot_confusion} (\texttt{CoT}) and Figure~\ref{linc-paper:fig:gpt_neurosym_confusion} (\texttt{LINC}).
 Looking just at the distributions of predicted labels of the two methods, we saw that \texttt{CoT} predicted 32\% \texttt{True}, 27\% \texttt{False}, and 41\% \texttt{Uncertain}, while \texttt{LINC} predicted 24\% \texttt{True}, 17\% \texttt{False}, and 57\% \texttt{Uncertain} (with 2\% of predictions throwing an error).
 Notably, we observed that \texttt{LINC} predicted \texttt{Uncertain} much more frequently than \texttt{CoT} (57\% vs. 41\%).
 To understand why, note that the translation from natural language to FOL is a lossy process: recall that in L1 and L2, we saw that the information conveyed through the FOL is sometimes a subset of the information in the original premises. Removing pieces of crucial information that were on the critical path to deducing \texttt{True}/\texttt{False} may then leave an uncertain conclusion.
 At the same time, while the FOL translations sometimes do not retain all of the information in the NL, they rarely contain false information that was not provided in the original premises.
-Therefore, \texttt{LINC}'s precision when predicting \texttt{True} or \texttt{False} is very high (93\%) compared to that of \texttt{CoT} (81\%), but this comes at the cost of lower recall on \texttt{True}/\texttt{False} predictions (60\% for \texttt{LINC} vs. 75\% for \texttt{CoT}).
+Therefore, \texttt{LINC}'s precision when predicting \texttt{True} or \texttt{False} was very high (93\%) compared to that of \texttt{CoT} (81\%), but this came at the cost of lower recall on \texttt{True}/\texttt{False} predictions (60\% for \texttt{LINC} vs. 75\% for \texttt{CoT}).
 
 \textbf{2. \texttt{LINC} and \texttt{CoT} mispredict on different examples.} Earlier in Sec. \ref{linc-paper:sec:error_qualitative}, we saw that \texttt{LINC} and \texttt{CoT} exhibited different failure modes, which suggested they should fail on different examples. Indeed, we found that this was the case in our experiments on FOLIO:
 Figure~\ref{linc-paper:fig:gpt_cot_neurosym} shows a $2\times2$ confusion matrix which compares whether or not each method's prediction was correct.
