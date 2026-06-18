@@ -1,10 +1,10 @@
 \input{paper-includes/ineqmath/macros-import}
 
-In \dataset, we study the ability of language models to solve olympiad-style inequality
+In \dataset, we studied the ability of language models to solve olympiad-style inequality
 problems. While previous evaluations in mathematics such as GSM8K \cite{cobbe2021training} and 
-MATH-500 \cite{hendrycks2021measuring} focus on final-answer correctness, we design \dataset
+MATH-500 \cite{hendrycks2021measuring} focus on final-answer correctness, we designed \dataset
 to measure step-wise reasoning correctness in addition to final-answer accuracy. By doing so,
-we discover what we call a \emph{soundness gap}: models often arrive at the correct final answer
+we discovered what we call a \emph{soundness gap}: models often arrive at the correct final answer
 while hallucinating bogus reasoning steps, reinforcing the importance of evaluating based on the
 correct metric.
 
@@ -66,16 +66,16 @@ In Table~\ref{tab:main_results}, we show the performance of 24 models on \datase
 revealing several insights into current LLM capabilities for inequality proving:
 
 
-\textbf{1) Reasoning LLMs achieve higher final-answer accuracy.} First, we compare
-reasoning models with their general-purpose chat counterparts. We see that o1 (62.5\% \textit{Answer Acc}) and 
-Grok 3 mini (71.5\% \textit{Answer Acc}) significantly outperform GPT-4o (37.5\%) and Grok 3 (54.5\%) in 
+\textbf{1) Reasoning LLMs achieve higher final-answer accuracy.} First, we compared
+reasoning models with their general-purpose chat counterparts. We saw that o1 (62.5\% \textit{Answer Acc}) and 
+Grok 3 mini (71.5\% \textit{Answer Acc}) significantly outperformed GPT-4o (37.5\%) and Grok 3 (54.5\%) in 
 final-answer accuracy.
 
 
 \textbf{2) Step-wise scrutiny reveals a dramatic performance drop.} 
-Second, we discover a large soundness gap across all models. As we show in Figure~\ref{fig:ineqmath-key-results}, 
-the \textit{Overall Acc} plummets when steps are evaluated. For instance, Grok 3 mini's accuracy 
-drops from 71.5\% \textit{Answer Acc} to 6.0\% \textit{Overall Acc}. 
+Second, we discovered a large soundness gap across all models. As we show in Figure~\ref{fig:ineqmath-key-results}, 
+the \textit{Overall Acc} plummeted when steps were evaluated. For instance, Grok 3 mini's accuracy 
+dropped from 71.5\% \textit{Answer Acc} to 6.0\% \textit{Overall Acc}. 
 
 \begin{figure}[H]
   \centering
@@ -87,16 +87,16 @@ drops from 71.5\% \textit{Answer Acc} to 6.0\% \textit{Overall Acc}.
 \end{figure}
 
 
-\textbf{3) Robust proof construction remains a major challenge.} Third, we reveal that
+\textbf{3) Robust proof construction remains a major challenge.} Third, we found that
 providing a mathematically rigorous proof remains a significant challenge for all models.
-Even the best model, Gemini 2.5 Pro, only achieves 43.5\% \textit{Overall Acc}, highlighting
+Even the best model, Gemini 2.5 Pro, only achieved 43.5\% \textit{Overall Acc}, highlighting
 that solving challenging inequality proofs remains a challenge for these LLMs.
 
-\textbf{4) Scaling does not reliably close the soundness gap.} Finally, we investigate 
+\textbf{4) Scaling does not reliably close the soundness gap.} Finally, we investigated 
 whether scaling up model size or test-time computation can help close the soundness gap. 
-The answer is largely no, as seen in Figure~\ref{fig:ineqmath-scaling}. Larger models do tend 
-to improve final-answer accuracy but do not help with overall accuracy. 
-Similarly, increasing the maximum token budget of models can initially help, but quickly plateau,
+The answer was largely no, as seen in Figure~\ref{fig:ineqmath-scaling}. Larger models did tend 
+to improve final-answer accuracy but did not help with overall accuracy. 
+Similarly, increasing the maximum token budget of models could initially help, but quickly plateaued,
 as shown in Figure~\ref{fig:ineqmath-test-time-scaling}. 
 
 \begin{figure}[H]
@@ -127,7 +127,7 @@ as shown in Figure~\ref{fig:ineqmath-test-time-scaling}.
 \subsection{Discussion}
 Because it is much more difficult to evaluate the soundness of an entire mathematical proof compared
 to checking a final answer, many mathematics benchmarks have focused solely on the latter. However,
-through \dataset, we saw that evaluating both accuracies reveals a blind spot of previous evaluations,
+through \dataset, we saw that evaluating both accuracies revealed a blind spot of previous evaluations,
 as models showed up to a 65.5\% drop between final-answer accuracy and overall accuracy.
 More broadly, our results show that benchmarks are only as informative as the metric 
 that it measures. While final-answer accuracy is easy to measure, it does not capture the capability 

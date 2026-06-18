@@ -1,6 +1,6 @@
 \input{paper-includes/livecodebench/macros-import}
 
-In \livecodebench{}, we address two problems that made existing code benchmarks
+In \livecodebench{}, we addressed two problems that made existing code benchmarks
 increasingly unreliable as code models improved. The first problem is
 contamination. Benchmarks such as \humaneval{}, \mbpp{}, and \apps{} are
 static: once their problems are public, later models may see them during training.
@@ -43,12 +43,12 @@ includes adversarial or stress tests where possible.
 \livecodebench{} curates problems released since May $2023$.
 However, \deepseek{} was released Sep $2023$ and \gptfouro{}'s official cutoff date is Nov $2023$.
 In Figure~\ref{fig:lcb-contamination-all-tasks-thesis}, we show the performance of these models on \leetcode{} problems released in different months from May $2023$ and Aug $2024$.
-First, we notice significant drops in model performance: \deepseekcodeB{33} after Aug. $2023$ and \gptfouro{} after Nov. $2023$.
-These drops align with the release/cutoff dates of the models, suggesting
+First, we noticed significant drops in model performance: \deepseekcodeB{33} after Aug. $2023$ and \gptfouro{} after Nov. $2023$.
+These drops aligned with the release/cutoff dates of the models, suggesting
 that earlier problems may indeed be contaminated. 
-This trend is consistent across other \livecodebench{} scenarios like repair and code execution.
-We note that this performance drop occurs primarily for \leetcode{} problems, while model performance is relatively smooth across the months for problems from other platforms (Figure~\ref{fig:lcb-atcoder-contamination-thesis}),
-which may suggest different levels of contamination across different sources. 
+This trend was consistent across other \livecodebench{} scenarios like repair and code execution.
+We noted that this performance drop occurred primarily for \leetcode{} problems, while model performance was relatively smooth across the months for problems from other platforms (Figure~\ref{fig:lcb-atcoder-contamination-thesis}),
+which suggested different levels of contamination across different sources. 
 
 \begin{figure}[H]
     \centering
@@ -73,9 +73,9 @@ which may suggest different levels of contamination across different sources.
 
 \noindent \textbf{Contamination Effects of Other Models:} In Figure~\ref{fig:lcb-contamination-all-models-thesis}, we show 
 the performance of six models for each month between May $2023$ and Aug $2024$. \gptfourturbo{}, \mistrallarge{}, and \claudethrees{} were released in November $2023$, February $2024$, and March $2024$, respectively.
-For these three models, we do not observe significant performance variations across months.
-On the other hand, we observe that \deepseekbaseB{33} drops from \passmetric{1} $\smallsim 60$ in May problems to \passmetric{1} $\smallsim 0$ in September \leetcode{} problems,
-suggesting significant contamination. Finally, \codestral{} achieves \passmetric{1} $36.5$ on problems released between May'23 and Jan'24 and \passmetric{1} $28.3$ on problems post Jan'24.
+For these three models, we did not observe significant performance variations across months.
+On the other hand, we observed that \deepseekbaseB{33} dropped from \passmetric{1} $\smallsim 60$ in May problems to \passmetric{1} $\smallsim 0$ in September \leetcode{} problems,
+suggesting significant contamination. Finally, \codestral{} achieved \passmetric{1} $36.5$ on problems released between May'23 and Jan'24 and \passmetric{1} $28.3$ on problems post Jan'24.
 
 \begin{figure}[H]
     \centering
@@ -138,23 +138,23 @@ expected output of that input.
 \end{figure}
 
 In \Cref{fig:all_tasks_radial}, we show a high-level view of how various models perform
-across the four scenarios. We observe that relative model differences change across
+across the four scenarios. We observed that relative model differences changed across
 code generation, self-repair, code execution, and test-output prediction. 
 
 \input{paper-includes/livecodebench/figures/introduction/radial_plot_bar_plot.tex}
 
 Next, in \Cref{fig:results_plots}, we show the full results of all models across each scenario.
-This reveals that relative model performance is related across scenarios, with high correlations between
-\passmetric{1} scores. However, there are changes in relative gaps. After self-repair, \gptfourturbo{} increases its lead over \gptfour{}.
-\claudeopus{} and \mistrallarge{} perform well on the more reasoning and CoT-based scenarios, code execution and
+This revealed that relative model performance is related across scenarios, with high correlations between
+\passmetric{1} scores. However, there were changes in relative gaps. After self-repair, \gptfourturbo{} increased its lead over \gptfour{}.
+\claudeopus{} and \mistrallarge{} performed well on the more reasoning and CoT-based scenarios, code execution and
 test-output prediction. 
 
 \input{paper-includes/livecodebench/figures/main_results/main_results.tex}
 
 \subsection{Discussion}
-In \livecodebench{}, we show how crucial it is to account for data contamination when 
+In \livecodebench{}, we showed how crucial it is to account for data contamination when 
 evaluating code models. As we saw, model performance often drops sharply on problems
-released after a model's training cutoff date. Failing to taking this bias into account will
+released after a model's training cutoff date. Failing to take this bias into account can
 lead to misleading comparisons between models, as one model may have seen problems that another model has not.
 Through our holistic scenario design, we also saw that there are important differences in 
 the ability of frontier language models to perform code generation, repair, execution, and 
