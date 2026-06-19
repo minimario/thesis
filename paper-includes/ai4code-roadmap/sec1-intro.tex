@@ -4,13 +4,15 @@ AI for software engineering has made remarkable progress recently, becoming a no
 Despite this, there are still many challenges that need to be addressed before automated software engineering reaches its full potential. With additional efforts, it should be possible to reach high levels of automation where humans can focus on the critical decisions of what to build and how to balance difficult tradeoffs while most routine development effort is automated away. Reaching this level of automation, however, will require substantial research and engineering efforts across academia and industry. This chapter provides an opinionated view of the tasks, challenges, and promising directions towards achieving this goal.
 %
 
+The preceding chapters shape the perspective of this chapter. CRUXEval showed that code generation is only one slice of programming ability: models also need to understand programs, reason about execution, and predict how code behaves. The Counterfeit Conundrum and LiveCodeBench showed that benchmark results can be misleading when evaluation design introduces contamination, temporal effects, or artifacts in the construction of incorrect solutions. Finally, SlopCodeBench, VibeCodeBench, LeanDojo, and ProofOptimizer pushed the story beyond one-shot correctness, highlighting the importance of feedback, tool use, maintainability, and long-horizon workflows.
+
 Many existing surveys overlap with the topics that are discussed in this chapter. \citet{liang2024large} and \citet{sergeyuk2025using} survey the successes and challenges of AI programming assistants, \citep{wang2024software} survey using LLMs for software testing, and \citet{joel2024survey} survey using LLMs in low-resource and domain-specific languages, and \citet{zhang2023survey} focus on automated program repair, both with and without LLMs. Finally, \citet{yang2024formal} is a roadmap for formal mathematical reasoning and has some overlap with our discussion on software verification.
 
 In addition, many papers discuss the current state, challenges, and future of AI for software engineering \citep{fan2023large, ozkaya2023application, wong2023natural, zheng2023survey, hou2024large, jin2024llms, wan2024deep, roychoudhury2025ai}. Our work draws inspiration from them, and we recommend that the reader consult with them for alternative perspectives. 
 
-In this chapter, our goal is threefold. In Sec. \ref{sec:tasks-milestones}, we provide a structured taxonomy of concrete tasks in AI for software engineering. In particular, we emphasize that there are many other tasks in software engineering beyond code generation and code completion, encouraging research in these areas. We provide three measures for categorizing concrete realizations of each task: the scale of the problem, the logical complexity, and the level of human intervention. 
+In this chapter, our goal is threefold. In Sec. \ref{sec:tasks-milestones}, we provide a structured taxonomy of concrete tasks in AI for software engineering. In particular, we emphasize that there are many other tasks in software engineering beyond code generation and code completion, encouraging research in these areas. We provide three measures for categorizing concrete realizations of each task: the scale of the problem, the logical complexity, and the level of human intervention.
 
-Moving forward to Sec. \ref{sec:challenges}, we highlight nine challenges in the field that today's models face, each cross-cutting and applicable to several tasks. In Sec. \ref{sec:paths}, we posit a set of promising research directions to tackle the challenges above, with Fig. \ref{fig:challenges-paths} summarizing which directions correspond to each challenge. We hope that through this chapter, the reader can appreciate the progress the field has made, understand the shortcomings of today's state-of-the-art models, and take inspiration from our suggested future ideas for tackling these challenges.
+Moving forward to Sec. \ref{sec:challenges}, we highlight several challenges in the field that today's models face, each cross-cutting and applicable to several tasks. These challenges synthesize the lessons from the earlier chapters: future AI software engineers must be evaluated across a broader range of tasks, with metrics that reflect real development workflows, and with training signals that reward more than producing a plausible final answer. In Sec. \ref{sec:paths}, we posit a set of promising research directions to tackle the challenges above. We hope that through this chapter, the reader can appreciate the progress the field has made, understand the shortcomings of today's state-of-the-art models, and take inspiration from our suggested future ideas for tackling these challenges.
 
 
 % - AI coding has made progress last few years + is one of the success stories for genai
@@ -63,54 +65,3 @@ Moving forward to Sec. \ref{sec:challenges}, we highlight nine challenges in the
 %     \caption{Matrix of Challenges and Tasks}
 %     \label{table:challenges-tasks}
 % \end{table}
-
-
-\begin{figure}
-    \centering
-    \begin{tikzpicture}[
-        every node/.style={draw, text width=5cm, align=center, rounded corners, fill=blue!20, minimum height=1cm, inner sep=3pt},
-        challenge/.style={fill=lightblue},
-        solution/.style={fill=lightorange},
-        line/.style={draw, -stealth, thin}
-    ]
-        % Adjusted vertical spacing for better readability
-        \node[challenge] (C6) at (0, 6.5) {Semantic Understanding \\ of Codebases};
-        \node[challenge] (C1) at (0, 5.2) {Evaluation and Benchmarks};
-        \node[challenge] (C3) at (0, 3.9) {Human-AI Collaboration};
-        \node[challenge] (C7) at (0, 2.6) {Low-Resource Languages and Specialized Libraries};
-        \node[challenge] (C8) at (0, 1.3) {Library and API Version Updates};
-        \node[challenge] (C2) at (0, 0) {Effective Tool Usage};
-        \node[challenge] (C9) at (0, -1.3) {High Logical Complexity \\ and OOD Domains};
-        \node[challenge] (C4) at (0, -2.6) {Long-Horizon Code Planning};
-        \node[challenge] (C5) at (0, -3.9) {Large Scope and Long Contexts};
-        % Solutions (Right Side)
-        \node[solution] (S1) at (6.0, 6.5) {Automatic Data Curation};
-        \node[solution] (S7) at (6.0, 5.2) {Human-Centric \\ Data Curation};
-        \node[solution] (S8) at (6.0, 3.9) {Training Models to \\ Collaborate with Humans};
-        \node[solution] (S9) at (6.0, 2.6) {Scaffolding Human \\ Supervision};
-        \node[solution] (S3) at (6.0, 1.3) {Fast Specialized \\ Codebase Adaptation};
-        \node[solution] (S6) at (6.0, 0) {Incorporating SWE Tools};
-        \node[solution] (S2) at (6.0, -1.3) {Reinforcement Learning for Code};
-        \node[solution] (S5) at (6.0, -2.6) {Integration with SWE \\ Development Frameworks};
-        \node[solution] (S4) at (6.0, -3.9) {Semantic-Aware \\ Embeddings and Retrieval};
-
-        % Connections
-        \draw[line] (C1.east) -- ([yshift=-0.1cm]S1.west);
-        \draw[line] (C1.east) -- (S7.west);
-        \draw[line] (C2.east) -- (S6.west);
-        \draw[line] (C3.east) -- ([yshift=-0.1cm]S7.west);
-        \draw[line] (C3.east) -- (S8.west);
-        \draw[line] (C3.east) -- (S9.west);
-        \draw[line] (C4.east) -- ([yshift=-0.1cm]S2.west);
-        \draw[line] (C4.east) -- (S5.west);
-        \draw[line] (C5.east) -- (S4.west);
-        \draw[line] (C5.east) -- ([yshift=-0.1cm]S5.west);
-        \draw[line] (C6.east) -- (S1.west);
-        \draw[line] (C7.east) -- ([yshift=0.1cm]S3.west);
-        \draw[line] (C8.east) -- (S3.west);
-        \draw[line] (C9.east) -- (S2.west);
-
-    \end{tikzpicture}
-    \caption{Overview of Challenges (Sec. \ref{sec:challenges}) and  Paths Forward (Sec. \ref{sec:paths}) in AI for Software Engineering}
-    \label{fig:challenges-paths}
-\end{figure}
