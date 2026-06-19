@@ -1,7 +1,23 @@
 \subsection{Introduction}
 
-The preceding chapters shape the perspective of this chapter. CRUXEval showed that code generation is only one slice of programming ability: models also need to understand programs, reason about execution, and predict how code behaves. The Counterfeit Conundrum and LiveCodeBench showed that benchmark results can be misleading when evaluation design introduces contamination, temporal effects, or artifacts in the construction of incorrect solutions. Finally, SlopCodeBench, VibeCodeBench, LeanDojo, and ProofOptimizer pushed the story beyond one-shot correctness, highlighting the importance of feedback, tool use, maintainability, and long-horizon workflows.
+In the previous chapters in this thesis, we have seen a collection of different evaluations that probe different capabilities
+of language models and reveal various insights about their behavior. Shaped by the lessons that we have learned from these
+evaluations, we now share a perspective on a set of tasks, challenges, and paths forward in the
+field of AI for software engineering.
 
-In this chapter, our goal is threefold. In Sec. \ref{sec:tasks-milestones}, we provide a structured taxonomy of concrete tasks in AI for software engineering. In particular, we emphasize that there are many other tasks in software engineering beyond code generation and code completion, encouraging research in these areas. We provide three measures for categorizing concrete realizations of each task: the scale of the problem, the logical complexity, and the level of human intervention.
+Our goal is threefold. In Sec. \ref{sec:tasks-milestones}, we provide a structured
+taxonomy of concrete tasks in AI for software engineering. In particular, we emphasize
+that there are many other tasks in software engineering beyond code generation and code
+completion, encouraging research in these areas. We provide three measures for categorizing
+concrete realizations of each task: the scale of the problem, the logical complexity,
+and the level of human intervention.
 
-Moving forward to Sec. \ref{sec:challenges}, we highlight several challenges in the field that today's models face, each cross-cutting and applicable to several tasks. These challenges synthesize the lessons from the earlier chapters: future AI software engineers should be evaluated across broader tasks, with metrics that preserve real development difficulty, and in settings that account for feedback, code quality, and tool use. In Sec. \ref{sec:paths}, we posit a set of promising research directions to tackle the challenges above. We hope that through this chapter, the reader can appreciate the progress the field has made, understand the shortcomings of today's state-of-the-art models, and take inspiration from our suggested future ideas for tackling these challenges.
+Moving forward to Sec. \ref{sec:challenges}, we highlight several challenges in the field that today's models face,
+each cross-cutting and applicable to several tasks. These challenges synthesize the lessons from the earlier chapters:
+future AI software engineers should be evaluated across broader tasks, with metrics that preserve real
+development difficulty, and in settings that account for feedback, code quality, and tool use.
+
+In Sec. \ref{sec:paths}, we posit a set of promising research directions to tackle the challenges above.
+We hope that through this chapter, the reader can appreciate the progress the field has made, understand
+the shortcomings of today's state-of-the-art models, and take inspiration from our suggested future ideas
+for tackling these challenges.
