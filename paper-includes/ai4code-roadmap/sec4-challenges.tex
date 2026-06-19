@@ -4,7 +4,7 @@ over the years. However, state-of-the-art models still struggle with software en
 at larger scopes and higher levels of logical complexity. Next, we discuss
 several key challenges in the field, motivated by the insights we have learned.
 The challenges below are not meant to be an exhaustive list, but rather a synthesis of
-several key themes inspired from the work in this thesis.
+several key themes inspired by the work in this thesis.
 
 \subsubsection{Evaluation and Benchmarks} \label{sec:c-evaluation}
 
@@ -211,8 +211,8 @@ One desiderata is that models can generalize knowledge across various coding tas
 \subsubsection{High Logical Complexity and OOD Domains} \label{sec:c-ood-domains}
 
 In Chapter~\ref{chap:measure-shapes}, we saw how a benchmark can shape the direction of the research that follows.
-Throughout the thesis, we saw a number of benchmarks that were more and more difficult as models improved in their capabilities.
-This challenge is about the next frontier of these challenges, for which most of today's benchmarks do not address: high logical complexity and OOD domains.
+As models improve, this lesson becomes especially important: benchmarks should continue to expose capabilities that remain difficult, rather than only measuring saturated settings.
+This final challenge concerns high logical complexity and OOD domains, which most of today's benchmarks do not address.
 
 \begin{aicodegreenbox}
 Tasks such as writing highly concurrent code or discovering  performance optimizations have a high logical complexity, often proving difficult for even the best human coders. Similar to solving research-level math problems, these out-of-distribution domains are very hard for LLMs.
