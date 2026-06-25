@@ -4,11 +4,11 @@
 
 \subsection{Discussion}
 In this work, we brought attention to the counterfeit samples of a code language model: incorrect
-programs that a model thinks are correct and can pass surface-level correctness checks. We observed
-that in a sense, these counterfeit samples were adversarial to the model: models often could not assess
-their correctness, reason about their execution, and struggled to repair them. One important takeaway
-is that correct and counterfeit samples paint very different pictures when it comes to evaluating
-model capabilities. For example, we saw that models were much better at assessing the
-correctness of correct samples compared to counterfeit samples. Focusing on counterfeit samples painted
-a different picture of model capabilities, showing that models had significant gaps in their understanding of code semantics.
+programs that a model thinks are correct and can pass surface-level correctness checks. While previous
+works had suggested that code language models could understand and self-correct code, we saw that
+this was partially because many of the incorrect programs they were evaluating were likely
+blatantly incorrect programs. In contrast, by focusing on counterfeit samples, we saw a very different 
+picture: models struggled to assess correctness, reason about execution, and repair these programs. 
+Again, we see that eliminating confounding factors is critical in developing a complete understanding
+of a model's capabilities.
 \label{subsec:counterfeit-discussion}

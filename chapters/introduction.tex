@@ -3,7 +3,7 @@
 
 In June 2020, OpenAI released GPT-3 \citep{brown2020language}, a language model that
 felt strong for its time but was still unreliable for many knowledge-based tasks.
-In the two years that followed, models showed progress through systems like Codex \citep{chen2021codex},
+In the two years that followed, models showed progress through systems like Codex \citep{chen2021evaluating},
 Copilot \citep{github2023copilot}, and InstructGPT \citep{ouyang2022training}, but they remained brittle for programming, mathematics, and deeper
 reasoning tasks. In November 2022, however, a breakthrough seemed to occur. ChatGPT was 
 released, and for the first time an AI system felt like a generally usable assistant. 
@@ -84,7 +84,7 @@ However, upon closer examination, when changing the metric from evaluating at th
 accuracy dropped to $6\%$, a stark difference that leads to an entirely different conclusion. Arriving at the first conclusion misses the fact that models
 may be able to correctly guess the final answer without providing a correct proof.
 
-Another example showing the importance of accounting for confounding factors is our LiveCodeBench evaluation \citep{jain2024livecodebench}.
+Another example showing the importance of accounting for confounding factors is our LiveCodeBench evaluation \citep{jain2024livecodebenchholisticcontaminationfree}.
 Prior to LiveCodeBench, coding evaluations primarily relied on static benchmarks like HumanEval, fixed datasets that were released once and 
 never updated. However, this fails to account for data contamination: language models are often trained on data from the internet, which 
 could potentially include these benchmarks. While many models are trained with best-effort decontamination processes, it is not possible to 
@@ -179,8 +179,7 @@ into a capability that later systems were trained for, reported on, and optimize
 
 Chapter~\ref{chap:measure-shapes} develops this lesson through a broader set of examples rather
 than only through \benchmark{}. LiveCodeBench shows how contamination-aware, time-indexed evaluation
-became a standard way to measure coding and reasoning models. VibeCodeBench \citep{vibe-code-bench} shifts the target from
-isolated coding tasks to full web application development. LeanDojo \citep{yang2023leandojo} illustrates how an evaluation can
+became a standard way to measure coding and reasoning models. LeanDojo \citep{yang2023leandojo} illustrates how an evaluation can
 also become infrastructure for an entire research area. ProofOptimizer \citep{gu2026proofoptimizer} shows how measuring proof
 length turns proof simplification into a concrete optimization objective. Together, these examples
 support the final lesson of the thesis: what we measure shapes what we build.
@@ -190,9 +189,9 @@ support the final lesson of the thesis: what we measure shapes what we build.
 The technical chapters of this thesis synthesize a collection of research projects on evaluating
 language models for coding, mathematics, and reasoning. Chapter~\ref{chap:right-metrics} introduces \benchmark{}
 \citep{gu2024cruxeval}, SlopCodeBench \citep{orlanski2026slopcodebench}, IneqMath \citep{lu2025ineqmath},
-the Counterfeit Conundrum \citep{gu2024counterfeit}, and LiveCodeBench \citep{jain2024livecodebench}.
+the Counterfeit Conundrum \citep{gu2024counterfeit}, and LiveCodeBench \citep{jain2024livecodebenchholisticcontaminationfree}.
 Chapter~\ref{chap:beyond-score} returns to several of these works and also introduces LINC \citep{olausson2023linc}.
-Chapter~\ref{chap:measure-shapes} additionally introduces VibeCodeBench \citep{vibe-code-bench}, LeanDojo \citep{yang2023leandojo}, and
+Chapter~\ref{chap:measure-shapes} additionally introduces LeanDojo \citep{yang2023leandojo} and
 ProofOptimizer \citep{gu2026proofoptimizer}. Chapter~\ref{chap:position-paper} closes with the forward-looking report
 \textit{Future Research and Remaining Challenges Toward AI for Software Engineering} \citep{gu2025positionaiswe}.
 
