@@ -789,7 +789,7 @@
 	\int_compare:nNnTF { \g__mitthesis_author_cnt_int } = {0} {
 		\msg_error:nn { \ClassName } { no_author }
 	}	
-	{by\par
+	{By\par
 	\int_until_do:nNnn { \l_tmpa_int } = { \g__mitthesis_author_cnt_int } {
 		{ 
 			\leavevmode
@@ -1083,8 +1083,8 @@
 		\mbox {\ and}\linebreak
 		\mbox {the\ \l_tmpb_tl }
 	}
-    \linebreak \mbox {in\ partial\ fulfillment\ of\ the\ requirements\ for\ the\ 
-		\int_compare:nNnTF { \g__mitthesis_degree_cnt_int } > {1} {degrees} {degree}
+    \linebreak \mbox {in\ Partial\ Fulfillment\ of\ the\ Requirements\ for\ the\ 
+		\int_compare:nNnTF { \g__mitthesis_degree_cnt_int } > {1} {Degrees} {Degree}
 	\ of}
 	\par
 	\int_until_do:nNnn { \l_tmpa_int } = { \g__mitthesis_degree_cnt_int } {
@@ -1191,8 +1191,8 @@
 		    \tag_mc_end:
 		    \tag_struct_end:
 		    & \seq_item:NV \g__mitthesis_supervisor_name_seq \g__signature_supno_int \\
-    		& \seq_item:NV \g__mitthesis_supervisor_title_seq \g__signature_supno_int,\ 
-    			\g__mitthesis_titlepg_sup_designation_tl \\[1em]
+    		& \seq_item:NV \g__mitthesis_supervisor_title_seq \g__signature_supno_int \\
+    		& \g__mitthesis_titlepg_sup_designation_tl \\[1em]
     	}
     	\int_compare:nNnF { \g__mitthesis_acceptor_cnt_int } = {0} {
         	\int_do_while:nNnn { \g__signature_accno_int } < { \g__mitthesis_acceptor_cnt_int } {
