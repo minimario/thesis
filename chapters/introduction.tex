@@ -51,11 +51,15 @@ in the several years that followed GPT-4, particularly for coding, mathematics, 
 
 
 \section{Lesson 1: Focusing on the Right Metrics Without Bias Is Crucial}
+\label{sec:intro-right-metrics-without-bias}
 
 The first lesson is that focusing on the right metrics without bias is crucial. In science,
 almost anything can be measured, but not everything is meaningful. The first question we face when designing any
 evaluation is what we should measure. The second is whether the resulting measurement is biased by
-confounding factors in the data or evaluation setup.
+confounding factors in the data or evaluation setup. In this thesis, I use the term \textit{bias} in an evaluation design sense:
+a systematic distortion that makes a score reflect something other than the capability the evaluation is intended to measure.
+Notably, this is distinct from statistical bias or social bias. Here, the biases arise from confounding factors in the data, task, or metric design,
+such as data contamination.
 
 In late 2023, language models like GPT-4 were just starting to become proficient at writing Python code.
 When humans learn programming, they not only learn to write code, but also gain the ability to read code, understand it,
