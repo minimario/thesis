@@ -6,11 +6,32 @@ We have also highlighted a few cross-cutting challenges that permeate throughout
 Finally, to drive progress in AI for code, we've pinpointed several promising research directions for 
 alleviating these challenges and advancing AI towards being a more capable software engineer.
 
-In many ways, this chapter reflects the lessons developed throughout the thesis. 
+In many ways, the lessons developed throughout this thesis were used in developing this roadmap, but more broadly
+can guide future benchmark research and develop analogous roadmaps in other fields. 
 In Chapter 2, we saw how each metric revealed a different slice of AI systems and showed different insights. 
-The formal-verification discussion in this chapter continues that line of thinking, but adapts it to the capabilities and ambitions of today's language models.
-Chapter 3 then showed the importance of deeper analysis, which motivated several of the challenges in both the chapter and the position paper more broadly: the need to isolate capabilities, 
-avoid benchmark-specific overfitting, and semantically understand codebases. 
-Finally, Chapter 4 showed how evaluations can shape the direction of future research and science. 
-For example, CRUXEval did not only reveal a missing capability; it helped make execution reasoning a target for later benchmarks and training methods. 
-The paths forward in this chapter follow from that perspective. They ask what kinds of data, environments, retrieval methods, and tools would encourage the next generation of coding systems to develop the capabilities that real software engineering requires.
+When it comes to benchmark research, the first step is deciding what to measure. In this roadmap, we
+decided on our set of tasks after looking at the skills that software engineers needed to have and compared it with
+the skills that today's coding agents have. We also thought more broadly about the longer-term horizon. For example,
+as AI generates more code, it will be more important for there to be correctness guarantees, which motivated tasks such as
+software testing, program analysis, and formal verification.
+
+In Chapter 3, we showed the importance of deeper analysis, which we used to form the set of challenges discussed in the roadmap. 
+We analyzed both benchmarks and real-world use cases guided by the tasks in the previous section. For example, by analyzing how a model fails tasks in SWE-Bench, we were able to
+find that models sometimes struggled at interpreting vague specifications the way that human programmers would. By trying today's
+frontier coding agents on a set of out-of-distribution tasks, we were able to see how they struggled and failed. Overall, a section like this 
+is created through looking at the tasks in the previous section, collecting intuition about failure modes, and cleanly categorizing them
+into a set of modular issues and challenges.
+
+Finally, Chapter 4 showed how evaluations can shape the direction of future research and science. In our roadmap paper, we designed this section
+by first examining both the tasks and the challenges in the previous sections. Then, we looked at the literature for techniques addressing each of the
+challenges, and synthesized both these and our own ideas into a collection of paths forward. Many of these techniques are inspired by benchmarks:
+for example, CRUXEval inspired a family of work training using execution feedback. These works inspired a section in our
+paths forward section about augmenting code data with program information: starting with execution, but also including 
+program instrumentation, dynamic analysis, and beyond.
+
+Overall, in order to design a roadmap, I believe we must first think critically about where a field is headed: not just in the near-term,
+but rather a longer-term vision about what objectives and metrics will be important a few years out. Then, we need to think about the core 
+challenges today that are preventing us from achieving this vision. Finally, we should reflect on the research trajectory that the field has been
+on, build intuition for what seems promising, and use that to design a set of paths forward. Of course, there is no way to precisely predict
+the future: only time and experimentation will tell which directions prevail at the end. However, roadmaps can guide a community towards a specific 
+set of visions and goals, helping everyone better understand the state of a field. 
