@@ -340,3 +340,14 @@ These examples are enough for the thesis point: even the strongest model we test
 - In Python, if text = "!123Leap and the net will appear" and res = 123, what is text[len(str(res)):]?
 - What is "pomodoro".replace("or", "pomodoro")?
 \end{lstlisting}
+
+\subsection{Discussion}
+By looking deeper at CRUXEval, we saw that high scores on familiar benchmarks can be ambiguous.
+Sometimes they indicate general programming abilities, but other times they may be due to task-
+or benchmark-specific adaptation. In particular, distilled models substantially improved on
+HumanEval without showing the same gains on CRUXEval, suggesting that distillation may not fully
+lead to transfer between different tasks. We also saw the potential and limitations of chain-of-thought prompting and fine-tuning. CoT helped
+GPT-4 more than the other models, but it sometimes hurt individual predictions for weaker models.
+Fine-tuning substantially improved Code Llama, but still did not solve the benchmark. These results
+made CRUXEval useful not just as a score, but as a way to understand which interventions improved
+general code reasoning.

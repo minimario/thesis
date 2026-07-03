@@ -6,9 +6,9 @@
 In this work, we brought attention to the counterfeit samples of a code language model: incorrect
 programs that a model thinks are correct and can pass surface-level correctness checks. While previous
 works had suggested that code language models could understand and self-correct code, we saw that
-this was partially because many of the incorrect programs they were evaluating were likely
-blatantly incorrect programs. In contrast, by focusing on counterfeit samples, we saw a very different 
-picture: models struggled to assess correctness, reason about execution, and repair these programs. 
-Again, we see that eliminating confounding factors is critical in developing a complete understanding
-of a model's capabilities.
+part of this was because these errors included the blatantly incorrect programs that we saw earlier.
+When limiting the evaluation to counterfeits, we saw a different picture emerge: models struggled to
+assess correctness, reason about execution, and repair these programs. Here, we uncovered the confounding factor of distinguishing obviously incorrect programs and counterfeit programs,
+which led to a blind spot in our understanding of model capabilities.
+
 \label{subsec:counterfeit-discussion}

@@ -61,3 +61,12 @@ capabilities where closed models still have a significant lead.
   \livecodebench{}-Easy code-generation scenario.}
   \label{fig:lcb-beyond-open-closed-gap}
 \end{figure}
+
+\subsection{Discussion}
+By looking deeper at CRUXEval and LiveCodeBench, we discovered two shared nuances. First, high scores
+on familiar benchmarks can be ambiguous. Sometimes, they indicate general programming abilities, but
+other times they may be due to task- or benchmark-specific adaptation. We should be careful of
+techniques that promote overfitting rather than developing general abilities. Second, people felt that closed models were better than open models, but existing benchmarks had not
+made this clear. Through these two benchmarks, however, we saw a quantitative difference. Our results
+suggest that strong base models and high-quality post-training data can partially close the gap, but
+that there are still capabilities like code execution where closed models had a significant lead.

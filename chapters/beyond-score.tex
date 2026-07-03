@@ -43,19 +43,12 @@ synthesize the two approaches.
 \input{paper-includes/linc/beyond-score}
 
 \section{Discussion}
-The four examples in this chapter highlight how evaluations can go beyond ranking models and
-reveal deeper insights about model behavior. In each case, analyzing the underlying behavior of
-models revealed nuances hidden by aggregate scores.
-Through CRUXEval, we learned that distillation may not fully lead to transfer between
-different programming abilities and saw the potential and limitations of chain-of-thought
-prompting and fine-tuning.
-In the Counterfeit Conundrum, we saw several counterintuitive trends about the
-properties of counterfeit samples and observed that counterfeits were a relatively general phenomenon and
-not just a failure mode of weaker models or harder problems.
-In LiveCodeBench, we saw how post-trained models seemed to be overfit to HumanEval, suggesting
-insufficiencies in the diversity of post-training data distributions.
-Finally, through LINC, simply looking at scores would show that LINC generally outperformed chain-of-thought
-prompting but would miss the nuance that the two approaches were actually complementary and failed
-in distinct ways.
-By analyzing the underlying successes and failures in each example, we gained a better high-level understanding
+The four examples in this chapter highlight how evaluations can go beyond ranking models to reveal deeper
+insights about model behavior. In each case, analyzing the underlying behavior of models revealed nuances
+hidden by aggregate scores. Through CRUXEval and LiveCodeBench, we learned that distillation may not fully lead to transfer between
+different tasks and datasets. In the Counterfeit Conundrum, we saw several counterintuitive trends about
+the properties of counterfeit samples: they are a relatively general phenomenon, not just a failure mode
+of weaker models or harder problems. Finally, through LINC, we initially saw that LINC generally
+outperformed chain-of-thought prompting, but later discovered that the two approaches were actually
+complementary and failed in distinct ways. By analyzing the underlying successes and failures in each example, we gained a better high-level understanding
 of where methodologies shine and fall short, identifying opportunities for future scientific inquiry.

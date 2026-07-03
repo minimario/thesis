@@ -293,3 +293,11 @@ In words, $\text{sim}_D(A,B)$ measures the number of instances where $A$ and $B$
 
 Figure~\ref{linc-paper:fig:method_similarity} shows the pairwise similarity between our four methods, highlighting that the similarity between \texttt{LINC}'s mispredictions and the other methods' mispredictions ($0.14$, $0.21$, $0.22$) is much lower than the similarity between any pair of the in-context reasoning methods ($0.52$, $0.54$, $0.56$).
 These results suggest that for GPT-4 on FOLIO, \texttt{LINC} was the only method we evaluated which significantly altered the ways in which the model \emph{fails} to reason.
+
+\subsection{Discussion}
+Through this work, we first saw by looking at the score that \texttt{LINC} outperformed CoT on
+ProofWriter but performed similarly on FOLIO. However, through deeper analysis, we learned that
+the failure modes of the two were completely different, making them complementary. CoT failed through natural-language reasoning errors, such as invalid deductions or final labels that
+did not match the preceding reasoning. \texttt{LINC} avoided many of these reasoning errors by using
+a theorem prover, but introduced a different bottleneck: lossy or invalid formalization into first-order
+logic. Looking only at the score would have missed this distinction.

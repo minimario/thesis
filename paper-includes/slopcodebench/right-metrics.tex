@@ -183,8 +183,10 @@ the sampled human repository groups.
 
 \subsection{Discussion}
 Overall, SlopCodeBench shed light on a model's ability to write high-quality code in an environment
-that mirrors real-world software development. Rather than testing one-shot performance,
-our iterative feature-adding paradigm requires that the models plan ahead and write code
-that can be maintained through many iterations. Our benchmark made evident that as more feature requirements were added, models struggled
-to maintain correctness despite increasing cost. In addition, by introducing verbosity and structural erosion metrics,
-we were able to quantitatively observe that code quality degraded throughout checkpoints.
+that mirrors real-world software development. Instead of stopping at single-shot tasks, we used an
+iterative feature-adding setup that required models to plan ahead and write maintainable code. As more
+feature requirements were added, models struggled to maintain correctness despite increasing cost.
+By looking beyond correctness toward verbosity and erosion, we were also able to show how AI-generated
+code quality decreased over time. SlopCodeBench reinforces the same lesson from another angle: the
+right evaluation moved from single-shot tasks and unit-test correctness toward iterative workflows and
+code quality.

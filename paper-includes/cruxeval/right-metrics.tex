@@ -215,10 +215,17 @@ assert f('01,001') == '1001'
 \end{table}
 
 \subsection{Discussion}
-In CRUXEval, we developed a new benchmark and metric to evaluate code reasoning and execution through two
-related tasks: input prediction and output prediction. Our experiments provided evidence that
-models do indeed have some ability to perform these tasks. However, even the best models still
-showed significant room for improvement, considering that these tasks only required basic
-program reasoning abilities. As we discuss later in this thesis, CRUXEval was used as a
-core benchmark by the community to track progress on code reasoning and execution, inspiring
-approaches such as training on execution traces in addition to code.
+When we released CRUXEval,
+many people in the community were skeptical about whether execution was even a useful metric
+to measure. After all, a simple way to ace the forward execution subset of CRUXEval is to
+simply run the code in a Python interpreter. Nevertheless, CRUXEval helped shift attention beyond
+function-level code generation benchmarks like HumanEval and MBPP. Real-world programming requires a much wider
+set of skills than writing short interview-style functions, and execution gave the community a concrete way
+to measure one of those missing capabilities.
+The benchmark also let us study new phenomena in coding language
+models. By showing that language models had some ability to perform both forward and reverse
+execution, we saw early signs that language models had some degree of generalization despite
+just training on raw code tokens. Overall, CRUXEval worked because it sat just
+on the boundary of what frontier models could do, stayed simple enough for humans that we would
+expect models to be able to solve it, and taught the community something new about the state
+of language models.

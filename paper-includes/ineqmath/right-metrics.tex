@@ -125,10 +125,7 @@ as shown in Figure~\ref{fig:ineqmath-test-time-scaling}.
 \end{figure}
 
 \subsection{Discussion}
-Because it is much more difficult to evaluate the soundness of an entire mathematical proof compared
-to checking a final answer, many mathematics benchmarks have focused solely on the latter. However,
-through \dataset, we saw that evaluating both accuracies revealed a blind spot of previous evaluations,
-as models showed up to a 65.5\% drop between final-answer accuracy and overall accuracy.
-More broadly, our results showed that benchmarks are only as informative as the metrics
-that they measure. While final-answer accuracy is easy to measure, it does not capture the capability
-that we ultimately care about: generating sound mathematical proofs.
+This soundness gap shows that benchmarks are only as informative as the capabilities they measure.
+Because evaluating soundness is more difficult than checking a final answer, many math benchmarks
+had focused on the latter. Through \dataset, measuring overall accuracy alongside final-answer
+accuracy revealed a critical blind spot in our understanding of LLM problem-solving capabilities.
