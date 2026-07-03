@@ -187,6 +187,6 @@ that mirrors real-world software development. Instead of stopping at single-shot
 iterative feature-adding setup that required models to plan ahead and write maintainable code. As more
 feature requirements were added, models struggled to maintain correctness despite increasing cost.
 By looking beyond correctness toward verbosity and erosion, we were also able to show how AI-generated
-code quality decreased over time. SlopCodeBench reinforces the same lesson from another angle: the
-right evaluation moved from single-shot tasks and unit-test correctness toward iterative workflows and
-code quality.
+code quality decreased over time. SlopCodeBench reinforces the same lesson from another angle: once
+models are asked to keep extending a codebase, unit-test correctness is no longer enough; iterative
+progress, verbosity, and erosion expose failures that a one-shot benchmark would miss.
