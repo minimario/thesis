@@ -61,11 +61,12 @@ a systematic distortion that makes a score reflect something other than the capa
 Notably, this is distinct from statistical bias or social bias. Here, the biases arise from confounding factors in the data, task, or metric design,
 such as data contamination.
 
-In late 2023, language models like GPT-4 were just starting to become proficient at writing Python code.
 When humans learn programming, they not only learn to write code, but also gain the ability to read code, understand it,
-simulate its execution behavior, debug it, and develop a suite of other programming-related skills. At the time, there was little knowledge about 
-whether language models learned to do programming in the same ways that humans did. Especially because the coding data that language models were
-trained on primarily consisted of GitHub code, it was unclear whether these models could generalize to capabilities beyond code generation.
+simulate its execution behavior, debug it, and develop a suite of other programming-related skills. 
+In late 2023, language models like GPT-4 were just starting to become proficient at writing Python code.
+These models learned their coding abilities by training on trillions of tokens of GitHub code. 
+While humans show a correlation between various programming-related capabilities, it was unclear whether this was the same for models: if they could generalize 
+to any capabilities beyond code generation.
 Motivated by this, we designed \benchmark{} \citep{gu2024cruxeval}, a benchmark asking language models to simulate the forward and reverse execution of very simple
 Python programs consisting of 3-13 lines with no complex control flow or calculations.
 
@@ -80,15 +81,18 @@ Overall, CRUXEval was a successful metric because it was just on the boundary of
 was simple enough for humans that we would expect models to be able to solve it,
 and taught the community something via comparing it with existing benchmark.
 
+IneqMath \citep{sheng2026solving} is another example of focusing on the right metric. In IneqMath, we introduced a benchmark for evaluating 
+the ability of language models to solve inequality problems. 
+When we measured the accuracy of Grok 3 mini \citep{xai2025grok3mini}, we saw that it was able to get 
+the answer correct $72\%$ of the time, indicating a high level of proficiency at solving inequalities.
+However, upon closer examination, when changing the metric from evaluating at the final answer to 
+evaluating the entire reasoning trace and solution, we found that the
+accuracy dropped to $6\%$, a stark difference that leads to an entirely different conclusion. 
+By focusing on evaluating full reasoning traces instead of just the final answer (common in prior mathematical reasoning evaluations),
+we uncover that models frequently guess the final answer correctly while hallucinating incorrect proofs.
 
 After choosing the right metric, we must also account for potential biases in our evaluation design before arriving at conclusions.
-As an example, in IneqMath \citep{lu2025ineqmath}, we introduced a benchmark for evaluating the ability of language models to solve inequality problems. 
-When we measured the accuracy of Grok 3 mini \citep{xai2025grok3mini}, we saw that it was able to get the answer correct $72\%$ of the time, indicating a high level of proficiency at solving inequalities.
-However, upon closer examination, when changing the metric from evaluating at the final answer to evaluating the entire reasoning trace and solution, we found that the
-accuracy dropped to $6\%$, a stark difference that leads to an entirely different conclusion. Arriving at the first conclusion misses the fact that models
-may be able to correctly guess the final answer without providing a correct proof.
-
-Another example showing the importance of accounting for confounding factors is our LiveCodeBench evaluation \citep{jain2024livecodebenchholisticcontaminationfree}.
+One example of this is our LiveCodeBench evaluation \citep{jain2024livecodebenchholisticcontaminationfree}.
 Prior to LiveCodeBench, coding evaluations primarily relied on static benchmarks like HumanEval, fixed datasets that were released once and 
 never updated. However, this fails to account for data contamination: language models are often trained on data from the internet, which 
 could potentially include these benchmarks. While many models are trained with best-effort decontamination processes, it is not possible to 
@@ -188,18 +192,34 @@ also become infrastructure for an entire research area. ProofOptimizer \citep{gu
 length turns proof simplification into a concrete optimization objective. Together, these examples
 support the final lesson of the thesis: what we measure shapes what we build.
 
-\section{Works Covered in This Thesis}
+\section{Discussion}
 
 The technical chapters of this thesis synthesize a collection of research projects on evaluating
 language models for coding, mathematics, and reasoning. Chapter~\ref{chap:right-metrics} introduces \benchmark{}
-\citep{gu2024cruxeval}, SlopCodeBench \citep{orlanski2026slopcodebench}, IneqMath \citep{lu2025ineqmath},
+\citep{gu2024cruxeval}, SlopCodeBench \citep{orlanski2026slopcodebench}, IneqMath \citep{sheng2026solving},
 the Counterfeit Conundrum \citep{gu2024counterfeit}, and LiveCodeBench \citep{jain2024livecodebenchholisticcontaminationfree}.
 Chapter~\ref{chap:beyond-score} returns to several of these works and also introduces LINC \citep{olausson2023linc}.
 Chapter~\ref{chap:measure-shapes} additionally introduces LeanDojo \citep{yang2023leandojo} and
-ProofOptimizer \citep{gu2026proofoptimizer}. Chapter~\ref{chap:position-paper} closes with the forward-looking report
+ProofOptimizer \citep{gu2026proofoptimizer}. Chapter~\ref{chap:position-paper} closes with a discussion of the roadmap paper
 \textit{Future Research and Remaining Challenges Toward AI for Software Engineering} \citep{gu2025positionaiswe}.
 
-These projects were not done alone. Many of the works discussed in this thesis were collaborations,
+Together, these works have uncovered various features and limitations of language models as they have evolved.
+Several of these findings later influenced the trajectory of model development, as Section~\ref{chap:measure-shapes} will describe in detail. 
+That being said, because models have improved so rapidly in the past few years, some of the direct findings we describe should be understood in the context of the models available at the time. 
+In a few cases, as we will also see in Section~\ref{chap:measure-shapes},
+this is because our evaluations led to model development efforts addressing the limitations that they revealed. 
+For example, through CRUXEval, we highlighted that models frequently failed to perform simple code execution. In part due to our benchmark,
+broader code reasoning became a larger focus in the community. 
+Today, execution reasoning is no longer a foreign concept, and almost all of today's coding models have a baseline ability to reason about
+code execution. 
+
+More generally, evaluations will increasingly become saturated as models improve and the community
+optimizes around them. Yet, the three overarching lessons of this thesis will continue to remain relevant.
+Even though the specific failure modes and targets will change over time, the principles of focusing on the right metrics, 
+looking beyond the score, and understanding that what we measure shapes what we build will 
+continue to guide future progress and evaluation design.
+
+\textit{Note}: These projects were not done alone. Many of the works discussed in this thesis were collaborations,
 and the full author lists in the cited papers reflect the people who helped shape the ideas, build the
 systems, run the experiments, and write the original papers. Throughout the thesis, ``we'' refers to the research teams behind the corresponding
 works, and I am grateful to all of these collaborators for their contributions to all the content in this thesis.

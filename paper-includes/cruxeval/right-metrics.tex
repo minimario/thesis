@@ -3,6 +3,9 @@ via benchmarks such as HumanEval \citep{chen2021evaluating} and MBPP \citep{aust
 which test the ability to generate short code snippets from natural language
 specifications. While HumanEval and MBPP capture code generation abilities on simple and fundamental tasks, there was an absence of benchmarks capturing other
 fundamental dimensions of code LMs such as code understanding and execution.
+It was important to fill this gap, first because these capabilities are fundamental to programming 
+and software engineering. Second, while humans showed a strong correlation between various
+programming capabilities, it was not clear whether this was true for language models as well.
 
 \begin{sloppypar}
 Motivated by this, we introduced a new benchmark, \benchmark (\textbf{C}ode \textbf{R}easoning, \textbf{U}nderstanding, and e\textbf{X}ecution \textbf{Eval}uation) with two tasks: 1) output prediction, \benchmarko to measure code execution following and 2) input prediction, \benchmarki to measure code reasoning and understanding. An example of a sample in \benchmark is shown in Listings \ref{lst:benchmark-example1} and \ref{lst:benchmark-example} (modified for readability). \benchmark examines the abilities of code LMs to reason about the execution behavior of \textit{simple} Python programs. While LMs should not be expected to replace an interpreter on arbitrarily complex problems, we ensured the samples in our benchmark were simple (maximum 13 lines, no complex arithmetic) and solvable by a university-level CS graduate without needing extra memory. \benchmark provides a useful and important probe for better understanding the capabilities of code LMs, as following a few simple steps of code execution should be a basic requirement for these models. The ability to reason about the execution behavior of code also paves the way to tackling more difficult tasks such as code repair with execution feedback and code summarization.
