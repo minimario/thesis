@@ -1,16 +1,57 @@
 \subsection{Paths Forward} \label{sec:paths}
 
-The original position paper discusses a broader set of paths forward, including richer code data, training in executable environments, and adaptation to specialized codebases. In this thesis, I focus only on inference-time approaches: improving retrieval over code, combining neural models with symbolic program analysis, and integrating software-engineering tools into model workflows.
+The original position paper, written over a year ago, discusses a collection of paths forward, including richer code data, training in executable 
+environments, and adaptation to specialized codebases. In this thesis, I will focus on inference-time 
+approaches: improving retrieval over code, combining neural models with symbolic program analysis, 
+and integrating software-engineering tools into model workflows.
+Because the field of AI for code has moved rapidly over the past year, there has already 
+been significant progress on several of these challenges, validating the importance of several of
+these directions.
 
 \subsubsection{Inference-Time Approaches}
 
 \par\medskip\noindent\textbf{Semantic-Aware Embeddings and Retrieval}\phantomsection\label{sec:directions-retrieval}\par\smallskip
 
-\textbf{Semantic and execution-aware code embeddings}: Code embeddings often treat programs as pure token sequences rather than explicitly incorporating execution and semantics. As a result, code that is close in embedding space is often syntactically similar rather than semantically similar \citep{utpala2023language, zhao2023get}. Before the LLM era, however, there were efforts to learn program representations that encode semantics, including neural modules for program operations \citep{nye2020representing} and execution-aware latent representations for partial or full programs \citep{zohar2018automatic, ellis2019write, chen2021latent}. Revisiting these ideas may improve retrieval and make code representations more aligned with program behavior.
+\textbf{Semantic and execution-aware code embeddings}: A year ago, code embeddings often treat programs as 
+pure token sequences rather than explicitly incorporating execution and semantics. 
+While not discussed in this thesis, something we discovered throughout careful analysis was that
+code that is close in embedding space is often syntactically similar rather than semantically similar \citep{utpala2023language}. 
+Before the LLM era, however, there were efforts to learn program representations that encode semantics, 
+including neural modules for program operations \citep{nye2020representing} and 
+execution-aware latent representations for partial or full programs \citep{zohar2018automatic, ellis2019write, chen2021latent}. 
+While today's language models reason about semantics beyond just syntax, they still use syntactic similarity as a strong
+signal for retrieval.  
+Revisiting these ideas may improve both code retrieval abilities while making code 
+representations more aligned with program behavior.
 
-\textbf{Better retrieval-augmented code generation}: Retrieval is especially useful in specialized contexts where the model has not seen enough examples to fully understand a language, API, or codebase. Documentation, function definitions, and local usage examples can teach syntax, available abstractions, and conventions. However, retrieving relevant code is only half the problem. The model must also reuse the retrieval correctly, adapting algorithms, translating between languages, and recognizing subtle differences between the retrieved context and the current task. This suggests that retrieval-augmented code systems should be designed not only to consume retrieved snippets, but also to reason about how those snippets should be modified.
+\textbf{Better retrieval-augmented code generation}: Retrieval is especially useful in 
+specialized contexts where the model has not seen enough examples to fully understand a 
+language, API, or codebase. Documentation, function definitions, and local usage examples 
+can teach syntax, available abstractions, and conventions. However, retrieving relevant 
+code is only half the problem. The model must also reuse the retrieval correctly, 
+adapting algorithms, translating between languages, and recognizing subtle differences 
+between the retrieved context and the current task. This suggests that retrieval-augmented 
+coding agents should be designed not only to consume retrieved snippets, but also to critically 
+reason about how those snippets should be modified. One failure mode of today's systems is that they 
+often copy retrieved code patterns without modification, even when the new context that the
+model is working in has subtle differences that require adaptation. 
 
-\textbf{Retrieving via code navigation on the fly}: Static retrieval indexes can be expensive to build and can become stale as a codebase evolves. Instead of relying only on embeddings, agents can retrieve information by navigating the codebase directly, using commands such as \texttt{cd}, \texttt{ls}, and \texttt{grep}, IDE actions such as jumping to definitions or finding references, and static-analysis tools that expose ASTs or dependency graphs. This frames retrieval as an interactive code-understanding task rather than a one-shot nearest-neighbor lookup.
+
+\textbf{Retrieving via code navigation on the fly}: Static retrieval indexes can be expensive to build and can become stale as a codebase evolves. 
+A year ago, we suggested that instead of relying only on static embeddings, agents should retrieve information by 
+navigating the codebase directly, using commands such as \texttt{cd}, \texttt{ls}, and \texttt{grep}, 
+IDE actions such as jumping to definitions or finding references, and static-analysis tools that expose ASTs or 
+dependency graphs. The community has made significant progress in this direction. In fact, it was
+a significant unlock that made coding agents drastically more usable. Searching and navigating files
+on the fly, in addition to exploring the project filesystem in other ways, is now a core aspect of Claude Code and Codex.
+
+At the same time, there is still significant headroom in how agents retrieve information from a codebase. 
+Future systems could use more sophisticated search procedures that explicitly exploit program structure,
+such as dependency graphs, call graphs, or ASTs, rather than treating the filesystem as a flat collection of files. 
+They could also make the search process faster, since current agents often spend a large fraction of their time 
+exploring before they can make progress on the actual task. Finally, as context windows become longer, agents may be able 
+to learn from their own retrieval histories: instead of treating each search as independent, they could track which files, 
+commands, and retrieved snippets were actually useful and use that information to guide future navigation.
 
 \par\medskip\noindent\textbf{Neurosymbolic Approaches}\phantomsection\label{d:sec-neurosymbolic}\par\smallskip
 
@@ -21,7 +62,16 @@ translated natural language reasoning into executable symbolic programs. In Proo
 the model proposed proof transformations while the compiler ensured correctness.
 Neurosymbolic methods potentially allow AI systems to explore a large search space while maintaining guarantees throughout.
 
-We provide a few examples of this potential integration. During code generation, program-analysis techniques could be applied to shorter snippets of AI-generated code to surface bugs or prove properties. To improve code understanding, agents can inspect program structure such as abstract syntax trees \citep{gong2024ast}. When debugging a large codebase, AI could first narrow down the suspicious region before handing the problem to more precise symbolic tools. During code generation in DSLs, LLMs can leverage grammars for constrained decoding~\citep{poesia2022synchromesh, geng2023grammar, wei2023copiloting}. During refactoring, static analysis can identify whether new errors have been introduced and cut off unpromising search paths.
+There are several ways this could potentially be integrated. During code generation, 
+program-analysis techniques could be applied to shorter snippets of AI-generated code to 
+surface bugs or prove properties. To improve code understanding, agents can inspect program 
+structure such as abstract syntax trees \citep{gong2024ast} in the same way that they navigate
+the codebase and filesystem today. 
+When debugging a large codebase, AI could first narrow down the suspicious region before handing 
+the problem to more precise symbolic tools. During code generation in DSLs, LLMs can leverage grammars 
+for constrained decoding~\citep{poesia2022synchromesh, geng2023grammar, wei2023copiloting}. During refactoring, 
+static analysis can identify whether new errors have been introduced and cut off unpromising 
+search paths.
 
 \par\medskip\noindent\textbf{Incorporating SWE Tools}\phantomsection\label{d:sec-agents-tools}\par\smallskip
 

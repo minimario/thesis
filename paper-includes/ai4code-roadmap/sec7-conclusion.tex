@@ -1,37 +1,45 @@
 \subsection{Discussion}
-In this chapter, we first briefly describe several tasks 
+In this chapter, we first briefly described several tasks 
 that we believe should be considered when it comes to AI for software engineering,
 focusing on formal verification as one such task. 
-We have also highlighted a few cross-cutting challenges that permeate throughout many software-engineering tasks. 
-Finally, to drive progress in AI for code, we've pinpointed several promising research directions for 
+We also highlighted a few cross-cutting challenges that permeate throughout many 
+software-engineering tasks. 
+Finally, to drive progress in AI for code, we pinpointed a small set of promising research directions for 
 alleviating these challenges and advancing AI towards being a more capable software engineer.
 
-In many ways, the lessons developed throughout this thesis were used in developing this roadmap, but more broadly
-can guide future benchmark research and develop analogous roadmaps in other fields. 
-In Chapter 2, we saw how each metric revealed a different slice of AI systems and showed different insights. 
-When it comes to benchmark research, the first step is deciding what to measure. In this roadmap, we
-decided on our set of tasks after looking at the skills that software engineers needed to have and compared it with
-the skills that today's coding agents have. We also thought more broadly about the longer-term horizon. For example,
-as AI generates more code, it will be more important for there to be correctness guarantees, which motivated tasks such as
-software testing, program analysis, and formal verification.
+In many ways, designing a roadmap and designing an evaluation are closely intertwined.
+An evaluation makes a capability gap visible and concrete while giving the community a
+clear way to measure progress.
+A roadmap then synthesizes various evaluations into a 
+broader view of where the field should go next, while at the same time 
+identifying important capabilities that the community has not yet 
+measured.
+In this sense, evaluations and roadmaps provide a feedback loop for each other.
+Evaluations reveal gaps in today's systems, roadmaps organize these gaps into 
+a set of challenges and paths forward, which then motivate the next generation of
+evaluations, and so on.
 
-In Chapter 3, we showed the importance of deeper analysis, which we used to form the set of challenges discussed in the roadmap. 
-We analyzed both benchmarks and real-world use cases guided by the tasks in the previous section. For example, by analyzing how a model fails tasks in SWE-Bench, we were able to
-find that models sometimes struggled at interpreting vague specifications the way that human programmers would. By trying today's
-frontier coding agents on a set of out-of-distribution tasks, we were able to see how they struggled and failed. Overall, a section like this 
-is created through looking at the tasks in the previous section, collecting intuition about failure modes, and cleanly categorizing them
-into a set of modular issues and challenges.
+The roadmap in this chapter exemplifies this philosophy, as benchmarks discussed throughout this thesis played a key role in informing its construction.
+For example, we built CRUXEval because existing benchmarks at the time did not capture
+the natural programming capability of reasoning about code execution. Code execution and reasoning would 
+have been a natural roadmap item then, as it was a simple yet important capability that was difficult for state-of-the-art models at the time. After CRUXEval, we saw in Section~\ref{sec:cruxeval-execution-impact} 
+that the community began to develop new execution-guided techniques, suggesting 
+broader directions that we discuss in our roadmap such as neurosymbolic methods and combining language
+models with program-analysis tools.
 
-Finally, Chapter 4 showed how evaluations can shape the direction of future research and science. In our roadmap paper, we designed this section
-by first examining both the tasks and the challenges in the previous sections. Then, we looked at the literature for techniques addressing each of the
-challenges, and synthesized both these and our own ideas into a collection of paths forward. Many of these techniques are inspired by benchmarks:
-for example, CRUXEval inspired a family of work training using execution feedback. These works inspired a section in our
-paths forward section about augmenting code data with program information: starting with execution, but also including 
-program instrumentation, dynamic analysis, and beyond.
+More broadly, many of the challenges in our roadmap are difficult precisely because they
+are not easily measurable. For measurable challenges like code execution or program repair,
+it is relatively straightforward to design benchmarks that clearly show the gap, making 
+it easier to make progress on the challenge and iterate toward better systems. In contrast, for
+out-of-distribution domains like designing new programming languages or new program logics,
+even defining the right benchmark can be part of the challenge. Overall, while some challenges are
+known gaps that need better solutions, others need to begin with developing a convincing measurement.
 
-Overall, in order to design a roadmap, I believe we must first think critically about where a field is headed: not just in the near-term,
-but rather a longer-term vision about what objectives and metrics will be important a few years out. Then, we need to think about the core 
-challenges today that are preventing us from achieving this vision. Finally, we should reflect on the research trajectory that the field has been
-on, build intuition for what seems promising, and use that to design a set of paths forward. Of course, there is no way to precisely predict
-the future: only time and experimentation will tell which directions prevail at the end. However, roadmaps can guide a community towards a specific 
-set of visions and goals, helping everyone better understand the state of a field. 
+The three lessons in this thesis help bridge benchmarking with roadmap design. 
+First, choosing the right metric determines which missing capabilities become visible to the research community.
+Second, looking beyond the score translates benchmark failures into actionable research directions and 
+challenges.
+Finally, understanding that what we measure shapes what we build reinforces the idea that evaluations and 
+roadmaps are closely intertwined. 
+Overall, benchmarks and analyses reveal where current systems fall short, while roadmaps 
+help decide which gaps matter most and how the field might make progress toward closing them.
