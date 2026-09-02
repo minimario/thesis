@@ -1,0 +1,49 @@
+\section{Grand Challenges (Milestones for the field as a whole)}
+(Each milestone's require multiple tasks)
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|c|c|}
+        \hline
+        & \makecell[c]{\textbf{Code}\\\textbf{Generation}} 
+        & \makecell[c]{\textbf{Code}\\\textbf{Transformation}}
+        & \makecell[c]{\textbf{Code}\\\textbf{Understanding}}
+        & \makecell[c]{\textbf{Code}\\\textbf{Debugging}}
+        & \makecell[c]{\textbf{Scaffolding/}\\\textbf{Meta-Code}}
+        & \makecell[c]{\textbf{Formal}\\\textbf{Verification}} \\
+        \hline
+        \textbf{Tool Use} & \cmark & &  &  &  &  \\
+        \hline
+        \textbf{Human/AI} &  &  &  &  &  &  \\
+        \hline
+        \textbf{Vague Spec} &  &  &  &  &  &  \\
+        \hline
+        \textbf{Planning} &  &  &  &  &  &  \\
+        \hline
+        \textbf{Long Context} &  &  &  &  &  &  \\
+        \hline
+        \textbf{Understanding} &  &  &  &  &  &  \\
+        \hline
+        \textbf{Low-Resource} &  &  &  &  &  &  \\
+        \hline
+        \textbf{API Updates} &  &  &  &  &  &  \\
+        \hline
+        \textbf{OOD Domains} &  &  &  &  &  &  \\
+        \hline
+    \end{tabular}
+    \caption{Matrix of Challenges and Tasks}
+    \label{tab:challenges_tasks}
+\end{table}
+
+
+add a list of "grand challenges" that are more concrete at the end for some of the (task, challenge) pairs. could even have a leaderboard measuring progress towards these grand challenges.
+
+some ideas (abstract. can have concrete instantiations) :
+
+\begin{itemize}
+    \item CG: Given a precise specification and a set of complete tests, create a repository from scratch satisfying the specification. \naman{these specification cover only high-level easy to specify program behavior and systems need to "plan" and implement the entire code}
+    \item CT: Translate an arbitrary repository from one language to another language.
+    \item CD: Given a large repository with a bug, find an input that exercises the bug.
+    \item CD: Given a large repository with a set of tests, introduce a bug (that is reasonably nontrivial) that still makes the code pass the tests.
+    \item FV: Given a large repository and a property about the repository, express the property in formal code and verify that the property is true.
+\end{itemize}

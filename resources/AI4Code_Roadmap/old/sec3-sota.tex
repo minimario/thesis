@@ -1,0 +1,108 @@
+
+
+\section{State of the Field}
+For each of the tasks in Section \ref{sec:tasks-milestones}, we discuss the current progress that AI has made. 
+
+\subsection{Code Generation}
+
+CodeNav \citep{gupta2024codenav}
+
+\subsection{Code Transformation}
+
+\todo{Manish?}
+
+\subsection{Code Understanding}
+
+
+\textbf{Code Summarization and Documentation}: Several works have used LLMs for code summarization invoking techniques like prompting \citep{sun2024source, su2024distilled, haldar2024analyzing, ahmed2024automatic}. RepoAgent \citep{luo2024repoagent} is a framework that analyzes global contextual relationships in source code to generate fine-grained documentation. \citet{shi2024natural} show that LMs are capable of generating good natural language outlines -- text descriptions alongside code to partition it into semantically coherent sections. One challenge is that evaluation of this task is very tricky: the academic community currently lacks datasets and benchmarks containing good documentation, and automatic evaluation metrics do not align well with human metrics \citep{diggs2024leveraging}. 
+
+
+
+\textbf{Human-AI Collaboration}: Finally, there is a line of work  \citep{nam2024using, yan2024ivie}
+
+\textbf{Pull Request (PR) Review}: While there have been a few works studying the ability of AI systems to automatically review PRs \citep{tufano2021towards, tufano2022using, li2022automating, li2024utilizing}, none of leverage the new code understanding abilities of today's modern LLMs.
+
+\textbf{Code Understanding Benchmarks}: Recently, there has been a flurry of benchmarks centered around evaluating code understanding. These include reasoning about postconditions \citep{he2024beyond}, execution outputs \citep{gu2024cruxeval}, program correctness \citep{gu2024counterfeit}, runtime behaviour \citep{chen2024evaluating}, and code coverage \citep{dhulipala2024planning}.
+
+\textbf{Program Invariants}: There has been a long line of work using purely symbolic methods to detect program invariants, with one well-known system being Daikon \citep{ernst2007daikon}. As language models became stronger, neuro-symbolic hybrid approaches were introduced. These include using more structured representations \citep{si2018learning}, LLM-based ranking \citep{chakraborty2023ranking}, prompting techniques \citep{kamath2023finding}, scratchpad-style reasoning \citep{pei2023can}, and RL \citep{yu2023loop}. Recently, \citet{liu2024towards} developed LIG-MM, a new benchmark testing the ability to predict loop variants in memory manipulation programs. 
+
+\subsection{Code Debugging}
+
+\todo{Koushik?}
+
+\textbf{Bug Detection}: 
+
+\textbf{Local Bug Fixing}:
+
+\textbf{Global Bug Fixing}:
+
+
+\subsection{Scaffolding and Meta-Code}
+
+While an essential aspect of software engineering, there are very few large-scale evaluations of \llms{} setting up repository scaffolds and infrastructure beyond source code, which can be challenging for various reasons:
+
+\textbf{Infrastructure-as-code and Security.} A particularly challenging case is generating \textit{Infrastructure-as-code} such as \texttt{Terraform}, where you specify the type of infrastructure specifications (\todo{examples}) as code and execute it to create the infrastructure. When generating such code, LLMs struggle with security configurations due to the complex interplay between service-level permissions (e.g., AWS resource access), resource-level permissions (e.g., specific allowed actions), and provider-specific security primitives like IAM roles, security groups, and network access controls.
+
+\textit{Example. Distinguishing permission levels in cluster setup}: \cite{terrateam2024} show that on a task of bringing up a cluster, models fail to distinguish between ECS (Amazon Elastic Container Service) Task Execution Roles (for container operations) and Task Roles (for application-level permissions). This resulted in overly permissive policies where a single role was granted both image pull permissions and DynamoDB table access, violating principles of least privilege.
+
+\todo{What other challenges here? Anything on test harnesses? examples from Devin blog?}
+
+
+\textbf{Example. Playskript}: \href{https://code.playskript.com/}{Playskript} is a programming system that allows you to create interactive visualizations, presentations and games. AWS Lambda config, AWS virtual network + permissions, email service, google auth, databases, file storage. \todo{Ask Armando to flesh this out more}
+
+% \todo{scaffolding vs meta-code. meta-code is stuff outside of the code that must be done to get software running properly. subscribing to API's, so is not actually code. scaffolding is code, just does not participate in the actual execution like code to help you test things. }
+% \begin{itemize}
+%     \item Tests + test harnesses.
+%     \item Mock-ups.
+%     \item Sandbox databases.
+%     \item configuration management needed to get things into a runnable and executable state, preprocessors, a lot of bundling like makefiles. 
+% \end{itemize}
+
+% \todo{more exasmpels like config management, makefiles, etc.. basically code that helps you test or evaluate your code}
+
+% \subsection{Meta-Code}
+
+% To get a piece of software up and running smoothly, there is often a handful of infrastructural code that must be written so that the software can even be run. We refer to this as \textit{meta-code}. For example, when working with an application that involves cloud deployment, a developer must write many configuration files and configure their subscription to the cloud service.
+
+
+
+% [Alex: I don't actually know what to say here]
+
+% \begin{itemize}
+%     \item "Meta-code": all the stuff you need to get the code to run.
+%     \item Cloud deployment: config files, subscriptions.
+%     \item Playskript: AWS Lambda config, AWS virtual network + permissions, email service, google auth, databases, file storage.
+% \end{itemize}
+
+\subsection{Formal Software Verification}
+
+ As a field, formal software verification has seen a few great successes in the last few years: Astrée \citep{cousot2005astree} was able to completely verify that Airbus A340's primary flight-control software had no run-time errors, verifying 132,000 lines of C code. 
+CompCert \citep{leroy2016compcert} is a formally verified optimizing C compiler that supports most of the ISO C 99 language. More recently, formal methods have been applied to verify a cryptographic server \citep{erbsen2024foundational} and an IoT lightbulb at both a hardware and software level \citep{erbsen2021integration}. At Amazon, formal methods been used to verify and protect cryptographic software \citep{goel2024leanprover}, cloud resources \citep{xu2024cloud}, and authorization \citep{disselkoen2025cedar}. For a survey containing a complete list of applications, we refer the reader to \citet{huang2023lessons}.
+
+As LLMs improve at writing code, a few works have explored using them to write formal verification with some success. Benchmarks like DafnyBench \citep{loughridge2024dafnybench} and miniCodeProps \citep{lohn2024minicodeprops} were designed to measure the ability of LLMs to write software proofs in Dafny and Lean, respectively. In Dafny, \citet{poesia2024dafny} use a combination of search and prompting to create a synthetic dataset of annotations greatly improving performance on DafnyBench. Clover \citep{sun2024clover} generates code alongside consistency checks (like Dafny annotations), \citet{li2025dafny} employ Dafny as an intermediate language to improve code generation, and \citet{misu2024towards} explore prompting and retrieval to generate Dafny. In Rust, Verus is a popular formal verification language, with AutoVerus \citep{yang2024autoverus} and AlphaVerus \citep{aggarwal2024alphaverus} generating verified specifications and proofs for Rust functions. Finally, \citet{silva2024leveraging}, Lean Copilot \citep{song2024towards}, and llmstep \citep{welleck2023llmstep} aim to provide IDE plugins to aid humans in writing code in Dafny and Lean.
+
+% \textbf{Verification for Humans}:
+% \todo{Different types of AI verification: formal, informal, test cases, etc.}
+
+\textbf{Bottlenecks in LLMs for Software Verification}: While LLMs can sometimes verify simple function-level properties, they have not been able to scale beyond that due to a few fundamental challenges. First, languages used in formal verification such as Dafny and Verus are low-resource languages, and LLMs often produce code with incorrect syntax and semantics. Second, writing precise specifications that fully capture all the desired properties in a sound and complete manner can sometimes be difficult. Third, writing proofs can be tricky for LLMs as well. In verification languages, invariants often need to be written in a precise form, because tools like SMT solvers can rely on heuristics that are sensitive to the way that constraints are written.
+
+
+% \begin{lstlisting}[caption={Incorrect Proof in Verus, LLM does not know how to write external spec},label={lst:verus-proof}, captionpos=t, breaklines=true, language=Rust]
+% pub open spec fn ex_saturating_sub_spec(a: int, b: int) -> (ret: nat)
+% {
+%     if (a > b) {
+%         (a - b) as nat
+%     } else {
+%         0
+%     }
+% }
+
+% #[verifier::external_fn_specification]
+% pub fn ex_saturating_sub(a: usize, b: usize) -> (ret: usize)
+% ensures
+%     ex_saturating_sub_spec(a as int, b as int) == ret as int
+% {
+%     a.saturating_sub(b)
+% }
+% \end{lstlisting}
+

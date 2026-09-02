@@ -1,0 +1,278 @@
+\documentclass[10pt,twocolumn]{article}
+
+\usepackage[margin=0.55in,columnsep=0.22in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+\let\olditemize\itemize
+\let\oldenditemize\enditemize
+\renewenvironment{itemize}{\olditemize
+  \setlength{\itemsep}{1pt}
+  \setlength{\parskip}{0pt}
+  \setlength{\parsep}{0pt}
+  \setlength{\topsep}{2pt}
+}{\oldenditemize}
+
+\begin{document}
+\footnotesize
+\twocolumn[
+\begin{center}
+{\Large \textbf{Thesis Talk Outline}}\\
+{\normalsize Evaluating Language Models for Coding, Mathematics, and Reasoning}
+\end{center}
+\vspace{0.5em}
+]
+
+\section*{Core Narrative}
+
+\begin{itemize}
+  \item Main message: evaluations are not just leaderboards. They are lenses for understanding model behavior, and the lenses we choose shape what the field builds next.
+  \item Start from the post-GPT-4 moment: models looked broadly capable, familiar static benchmarks were saturating, and the strongest systems were increasingly closed.
+  \item Explain why evaluation had to become more diagnostic: a useful benchmark should reveal meaningful shortcomings, explain model behavior, and suggest what to build next.
+  \item Thesis arc: choose faithful metrics, analyze the behavior behind the scores, then use those insights to guide future AI software engineering systems.
+\end{itemize}
+
+\section*{Chapter 1: Introduction}
+
+\begin{itemize}
+  \item Open with the historical shift: GPT-3 and Codex were impressive but brittle; ChatGPT and GPT-4 changed the community's expectations.
+  \item Emphasize that the surprising part was not only better scores, but broader apparent capability: coding games, proofs, reasoning demos, and general assistant behavior.
+  \item Introduce the central question: what should evaluation do when frontier systems improve quickly and are difficult to understand from the outside?
+  \item Preview the three lessons:
+  \begin{itemize}
+    \item Lesson 1: focusing on the right metric without bias is crucial.
+    \item Lesson 2: looking beyond the score reveals hidden nuances.
+    \item Lesson 3: what we measure shapes what we build.
+  \end{itemize}
+  \item Transition: Chapters 2--4 each develop one lesson through coding, math, and reasoning case studies.
+\end{itemize}
+
+\section*{Chapter 2: Right Metrics Without Bias}
+
+\textbf{Chapter setup.}
+\begin{itemize}
+  \item Frame as the ``what should we measure?'' chapter.
+  \item Split the chapter into two kinds of work: new metrics for missing capabilities, and controls for confounds that distort existing metrics.
+\end{itemize}
+
+\textbf{CRUXEval: introduce the benchmark.}
+\begin{itemize}
+  \item Motivation: code generation benchmarks such as HumanEval and MBPP tested writing code from specs, but programming also requires reading code, understanding it, and simulating execution.
+  \item Introduce CRUXEval as a benchmark for Code Reasoning, Understanding, and eXecution Evaluation.
+  \item Explain the two tasks:
+  \begin{itemize}
+    \item Output prediction: given a short Python function and input, predict the output.
+    \item Input prediction: given a short Python function and desired output, find an input that produces it.
+  \end{itemize}
+  \item Talking point: the examples are intentionally simple for humans, because the question is whether models have a basic mental model of execution at all.
+\end{itemize}
+
+\textbf{CRUXEval: benchmark construction.}
+\begin{itemize}
+  \item Generate candidate functions and inputs with Code Llama 34B using Python standard-library functions as seeds.
+  \item Execute functions to obtain deterministic input-output pairs.
+  \item Filter aggressively: short programs, no syntax errors, bounded runtime, low arithmetic burden, deterministic behavior, no imports or side effects.
+  \item Select 800 examples after checking that the dataset was large enough to preserve important model comparisons under bootstrap sampling.
+  \item Speaking emphasis: the generate-and-filter recipe made it possible to find simple examples that frontier models still failed.
+\end{itemize}
+
+\textbf{CRUXEval: evaluation.}
+\begin{itemize}
+  \item Evaluate open and closed coding models, including StarCoder, Mistral, WizardCoder, Phi, Phind, Code Llama, DeepSeek Coder, GPT-3.5, and GPT-4.
+  \item Use execution-based correctness for both tasks: generated output must match actual output; generated input must satisfy the assertion.
+  \item Report pass@1 and pass@5 with bootstrap intervals and paired comparisons.
+  \item Key result: GPT-4 was strongest, but still failed many simple examples; the best open models failed over half the time.
+  \item Modern framing: today's models largely saturate the original benchmark, which reinforces that the benchmark named a capability at the right moment.
+\end{itemize}
+
+\textbf{CRUXEval: impact of anonymizing functions.}
+\begin{itemize}
+  \item Motivation: rule out the concern that models were exploiting memorized or semantically suggestive variable names.
+  \item Ablation: replace variable names with anonymous identifiers such as \texttt{x1, x2, ...} while preserving function semantics.
+  \item Evaluation: test Code Llama 7B, 13B, and 34B with the same prompts on the anonymized subset.
+  \item Takeaway: relative performance stayed similar, strengthening the case that the benchmark measured execution reasoning rather than memorization or name cues.
+\end{itemize}
+
+\textbf{SlopCodeBench.}
+\begin{itemize}
+  \item Introduce the motivation: as models moved into longer software workflows, correctness alone no longer captured whether generated code remained maintainable.
+  \item Benchmark setup: study iterative coding trajectories rather than one-shot function generation.
+  \item Metrics: verbosity and structural erosion as proxies for code slop.
+  \item Evaluation: track correctness, cost, and quality over time, then calibrate against human repository histories.
+  \item Takeaway: models can keep making apparent task progress while degrading code structure, which matters for real software engineering.
+\end{itemize}
+
+\textbf{IneqMath.}
+\begin{itemize}
+  \item Introduce the task: solving inequality proof problems.
+  \item Dataset/metric setup: compare final-answer accuracy with step-wise soundness of the reasoning trace.
+  \item Key result: a model can frequently land on the correct final answer while producing invalid proof steps.
+  \item Takeaway: grading only the final answer can support the wrong conclusion about mathematical reasoning ability.
+\end{itemize}
+
+\textbf{Counterfeit Conundrum.}
+\begin{itemize}
+  \item Introduce the problem: evaluating whether code models understand incorrect code.
+  \item Benchmark idea: create or identify ``counterfeit'' programs that are wrong but plausible, avoiding trivial negative examples.
+  \item Evaluation target: correctness checking, execution, and program repair can all look easier when negatives are too obvious.
+  \item Takeaway: negative sample construction is a confound; filtering trivial incorrect samples changes how we interpret model accuracy.
+\end{itemize}
+
+\textbf{LiveCodeBench.}
+\begin{itemize}
+  \item Introduce the problem: static public coding benchmarks are vulnerable to contamination and benchmark overfitting.
+  \item Benchmark construction: collect time-indexed coding tasks and evaluate models according to problem release dates.
+  \item Evaluation: compare performance before and after model data cutoffs; include a broader suite of code-related tasks.
+  \item Takeaway: accounting for time and contamination can substantially change model comparisons.
+\end{itemize}
+
+\textbf{Chapter transition.}
+\begin{itemize}
+  \item Chapter 2 changes the question from ``what score did the model get?'' to ``what did we measure, and what biases might distort it?''
+  \item Chapter 3 asks what model behavior produced the score.
+\end{itemize}
+
+\section*{Chapter 3: Beyond the Score}
+
+\textbf{Chapter setup.}
+\begin{itemize}
+  \item Frame as the diagnosis chapter. Aggregate scores rank systems, but deeper analysis reveals which capabilities transfer, which failures are distinct, and where future methods should intervene.
+\end{itemize}
+
+\textbf{CRUXEval quantitative analysis.}
+\begin{itemize}
+  \item Compare CRUXEval against HumanEval-style code generation.
+  \item Key observation: distilled models improved strongly on HumanEval but not similarly on CRUXEval.
+  \item Interpretation: fine-tuning on natural-language-to-code data can improve code generation without improving underlying execution reasoning.
+  \item Mention the correlation between input and output prediction, and contrast it with the weaker relationship to HumanEval for distilled models.
+\end{itemize}
+
+\textbf{CRUXEval prompting and fine-tuning analysis.}
+\begin{itemize}
+  \item Chain-of-thought: helped GPT-4 more than other models; helped output prediction more reliably than input prediction.
+  \item Fine-tuning: input-output assertion data improved scores, but did not make the task solved.
+  \item Qualitative failures: even GPT-4 made mistakes on short programs, sometimes due to brittle reasoning over variables, order, or execution state.
+  \item Takeaway: the score exposed a gap, but the analyses explained what kinds of code reasoning remained hard.
+\end{itemize}
+
+\textbf{Counterfeit Conundrum analysis.}
+\begin{itemize}
+  \item Ask what kinds of incorrect programs confuse models.
+  \item Analyze whether counterfeits depend on problem difficulty or generator strength.
+  \item Takeaway: subtle incorrectness is not merely a weak-model or hard-problem artifact; it is a general phenomenon in code understanding.
+\end{itemize}
+
+\textbf{LiveCodeBench analysis.}
+\begin{itemize}
+  \item Use the benchmark to examine HumanEval overfitting, post-training effects, and open versus closed model gaps.
+  \item Speaking emphasis: high scores on familiar benchmarks can be ambiguous without time-controlled analysis.
+  \item Takeaway: deeper analysis can distinguish broad capability from adaptation to specific benchmark distributions.
+\end{itemize}
+
+\textbf{LINC.}
+\begin{itemize}
+  \item Introduce the task: natural-language logical reasoning over premises and conclusions.
+  \item Method: translate natural language into first-order logic, then run a symbolic prover.
+  \item Evaluation: compare LINC against chain-of-thought across logical reasoning benchmarks.
+  \item Surface result: LINC often outperformed chain-of-thought.
+  \item Deeper result: LINC and chain-of-thought had distinct failure modes; LINC could fail at formalization while chain-of-thought failed at natural-language deduction.
+  \item Takeaway: method comparisons should examine failure structure, not just final accuracy.
+\end{itemize}
+
+\textbf{Chapter transition.}
+\begin{itemize}
+  \item Chapter 3 turns benchmark results into scientific understanding.
+  \item Chapter 4 asks what happens when these capabilities and failure modes become shared targets for the community.
+\end{itemize}
+
+\section*{Chapter 4: What We Measure Shapes What We Build}
+
+\textbf{Chapter setup.}
+\begin{itemize}
+  \item Frame as the impact chapter. A benchmark need not remain difficult forever; its lasting value can be naming a capability and making it actionable.
+\end{itemize}
+
+\textbf{CRUXEval impact.}
+\begin{itemize}
+  \item Introduce the claim: CRUXEval made execution reasoning visible as a capability beyond generation.
+  \item Benchmark follow-ups: extensions to more languages, runtime state prediction, semantic reasoning, and other code-reasoning tasks.
+  \item Training follow-ups: works used execution traces, input-output prediction, and trace rationales as supervision.
+  \item Model reporting: CRUXEval became a diagnostic benchmark in later code model releases.
+  \item Takeaway: once execution reasoning was measurable, it became something model builders could train for and report on.
+\end{itemize}
+
+\textbf{LiveCodeBench impact.}
+\begin{itemize}
+  \item Introduce the methodological contribution: time-indexed, contamination-aware evaluation.
+  \item Explain why it mattered: coding benchmarks need maintenance, not just one fixed release.
+  \item Takeaway: LiveCodeBench changed how model comparisons should be interpreted in a fast-moving field.
+\end{itemize}
+
+\textbf{LeanDojo.}
+\begin{itemize}
+  \item Introduce the setting: theorem proving with language models in Lean.
+  \item Benchmark/toolkit construction: extract data from Lean, expose premise context, and allow interaction with the Lean environment.
+  \item ReProver: retrieval-augmented tactic generation via premise selection and context augmentation.
+  \item Impact: LeanDojo became infrastructure that enabled future theorem-proving research.
+  \item Takeaway: an evaluation can shape a field by becoming the environment researchers build on.
+\end{itemize}
+
+\textbf{ProofOptimizer.}
+\begin{itemize}
+  \item Introduce the problem: proofs should be correct, but also shorter and more maintainable.
+  \item Method: use the Lean compiler as a verifier while models propose proof transformations.
+  \item Training/evaluation: proof length becomes a measurable optimization target.
+  \item Takeaway: changing the metric changes what systems learn to improve.
+\end{itemize}
+
+\textbf{Chapter transition.}
+\begin{itemize}
+  \item Synthesize the three lessons: choose faithful metrics, analyze behavior behind scores, and recognize that evaluations shape future systems.
+  \item Chapter 5 uses these lessons to articulate what AI software engineering should measure and build next.
+\end{itemize}
+
+\section*{Chapter 5: Future Research and Remaining Challenges}
+
+\textbf{Chapter setup.}
+\begin{itemize}
+  \item Frame Chapter 5 as a synthesis rather than a separate survey.
+  \item The chapter asks what the earlier evaluations imply about the future of AI for software engineering.
+\end{itemize}
+
+\textbf{Tasks in AI software engineering.}
+\begin{itemize}
+  \item Introduce the taxonomy as a guardrail against overgeneralizing from one benchmark.
+  \item Measures: scope, logical complexity, and level of human intervention.
+  \item Example: CRUXEval isolates execution reasoning at function-level scope, but says little about project-level codebase reasoning.
+  \item Use the taxonomy to broaden the space beyond code generation: transformation, testing, analysis, maintenance, scaffolding, and formal verification.
+\end{itemize}
+
+\textbf{Challenges.}
+\begin{itemize}
+  \item Evaluation and benchmarks: continuing Lesson 1, future benchmarks need task diversity, contamination controls, and construct validity.
+  \item Effective tool usage: LeanDojo, ProofOptimizer, and SlopCodeBench all point toward systems that must use feedback, tests, compilers, and tools.
+  \item Long-horizon code planning: SlopCodeBench and ProofOptimizer show that locally correct artifacts can still be poor, verbose, or hard to maintain.
+  \item Semantic understanding: CRUXEval and Counterfeit reveal function-level weaknesses in subtle code understanding; future systems need this at codebase scale.
+  \item High logical complexity and OOD domains: as simple benchmarks saturate, evaluations should continue moving toward capabilities that remain hard.
+\end{itemize}
+
+\textbf{Paths forward.}
+\begin{itemize}
+  \item Data: collect richer code data, including traces, types, call graphs, coverage, and invariants. Connect this naturally to CRUXEval follow-up work on execution traces.
+  \item Training: build executable environments for code RL, echoing the role of Lean feedback in ProofOptimizer but extending it to broader software engineering.
+  \item Adaptation: help models learn from specialized and changing codebases rather than assuming static training data covers every API and convention.
+  \item Inference: use retrieval, code navigation, SWE tools, and neurosymbolic methods to ground model reasoning in executable evidence.
+  \item Synthesis: the next stage of AI for code should be feedback-rich, tool-aware, and evaluated at the level of real software workflows.
+\end{itemize}
+
+\section*{Conclusion}
+
+\begin{itemize}
+  \item Return to the central thesis: a good evaluation reveals a meaningful capability or failure mode, teaches us why it happens, and helps the field decide what to build next.
+  \item Final recap: metrics determine what we can see; deeper analysis determines what we can understand; benchmarks and tools determine what future systems learn to optimize.
+  \item Closing line: as models keep improving, the most useful evaluations will be those that remain scientifically diagnostic rather than merely difficult.
+\end{itemize}
+
+\end{document}
